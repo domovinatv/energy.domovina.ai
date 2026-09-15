@@ -21,11 +21,14 @@ import type {
   Community,
   Contribution,
   GridStatus,
+  Member,
   OwnerType,
   Plant,
   PlantStatus,
   Project,
+  ProjectDocument,
   SafeAccount,
+  TimelineStep,
 } from "./types";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -821,4 +824,299 @@ export function getContributionsForProject(projectSlug: string): readonly Contri
   return CONTRIBUTIONS.filter((c) => c.project_id === id).sort((a, b) =>
     b.created_at.localeCompare(a.created_at),
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fiksni „danas" prototipa
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Sat prototipa stoji, i to je namjerno.
+ *
+ * Tab „Tijek" (K1) prikazuje kašnjenja u danima, a rok projekta odbrojava. Da
+ * se računa iz stvarnog vremena, demo bi trulio: na sajmu 28.10.2026. isti bi
+ * projekt kasnio šest tjedana više nego danas, bez ijedne izmjene podataka.
+ * Isti razlog kao determinističko sjeme — deep-link sa štanda mora pokazati
+ * ono što je pokazivao kad je snimljen (docs/06 §6).
+ *
+ * ⚠️ Vrijedi SAMO za mock. Kad stignu pravi podaci, ovo se briše zajedno s njima.
+ */
+export const DEMO_NOW = "2026-09-15";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dokumenti projekta — tab „Dokumenti", docs/07 §2.3
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * ⚠️ Svaki `url` je `null`, i tako mora ostati dok ne postoji stvaran dokument.
+ * Prototip pokazuje KOJI se dokumenti traže i je li priložen — ne izmišlja
+ * sadržaj. Poveznica na nepostojeći PDF je ista klasa greške kao lažni
+ * „provjeri na Gnosisscanu" link (docs/04 §6, CLAUDE.md pravilo 3).
+ */
+const DOCUMENT_SEED: Readonly<Record<string, readonly ProjectDocument[]>> = {
+  "skolski-krov-sinj": [
+    {
+      key: "site-right",
+      kind: "site_right",
+      label: "Odluka Grada Sinja o davanju krova na korištenje",
+      url: null,
+      issued_at: "2026-06-12",
+    },
+    {
+      key: "quote",
+      kind: "installer_quote",
+      label: "Ponuda instalatera s troškovnikom",
+      url: null,
+      issued_at: "2026-07-30",
+    },
+    {
+      key: "grid",
+      kind: "grid_decision",
+      label: "Zahtjev za elektroenergetsku suglasnost",
+      url: null,
+      issued_at: "2026-08-04",
+    },
+  ],
+  "zajednica-bilogora": [
+    {
+      key: "site-right",
+      kind: "site_right",
+      label: "Ugovor o pravu građenja na gospodarskoj zgradi",
+      url: null,
+      issued_at: "2026-03-18",
+    },
+    {
+      key: "statute",
+      kind: "statute",
+      label: "Statut Energetske zadruge Bilogora",
+      url: null,
+      issued_at: "2026-02-02",
+    },
+    {
+      key: "quote",
+      kind: "installer_quote",
+      label: "Ponuda instalatera s troškovnikom",
+      url: null,
+      issued_at: "2026-04-05",
+    },
+    {
+      key: "grid",
+      kind: "grid_decision",
+      label: "Elektroenergetska suglasnost",
+      url: null,
+      issued_at: "2026-06-21",
+    },
+  ],
+  "vatrogasni-dom-vodice": [
+    {
+      key: "site-right",
+      kind: "site_right",
+      label: "Izvadak iz zemljišne knjige — DVD Vodice kao vlasnik",
+      url: null,
+      issued_at: "2026-08-28",
+    },
+    {
+      key: "quote",
+      kind: "installer_quote",
+      label: "Ponuda instalatera s troškovnikom",
+      url: null,
+      issued_at: "2026-09-01",
+    },
+  ],
+  "zajednica-kvarner": [
+    {
+      key: "site-right",
+      kind: "site_right",
+      label: "Suglasnost suvlasnika zgrade",
+      url: null,
+      issued_at: "2026-05-22",
+    },
+    {
+      key: "statute",
+      kind: "statute",
+      label: "Nacrt statuta — zajednica još nije registrirana",
+      url: null,
+      issued_at: null,
+    },
+    {
+      key: "quote",
+      kind: "installer_quote",
+      label: "Ponuda instalatera s troškovnikom",
+      url: null,
+      issued_at: "2026-07-02",
+    },
+  ],
+};
+
+export function getDocumentsForProject(projectSlug: string): readonly ProjectDocument[] {
+  return DOCUMENT_SEED[projectSlug] ?? [];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tijek (K1) — docs/07 §2.3, docs/13 §K1
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * ⚠️ Bilogora namjerno KASNI.
+ *
+ * Prototip u kojem svaki projekt teče po planu ne pokazuje ono zbog čega ovaj
+ * tab postoji. Ripple je povjerenje izgubio na kašnjenjima i na tome što se o
+ * njima šutjelo (docs/13 §4.2); kad smo mi izvođač, kašnjenje je naše
+ * neispunjenje ugovora (docs/14 §5.2). Korak „montaža" zato ima plan u prošlosti
+ * i prazno ostvarenje — točno stanje koje UI mora znati prikazati.
+ */
+const TIMELINE_SEED: Readonly<Record<string, readonly TimelineStep[]>> = {
+  "skolski-krov-sinj": [
+    { key: "submitted", planned: "2026-08-10", actual: "2026-08-12", note: null },
+    { key: "funded", planned: "2026-12-15", actual: null, note: null },
+    { key: "signed", planned: "2027-01-15", actual: null, note: null },
+    { key: "ordered", planned: "2027-02-01", actual: null, note: null },
+    { key: "mounted", planned: "2027-04-10", actual: null, note: null },
+    {
+      key: "connected",
+      planned: "2027-06-30",
+      actual: null,
+      note: "Rok ovisi o operatoru distribucijskog sustava, ne o izvođaču.",
+    },
+  ],
+  "zajednica-bilogora": [
+    { key: "submitted", planned: "2026-04-01", actual: "2026-04-01", note: null },
+    { key: "funded", planned: "2026-05-31", actual: "2026-04-28", note: null },
+    { key: "signed", planned: "2026-05-10", actual: "2026-05-04", note: null },
+    { key: "ordered", planned: "2026-06-15", actual: "2026-07-18", note: "Isporuka panela pomaknuta za pet tjedana." },
+    {
+      key: "mounted",
+      planned: "2026-08-30",
+      actual: null,
+      note: "Montaža nije dovršena u planiranom roku. Novi procijenjeni rok je listopad 2026.",
+    },
+    { key: "connected", planned: "2026-11-15", actual: null, note: null },
+  ],
+  "vatrogasni-dom-vodice": [
+    { key: "submitted", planned: "2026-08-25", actual: "2026-08-30", note: null },
+    { key: "funded", planned: "2027-03-31", actual: null, note: null },
+    { key: "signed", planned: null, actual: null, note: null },
+    { key: "ordered", planned: null, actual: null, note: null },
+    { key: "mounted", planned: null, actual: null, note: null },
+    {
+      key: "connected",
+      planned: null,
+      actual: null,
+      note: "Zahtjev za priključak još nije predan, pa rok nije moguće postaviti.",
+    },
+  ],
+  "zajednica-kvarner": [
+    { key: "submitted", planned: "2026-07-01", actual: "2026-07-05", note: null },
+    {
+      key: "funded",
+      planned: "2027-06-30",
+      actual: null,
+      note: "Zajednica se paralelno registrira; prikupljanje traje dok registracija ne završi.",
+    },
+    { key: "signed", planned: null, actual: null, note: null },
+    { key: "ordered", planned: null, actual: null, note: null },
+    { key: "mounted", planned: null, actual: null, note: null },
+    { key: "connected", planned: null, actual: null, note: null },
+  ],
+};
+
+export function getTimelineForProject(projectSlug: string): readonly TimelineStep[] {
+  return TIMELINE_SEED[projectSlug] ?? [];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Članovi zajednica — docs/05 §6
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * ⚠️ K7 (docs/13 §6): registar članova vodi ZADRUGA, ne mi. Ovdje stoji koliko
+ * je potrebno da se vidi tko potpisuje i koliki je čiji udio u proizvedenoj
+ * energiji — ne evidencija članstva umjesto zadruge.
+ *
+ * `person_ref` je nadimak ili naziv, nikad OIB ni e-pošta (docs/05 §8).
+ */
+interface SeedMember {
+  readonly community: string;
+  readonly person: string;
+  readonly role: Member["role"];
+  readonly shareBp: number;
+  readonly joined: string;
+}
+
+const MEMBER_SEED: readonly SeedMember[] = [
+  { community: "bilogora", person: "Obitelj Horvat", role: "signer", shareBp: 530, joined: "2026-04-11" },
+  { community: "bilogora", person: "Društveni dom Bilogora", role: "board", shareBp: 132, joined: "2026-04-16" },
+  { community: "bilogora", person: "Ana K.", role: "member", shareBp: 50, joined: "2026-04-21" },
+  { community: "bilogora", person: "Anonimni član", role: "member", shareBp: 232, joined: "2026-04-13" },
+  { community: "kvarner", person: "Obitelj Šupraha", role: "signer", shareBp: 773, joined: "2026-07-14" },
+  { community: "kvarner", person: "Petar B.", role: "member", shareBp: 193, joined: "2026-08-01" },
+  { community: "kvarner", person: "Anonimni član", role: "member", shareBp: 387, joined: "2026-07-19" },
+];
+
+export const MEMBERS: readonly Member[] = MEMBER_SEED.map((m, i) => ({
+  id: demoId("member", `${m.community}:${i}`),
+  community_id: demoId("community", m.community),
+  person_ref: m.person,
+  role: m.role,
+  share_basis_points: m.shareBp,
+  joined_at: m.joined,
+}));
+
+export function getMembersForCommunity(communitySlug: string): readonly Member[] {
+  const id = demoId("community", communitySlug);
+  return MEMBERS.filter((m) => m.community_id === id);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Veze zajednica ↔ projekt
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Zajednica → slugovi njezinih projekata.
+ *
+ * Stoji kao zasebna tablica, a ne kao polje na `Project`, jer docs/05 §3 takvo
+ * polje nema. Kad ga dobije, ovo se briše i veza ide kroz `project.community_id`
+ * — do tada bi izmišljeno polje u ugovoru bilo skuplje od jedne mape ovdje.
+ *
+ * „Zajednica Sinjsko polje" namjerno nema projekt: `idea` je normalno stanje
+ * (docs/05 §6) i ekran ga mora znati prikazati kao takvo, ne kao prazninu.
+ */
+const COMMUNITY_PROJECT_SLUGS: Readonly<Record<string, readonly string[]>> = {
+  bilogora: ["zajednica-bilogora"],
+  kvarner: ["zajednica-kvarner"],
+  "sinjsko-polje": [],
+};
+
+export function getProjectsForCommunity(communitySlug: string): readonly Project[] {
+  const slugs = COMMUNITY_PROJECT_SLUGS[communitySlug] ?? [];
+  return slugs.flatMap((slug) => {
+    const project = getProjectBySlug(slug);
+    return project === undefined ? [] : [project];
+  });
+}
+
+/** Elektrane u vlasništvu zajednice — izvedene iz njezinih projekata. */
+export function getPlantsForCommunity(communitySlug: string): readonly Plant[] {
+  const ids = new Set(getProjectsForCommunity(communitySlug).map((p) => p.plant_id));
+  return PLANTS.filter((p) => ids.has(p.id));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dohvat projekata
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Elektrana koju projekt financira. */
+export function getPlantForProject(project: Project): Plant | undefined {
+  return PLANTS.find((p) => p.id === project.plant_id);
+}
+
+/**
+ * Projekti koji primaju doprinose.
+ *
+ * ⚠️ K4 (docs/13 §K4): ovaj popis SMIJE biti prazan i ekran to mora podnijeti.
+ * ZEZ zatvara pozive između projekata i nema gdje poslati zainteresirane —
+ * zato lista čekanja stoji trajno, a ne samo kad je prazno (docs/07 §2.1).
+ */
+export function openProjects(): readonly Project[] {
+  return PROJECTS.filter((p) => p.state === "active");
 }

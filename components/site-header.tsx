@@ -32,6 +32,18 @@ export function SiteHeader() {
           >
             {t("nav.registry")}
           </Link>
+          <Link
+            href="/zajednice/"
+            className="text-sm text-inkSoft transition-colors hover:text-forest"
+          >
+            {t("nav.communities")}
+          </Link>
+          <Link
+            href="/novi-projekt/"
+            className="hidden text-sm text-inkSoft transition-colors hover:text-forest sm:inline"
+          >
+            {t("nav.newProject")}
+          </Link>
           <LanguageSwitcher />
         </nav>
       </div>

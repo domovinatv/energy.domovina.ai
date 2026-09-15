@@ -28,6 +28,7 @@ import {
 } from "@/lib/filters";
 import { replaceSearch, searchStore } from "@/lib/url-state";
 import { HR_COUNTIES } from "@/lib/types";
+import { OpenProjects } from "./open-projects";
 import { PlantCard } from "./plant-card";
 import { RegistryFilters } from "./registry-filters";
 import { RegistryStatsBar } from "./registry-stats";
@@ -157,6 +158,16 @@ export function Registry() {
           </>
         )}
       </section>
+
+      {/*
+        Marketplace ulaz + trajna lista čekanja (K4, docs/07 §2.1). Stoji ISPOD
+        registra namjerno: registar ima vrijednost i bez ijednog projekta i
+        ostaje isporuka ako sve ostalo padne (docs/11 §Rizici, K8).
+
+        ⚠️ Ne dira `filtered` — projekti nisu podskup filtriranih elektrana i ne
+        smiju se vezati na filtre registra.
+      */}
+      <OpenProjects />
 
       <p className="mt-10 text-xs text-inkMuted">
         <Link href="/" className="underline underline-offset-2 hover:text-forest">

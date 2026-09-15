@@ -199,6 +199,88 @@ export interface Project {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// project_document — tab „Dokumenti", docs/07 §2.3
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * ➕ docs/07 §2.3 — dokumenti projekta. U docs/05 nema ovog entiteta, ali tab
+ * ga traži poimence: dokaz prava na lokaciju, statut (kod zajednice), ponuda
+ * instalatera.
+ *
+ * ⚠️ `url: null` znači da dokument NIJE priložen, i UI to mora reći tim
+ * riječima. Prototip nema nijedan stvaran dokument, pa je `null` normalno
+ * stanje — lažna poveznica na nepostojeći PDF je ista klasa greške kao lažni
+ * „provjeri na Gnosisscanu" link (docs/04 §6).
+ */
+export type DocumentKind =
+  | "site_right"
+  | "statute"
+  | "installer_quote"
+  | "grid_decision"
+  | "other";
+
+export const DOCUMENT_KINDS: readonly DocumentKind[] = [
+  "site_right",
+  "statute",
+  "installer_quote",
+  "grid_decision",
+  "other",
+] as const;
+
+export interface ProjectDocument {
+  readonly key: string;
+  readonly kind: DocumentKind;
+  /** Naziv iz izvora, ne prevodi se — dokument se tako zove. */
+  readonly label: string;
+  /** null ⇒ nije priložen. NIKAD placeholder poveznica. */
+  readonly url: string | null;
+  readonly issued_at: string | null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// timeline — tab „Tijek" (K1), docs/07 §2.3
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * ➕ docs/13 §K1 — vremenska crta od uplate do prve kWh.
+ *
+ * ⚠️ Ovo NIJE UX finesa nego higijena usklađenosti (docs/14 §5.2): kad smo mi
+ * izvođač, kašnjenje je naše neispunjenje ugovora, a dokumentirani rokovi i
+ * njihove izmjene su ono što se gleda u sporu. Ripple je povjerenje izgubio na
+ * kašnjenjima i lošoj komunikaciji (docs/13 §4.2).
+ *
+ * Zato korak nosi I plan I ostvarenje. Da nosi samo ostvarenje, kašnjenje se ne
+ * bi vidjelo — a cijela je poanta da se vidi.
+ */
+export type TimelineStepKey =
+  | "submitted"
+  | "funded"
+  | "signed"
+  | "ordered"
+  | "mounted"
+  | "connected";
+
+/** Redoslijed je fiksan i vrijedi za svaki projekt (docs/07 §2.3). */
+export const TIMELINE_STEPS: readonly TimelineStepKey[] = [
+  "submitted",
+  "funded",
+  "signed",
+  "ordered",
+  "mounted",
+  "connected",
+] as const;
+
+export interface TimelineStep {
+  readonly key: TimelineStepKey;
+  /** Planirani datum. null ⇒ plan još nije postavljen. */
+  readonly planned: string | null;
+  /** Ostvareni datum. null ⇒ nije se dogodilo. */
+  readonly actual: string | null;
+  /** Objašnjenje pomaka. Stoji na stranici, ne u mailu (K1). */
+  readonly note: string | null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // safe_account — račun projekta, docs/05 §4
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -232,9 +314,15 @@ export interface SafeAccount {
  * Tamo `platform_signer_count` mora biti 0, što ovaj uvjet propušta, ali se
  * provjerava zasebno.
  *
+ * Prima samo prag i broj naših potpisnika, ne cijeli `SafeAccount`, da ista
+ * provjera radi i na POSTOJEĆEM računu i na onome koji se tek slaže u čarobnjaku
+ * (docs/07 §2.7 korak 6). Dvije kopije pravila raziđu se tiho.
+ *
  * @returns true ako konfiguracija krši invarijantu — tada se projekt ne sprema.
  */
-export function violatesConflictInvariant(safe: SafeAccount): boolean {
+export function violatesConflictInvariant(
+  safe: Pick<SafeAccount, "threshold" | "platform_signer_count">,
+): boolean {
   return safe.platform_signer_count * 2 > safe.threshold;
 }
 
