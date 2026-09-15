@@ -26,6 +26,8 @@ erDiagram
   COMMUNITY ||--o{ PLANT : "posjeduje"
   CONTRIBUTION }o--|| CONTRIBUTOR : "od"
   HOLDER ||--o{ PLANT : "prijavio"
+  PROJECT ||--o{ PROJECT_DOCUMENT : "prilaže"
+  PROJECT ||--o{ TIMELINE_STEP : "napreduje kroz"
 
   PLANT {
     uuid id PK
@@ -60,7 +62,24 @@ erDiagram
     text tx_hash
     timestamptz created_at
   }
+  PROJECT_DOCUMENT {
+    text key
+    text kind
+    text label
+    text url
+    date issued_at
+  }
+  TIMELINE_STEP {
+    text key
+    date planned
+    date actual
+    text note
+  }
 ```
+
+`PROJECT_DOCUMENT` i `TIMELINE_STEP` dodani su u Fazi 1c — opisani su u §10 i §11,
+na kraju dokumenta, da se ne razbiju brojevi odjeljaka koje citiraju komentari u
+kodu.
 
 ---
 
@@ -318,3 +337,96 @@ Konvencija iz `zef-novcanik-prototip` (SSOT `src/lib/mock.ts`) i
   stvarne, uz svaku ide izvor ([00](./00-indeks.md) pravilo 7).
 - Safe adrese su **deterministički generirane iz slug-a**, oblika `0x` + 40 hex —
   da UI vježba pravi format, ali da nitko ne pošalje novac na njih.
+
+---
+
+## 10. `project_document` — dokumenti projekta (Faza 1c)
+
+Dodano **15.9.2026.** pri izvedbi Faze 1c. Entitet ne postoji u
+`DB-MIGRATION.sql`; traži ga tab **Dokumenti** iz [07](./07-produkt-app.md) §2.3,
+koji poimence nabraja dokaz prava na lokaciju, statut (kod zajednice) i ponudu
+instalatera.
+
+Numeriran kao §10, a ne umetnut iza §6, **namjerno**: brojevi odjeljaka ovog
+dokumenta citiraju se iz komentara u kodu (`docs/05 §7`, `§8`), pa bi umetanje u
+sredinu razbilo reference koje nitko ne bi provjerio.
+
+| Polje | Tip | Napomena |
+|---|---|---|
+| `key` | text | stabilan ključ unutar projekta |
+| `kind` | enum | `site_right \| statute \| installer_quote \| grid_decision \| other` |
+| `label` | text | naziv iz izvora; **ne prevodi se** — dokument se tako zove |
+| `url` | text? | **null ⇒ nije priložen** |
+| `issued_at` | date? | null kad dokument još nema datum (npr. nacrt statuta) |
+
+⚠️ **`url = null` je normalno stanje, i UI to mora reći tim riječima.** U
+prototipu nijedan dokument ne postoji, pa je `null` pravilo, a ne iznimka.
+Poveznica na nepostojeći PDF je **ista klasa greške** kao lažni „provjeri na
+Gnosisscanu" link ([04](./04-financijska-arhitektura.md) §6): jedina stvar koja bi
+na sajmu djelovala kao prijevara umjesto kao maketa.
+
+Invarijante (čuvaju ih testovi u `lib/__tests__/marketplace.test.ts`):
+
+- svaki javni projekt navodi dokument vrste `site_right` — zahtjev
+  [E6](./03-pravni-okvir.md) traži dokaz prava na lokaciju kao uvjet za objavu;
+- projekt modela `community` dodatno navodi `statute` — statut je pravni temelj
+  članstva, ne dodatak;
+- u prototipu **nijedan** `url` nije postavljen.
+
+---
+
+## 11. `timeline_step` — tijek projekta, K1 (Faza 1c)
+
+Dodano **15.9.2026.** Traži ga tab **Tijek** iz [07](./07-produkt-app.md) §2.3,
+odnosno izmjena **K1** iz [13](./13-konkurencija.md): vremenska crta od uplate do
+prve kWh, na kojoj se **pomaci i kašnjenja vide**, a ne šalju mailom.
+
+| Polje | Tip | Napomena |
+|---|---|---|
+| `key` | enum | `submitted \| funded \| signed \| ordered \| mounted \| connected` |
+| `planned` | date? | planirani datum; null ⇒ rok još nije postavljen |
+| `actual` | date? | ostvareni datum; null ⇒ nije se dogodilo |
+| `note` | text? | objašnjenje pomaka — stoji na stranici, ne u mailu |
+
+Redoslijed koraka je **fiksan** i jednak za svaki projekt.
+
+### 11.1 Zašto korak nosi i plan i ostvarenje
+
+Da nosi samo ostvarenje, kašnjenje se ne bi vidjelo — a cijela je poanta da se
+vidi. Da nosi samo plan, mogao bi se **prepisati** pa bi projekt uvijek izgledao
+kao da je na vremenu. Razlika između dva polja je jedini zapis koji se ne može
+tiho ukloniti.
+
+⚠️ Ovo **nije UX finesa nego higijena usklađenosti**
+([14](./14-poslovni-model.md) §5.2): kad smo mi izvođač, kašnjenje je **naše
+neispunjenje ugovora**, a dokumentirani rokovi i njihove izmjene su ono što se
+gleda u sporu. Ripple je povjerenje izgubio na kašnjenjima i na tome što se o
+njima šutjelo ([13](./13-konkurencija.md) §4.2).
+
+### 11.2 Izvedena stanja
+
+Računa ih `lib/project.ts` (`timelineStepView`), iz koraka i zadanog „danas":
+
+| Stanje | Uvjet |
+|---|---|
+| `done` | `actual` postoji; pomak = `actual − planned` |
+| `late` | nema `actual`, a `planned` je u prošlosti |
+| `pending` | nema `actual`, `planned` je u budućnosti |
+| `unscheduled` | nema ni `actual` ni `planned` |
+
+⚠️ **`unscheduled` nije `pending`.** Projekt koji nije postavio rok ne smije
+izgledati kao projekt koji ga ispunjava.
+
+### 11.3 Fiksni „danas" u prototipu
+
+`DEMO_NOW` u `lib/mock.ts` je **fiksan datum**, ne `new Date()`. Da se kašnjenje
+računa iz stvarnog vremena, demo bi trulio: na sajmu 28.10.2026. isti bi projekt
+kasnio šest tjedana više nego na dan izrade, **bez ijedne izmjene podataka**.
+Isti razlog iz kojeg je generiranje mocka determinističko — deep-link sa štanda
+mora pokazati ono što je pokazivao kad je snimljen
+([06](./06-produkt-landing.md) §6). Briše se zajedno s mockom.
+
+⚠️ U mocku **jedan projekt namjerno kasni** (Bilogora). Prototip u kojem sve teče
+po planu ne pokazuje stanje zbog kojeg tab postoji; test čuva da barem jedan
+projekt kasni i da **svaki** zakašnjeli korak nosi objašnjenje — kašnjenje koje je
+samo obojano je ista šutnja, samo u boji.
