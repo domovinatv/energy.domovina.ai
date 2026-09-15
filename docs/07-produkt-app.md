@@ -52,6 +52,11 @@ Najvažniji ekran. Radi bez prijave i bez ijednog projekta.
 ⚠️ Karta i popis moraju gledati **isti** filtrirani skup. Najčešća greška u ovom
 obrascu je da filtar mijenja popis, a ne kartu.
 
+**K4 — trajna lista čekanja.** Kad nijedan projekt nije otvoren, ekran ne smije biti
+slijepa ulica: „javi mi kad krene sljedeći projekt" mora postojati uvijek. ZEZ
+zatvara pozive između projekata i nema gdje poslati zainteresirane
+([13](./13-konkurencija.md) §2.2).
+
 ### 2.2 `/elektrana/:slug` — detalj elektrane
 
 Postojeći `energy/app/elektrana/page.tsx` je polazište; proširiti s `grid_status`.
@@ -74,6 +79,7 @@ Središnji ekran marketplacea. Struktura tabova posuđena iz
 | **Račun** | Safe adresa, prag M-od-N, popis potpisnika, poveznica na explorer, **oznaka demo** |
 | **Knjiga doprinosa** | javni zid: iznos, ime/anonimno, poruka, vrijeme, tx |
 | **Dokumenti** | dokaz prava na lokaciju, statut (kod zajednice), ponuda instalatera |
+| **Tijek** | **K1** — vremenska crta od uplate do prve kWh: predano, prikupljeno, potpisano, naručeno, montirano, priključeno. Pomaci i **kašnjenja se vide**, ne šalju mailom |
 
 **Trajno vidljivo, ne u fusnoti:** model financiranja i rečenica „Ne nudimo prinos
 ni udio u dobiti" ([03](./03-pravni-okvir.md) §3).

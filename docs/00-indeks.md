@@ -25,6 +25,7 @@ Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.** ([11
 | 10 | [reuse-mapa](./10-reuse-mapa.md) | Točno što se kopira iz kojeg repoa i pod kojim uvjetima | novi izvorni repo |
 | 11 | [plan-izvedbe](./11-plan-izvedbe.md) | Faze do GEF-a i nakon; što je blokirano na eksterno | svaki sprint |
 | 12 | [ime-i-domena](./12-ime-i-domena.md) | Prijedlozi imena s provjerom domena; kriteriji | odluka o imenu |
+| 13 | [konkurencija](./13-konkurencija.md) | **Pet klasa konkurencije**, dvije ugašene platforme i njihove pouke, K1–K8 izmjene | novi igrač ili nalaz |
 
 ---
 

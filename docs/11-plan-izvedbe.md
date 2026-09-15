@@ -43,6 +43,8 @@ svakom ekranu.
 - [ ] knjiga doprinosa
 - [ ] tijek doprinosa do ekrana potvrde (simuliran)
 - [ ] `/zajednice` + `/zajednica/:slug` s trakom registracije
+- [ ] **tab „Tijek"** na projektu (K1) — vremenska crta uplata → prva kWh
+- [ ] **trajna lista čekanja** (K4) kad nijedan projekt nije otvoren
 - [ ] `/novi-projekt` čarobnjak — redoslijed po [03](./03-pravni-okvir.md) §8
 
 ### 1d · Landing (tjedan 3–4)
@@ -53,10 +55,11 @@ svakom ekranu.
 - [ ] kalkulator usporedbe, označen ilustrativnim
 - [ ] footer s ITalk impresumom
 
-### 1e · Uglačavanje i štand (tjedan 5) — **nastupamo kao izlagač**
+### 1e · Uglačavanje i štand (tjedan 5) — **gradimo za štand, idemo vjerojatno kao posjetitelj**
 
-Potvrđeno 15.9.2026. Prototip je izlog, ne podrška razgovoru
-([06](./06-produkt-landing.md) §6).
+Opseg je namjerno postavljen na izlagački standard iako je nastup vjerojatno
+posjetiteljski ([06](./06-produkt-landing.md) §6). Veći opseg se lako smanjuje.
+Stavke ispod su **poželjne, ne uvjet** — uvjet je kriterij dovršenosti na dnu.
 
 - [ ] lint na zabranjene riječi ([06](./06-produkt-landing.md) §4.6)
 - [ ] provjera kontrasta, posebno jantar
@@ -122,8 +125,10 @@ Ne može se riješiti u ovom repou. Vlasnik = tko to mora pokrenuti.
 | B7 | `Domovina.createAccount` (SDK 0.10) u walletu | `pay.domovina.ai` | pravi Safe po projektu |
 | B8 | Licenca podataka HROTE/HERA/HEP-ODS | upit institucijama | seed registra |
 | B9 | Pravni tekst uvjeta/privatnosti | pravnik | javni launch |
-| B10 | **Prijava štanda i plaćanje kotizacije za GEF** | Matija | **prvo po hitnosti** — nastup je potvrđen kao izlagač, prijava nije |
+| B10 | **Registracija za GEF** (ulaz besplatan uz registraciju; štand samo ako se predomisliš) | Matija | pristup sajmu |
 | B11 | Aktualni FZOEU natječaj i uvjeti | istraživanje | točnost kalkulatora |
+| B12 | **Kontakt sa ZEZ-om / ZEZ Suncem** — dokazali su potražnju (140.000 € u 10 dana), alat im je Google obrazac. Idealan pilot i recenzent | Matija | **prije GEF-a**, ne poslije ([13](./13-konkurencija.md) §2.2) |
+| B13 | **Ručna provjera Registra OIEKPP** u pregledniku — što stvarno pokriva | bilo tko | pozicioniranje karte ([13](./13-konkurencija.md) §9.1) |
 
 ---
 
@@ -136,8 +141,10 @@ Ne može se riješiti u ovom repou. Vlasnik = tko to mora pokrenuti.
 | Prototip izgleda kao da uzima prave uplate | srednja | oznaka demo u dizajnu, ne naknadno ([09](./09-dizajn-sustav.md) §6.4) |
 | Pravno mišljenje sruši model B | niska–srednja | model A radi bez ijednog otvorenog pitanja |
 | WiFi u Areni | **visoka** | statički build + service worker; demo mora raditi bez mreže |
-| Štand traži više poliranja nego što stane u 5 tjedana | **visoka** | kriterij „gotovo" (dolje) je namjerno uzak; sve iznad toga je bonus |
+| Izlagački opseg pojede pet tjedana | srednja | nastup je posjetiteljski — kriterij dovršenosti (dolje) je namjerno uzak; 1e je bonus |
 | Wallet `createAccount` ne stigne | srednja | feature-detect, legacy derivacija kao fallback |
+| **Netko kaže „država to već ima" (OIEKPP)** | **visoka** | B13 prije nastupa; ne tvrditi da smo prvi, diferencirati se opsegom i upotrebljivošću ([13](./13-konkurencija.md) §9.1) |
+| Bez provizije nemamo od čega živjeti | srednja | trošak po projektu ~0 je uvjet, ne štednja ([04](./04-financijska-arhitektura.md) §4.2) |
 
 ---
 

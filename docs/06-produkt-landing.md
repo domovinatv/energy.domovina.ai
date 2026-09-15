@@ -20,11 +20,11 @@ Uzor tona i dijagrama: `mpt-landing` (jedan machine → dijagram + simulacija + 
 | 4 | **Kako radi** | interaktivni dijagram toka novca: banka → EURe → Safe zajednice → instalater → banka | [04](./04-financijska-arhitektura.md) §2 |
 | 5 | **Zašto 0 %** | poštena tablica tko što plaća; kalkulator usporedbe, označen kao ilustrativan | [04](./04-financijska-arhitektura.md) §4 |
 | 6 | **Modeli** | doprinos vs. energetska zajednica; **eksplicitno što ne radimo** | [03](./03-pravni-okvir.md) §2, §3 |
-| 7 | **Provjereno** | Certilia eID, Safe na Gnosisu, javna knjiga, non-custody | [04](./04-financijska-arhitektura.md) §5 |
+| 7 | **Provjereno** | Certilia eID, Safe na Gnosisu, javna knjiga, non-custody + **Ripple Energy kao dokaz da imovina preživi platformu** (K5) | [04](./04-financijska-arhitektura.md) §5, [13](./13-konkurencija.md) §4.1 |
 | 8 | **Za koga** | četiri segmenta s vlastitim CTA-om | [01](./01-vizija-i-pozicioniranje.md) §3 |
 | 9 | **Otvoreni kod** | MIT repoi + bijela etiketa / konzalting | [04](./04-financijska-arhitektura.md) §4.1 |
 | 10 | **Roadmap** | Isporučeno / U tijeku / Slijedi — **bez prošlih datuma** | [11](./11-plan-izvedbe.md) |
-| 11 | **Pilot / kontakt** | forma: tko si, imaš li krov, imaš li zajednicu | — |
+| 11 | **Pilot / kontakt** | forma: tko si, imaš li krov, imaš li zajednicu. **Trajna lista čekanja** neovisna o otvorenom pozivu (K4) | [13](./13-konkurencija.md) §7 |
 | 12 | **Footer** | ITalk impresum doslovno + obitelj proizvoda + pravne napomene | [03](./03-pravni-okvir.md) §7 |
 
 ---
@@ -122,9 +122,15 @@ Iz `zef-novcanik-prototip/CLAUDE.md`:
 
 ---
 
-## 6. Nastup na GEF-u — izlagač sa štandom
+## 6. Nastup na GEF-u — gradimo za štand, vjerojatno idemo kao posjetitelj
 
-Potvrđeno 15.9.2026. Podiže standard: prototip nije podrška razgovoru nego **izlog**.
+Odluka 15.9.2026.: **opseg se postavlja na izlagački standard namjerno**, iako je
+stvarni nastup vjerojatno posjetiteljski (razgovori s drugim izlagačima, provjera
+reakcije na model). Veći opseg se lako smanjuje; obrnuto ne ide.
+
+Dakle: gradi po tablici dolje, ali kriterij dovršenosti
+([11](./11-plan-izvedbe.md)) ostaje uzak i posjetiteljski — ako nešto od ovoga
+padne, nastup nije ugrožen.
 
 | Zahtjev | Zašto |
 |---|---|

@@ -127,6 +127,12 @@ Zadnji redak je najvažniji i najlakše ga je dokazati: Safe je standardni ugovo
 Gnosis Chainu, članovi su vlasnici, platforma je samo sučelje. To je ista tvrdnja
 koju mpt.hr već dokumentira za rail.
 
+**I nije više samo argument iz principa.** UK platforma **Ripple Energy** otišla je
+2025. u stečajnu upravu, a njezine vjetro i solarne zadruge — Graig Fatha s 900+
+članova, Kirk Hill s 5.603 člana — **nastavile su raditi**, jer imovina nikad nije
+bila Rippleova nego zadružna ([13](./13-konkurencija.md) §4.1). To je dokaz na
+stvarnom slučaju i treba ga citirati poimence.
+
 ---
 
 ## 6. Zašto baš sada
@@ -142,6 +148,10 @@ koju mpt.hr već dokumentira za rail.
 5. **Rail je gotov.** MPT, Safe, EURe, Certilia, wallet i karta već rade u produkciji
    za druge vertikale ([10](./10-reuse-mapa.md)). Ne gradimo infrastrukturu — spajamo
    je na nov use-case.
+6. **Potražnja je dokazana, alat nije.** ZEZ Sunce prikupio je **140.000 € u desetak
+   dana** od 127 članova — kroz **Google obrazac**
+   ([13](./13-konkurencija.md) §2). Ne treba nam hipoteza da ljudi žele sudjelovati;
+   treba nam alat koji to čini podnošljivim.
 
 ---
 

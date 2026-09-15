@@ -5,15 +5,16 @@ Hrvatskoj**. Registar svih FN elektrana + marketplace projekata na Safe multisig
 railu, bez provizije.
 
 **Stanje: Faza 0 — baza znanja, koda još nema.**
-Fiksni rok: **Green Energy Fair, Arena Zagreb, 28.–29.10.2026. — izlagač sa štandom.**
+Fiksni rok: **Green Energy Fair, Arena Zagreb, 28.–29.10.2026.**
 
 ### Potvrđene odluke (15.9.2026.)
 
 - **Pozicioniranje: energetske zajednice**, ne „crowdfunding za solar". Hero nosi
   „tri zajednice u cijeloj Hrvatskoj, radimo četvrtu". Riječ *crowdfunding* se
   **ne koristi** u heroju ni u navigaciji (`docs/01` §1.1).
-- **Nastup: izlagač sa štandom** → offline build, layout za TV, kiosk povratak,
-  deep-linkovi (`docs/06` §6).
+- **Nastup: vjerojatno posjetitelj**, ali opseg gradimo na izlagački standard
+  (offline build, layout za TV, kiosk povratak, deep-linkovi — `docs/06` §6).
+  Veći opseg se lako smanjuje; obrnuto ne ide.
 - **Ime: otvoreno**, preporuka *Prisoje* (`docs/12`). Do odluke ne hardkodiraj ime
   u copy — koristi konstantu.
 
@@ -25,7 +26,15 @@ Fiksni rok: **Green Energy Fair, Arena Zagreb, 28.–29.10.2026. — izlagač sa
 Indeks: [`docs/00-indeks.md`](./docs/00-indeks.md).
 
 Prije rada pročitaj **00 (indeks), 01 (vizija) i 03 (pravni okvir)** + dokument
-relevantan za task. Za brojke uvijek **02**, za tok novca uvijek **04**.
+relevantan za task. Za brojke uvijek **02**, za tok novca uvijek **04**, za
+konkurenciju i njezine pouke **13**.
+
+⚠️ Tri nalaza iz `docs/13` koja mijenjaju pretpostavke:
+**(a)** model već radi u HR — ZEZ Sunce, 140.000 € u 10 dana, alat im je Google
+obrazac (partner, ne konkurent). **(b)** Ripple Energy propao, a njegove zadruge
+rade dalje — dokaz non-custody teze, citirati poimence. **(c)** Sun Exchange propao
+na trošku administriranja 10.000 suvlasnika — bez provizije naš trošak po članu
+mora biti ~0.
 
 ---
 

@@ -272,7 +272,14 @@ pravnog dokumenta, ali za energetiku.
 6. Može li **JLS** biti nositelj projekta financiranog doprinosima građana bez
    posebnog proračunskog postupka?
 7. Pod kojim uvjetima smijemo **objaviti registar postojećih elektrana** iz javnih
-   izvora (HROTE/HERA/HEP-ODS) — licenca podataka i GDPR za elektrane fizičkih osoba.
+   izvora (HROTE/HERA/HEP-ODS/**OIEKPP**) — licenca podataka i GDPR za elektrane
+   fizičkih osoba.
+8. **NAJHITNIJE — samoizdavanje vs posredovanje.** ZEZ Sunce javno nudi članovima
+   „prinos do 5 % godišnje" kao zadruga koja prikuplja **za sebe**. Gdje je granica
+   na kojoj platforma prestaje biti tehnički alat te zadruge i postaje **pružatelj
+   usluga skupnog financiranja** po ECSPR-u — broj nositelja, naplata, tko oglašava,
+   tko sklapa ugovor s članom? O tome ovisi smijemo li uopće prikazati tuđu brojku
+   od 5 % na stranici njihovog projekta. Razrada: [13](./13-konkurencija.md) §2.1, §8.
 
 ---
 

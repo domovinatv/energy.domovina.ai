@@ -142,6 +142,7 @@ vlastitim entitetom, jer energetski projekt nosi polja koja kampanja nema.
 | `site_right` | enum | `owner \| co_owner_consent \| building_right \| lease` — dokaz prava na lokaciju ([E6](./03-pravni-okvir.md)) |
 | `site_right_doc_url` | text? | |
 | `surplus_intent` | text? | izjava o namjeni viška ([E5](./03-pravni-okvir.md)) |
+| `max_coowners` | int? | gornja granica suvlasnika (K2) — trošak administracije po članu je ono što je ubilo Sun Exchange ([13](./13-konkurencija.md) §5.1) |
 | `demo` | bool | |
 
 ### 3.1 `state` — životni ciklus projekta

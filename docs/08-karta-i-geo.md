@@ -79,6 +79,7 @@ razinu naselja**, bez adrese ([05](./05-podatkovni-model.md) §8). Krov je dom.
 
 | Izvor | Faza | Status |
 |---|---|---|
+| **Registar OIEKPP** (Ministarstvo) | — | ⚠️ **već postoji, s interaktivnom kartom** — `oie-aplikacije.mzoe.hr/InteraktivnaKarta/`. **Provjeriti ručno u pregledniku što pokriva prije bilo kakve tvrdnje** ([13](./13-konkurencija.md) §9) |
 | **Samoupis** (`/prijava-elektrane`) | 1 | radi — RPC postoji |
 | **Mock seed** za prototip | 1 | plauzibilne elektrane, `demo: true` |
 | **HROTE / HERA / HEP-ODS** | 2 | ⚠️ **otvoreno** — ne zna se smijemo li ([02](./02-trziste-hrvatska.md) §6.1, [03](./03-pravni-okvir.md) §9.7) |
@@ -123,7 +124,13 @@ ne dio ovog repoa.
 
 ## 7. Otvoreno
 
-- [ ] Licenca podataka HROTE/HERA/HEP-ODS ([03](./03-pravni-okvir.md) §9.7)
+- [ ] ⚠️ **Prije lansiranja: provjeriti Registar OIEKPP u pregledniku.** Hrvatska već
+      ima službeni registar OIE s interaktivnom kartom. Naša karta se **ne smije**
+      pozicionirati kao „prva" ni „jedina" — diferencijacija mora biti stvarna
+      (opseg, upotrebljivost, klikabilnost projekta, status priključka).
+      „Ovo ne postoji" je najlakše oboriva rečenica na sajmu
+      ([13](./13-konkurencija.md) §9.1).
+- [ ] Licenca podataka HROTE/HERA/HEP-ODS/OIEKPP ([03](./03-pravni-okvir.md) §9.7)
 - [ ] Clustering prag i vizualni jezik klastera
 - [ ] Bazne pločice: OpenFreeMap (besplatno, bez ključa) vs vlastiti pmtiles
 - [ ] Prikaz **mrežnog uskog grla** po županijama — nitko to ne agregira, a bio bi

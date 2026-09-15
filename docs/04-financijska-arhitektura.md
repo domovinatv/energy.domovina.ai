@@ -157,6 +157,25 @@ Pošteno pitanje koje će netko postaviti na GEF-u. Odgovori koji ne ruše model
 Ono što **ne** smije biti odgovor: postotak od prikupljenog. Time pada i tvrdnja i
 dio pravnog pozicioniranja.
 
+### 4.2 Egzistencijalno ograničenje koje iz toga slijedi
+
+Dvije referentne platforme za suvlasništvo — **Ripple Energy** i **Sun Exchange** —
+ugašene su, a **obje su imale prihodovni model**. Sun Exchange je propao doslovno na
+trošku administriranja ~10.000 suvlasnika: prihod projekata pokrivao je vlastite
+troškove projekata, ali ne i trošak upravljanja vlasnicima
+([13](./13-konkurencija.md) §5.1).
+
+Budući da mi provizije **nemamo po dizajnu**, jedini način da preživimo je da
+**operativni trošak po projektu i po članu bude blizu nule**. To nije štednja nego
+uvjet postojanja, i ima tri posljedice:
+
+1. maksimalno posuđivanje iz obitelji repoa ([10](./10-reuse-mapa.md)), statički
+   export, bez vlastite infrastrukture koja se održava;
+2. **ne vodimo registar članova umjesto zadruge** — mi prikazujemo, zadruga vodi
+   (K7 u [13](./13-konkurencija.md) §7);
+3. svaka značajka koja traži **ljudski rad po projektu** je egzistencijalni trošak i
+   mora se odbiti ili automatizirati.
+
 ---
 
 ## 5. Identitet i ovlast
