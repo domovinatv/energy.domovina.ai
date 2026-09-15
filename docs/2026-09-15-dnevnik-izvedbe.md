@@ -523,7 +523,48 @@ odmah iza problema, s poveznicom na puni registar. Deep-linkovi iz §9 sele se n
 `/karta/?zupanija=…` i `/karta/?e=…`; povratne poveznice sa svake podstranice
 ažurirane su u istom prolazu.
 
-### 10.6 Peta invarijanta koju `docs/06` nije tražio
+### 10.6 Graf machinea — i gdje se dva moda razilaze
+
+⚠️ Ovo **nije** isti dijagram kao [04](./04-financijska-arhitektura.md) §2. Ondje su
+slojevi sustava; ovdje su čvorovi koji drže saldo, jer invarijanta očuvanja mora
+imati gdje stajati. Razlika koju treba zapamtiti je **obilaznica u Modu 2**.
+
+```mermaid
+flowchart LR
+  BANKA["Banka uplatitelja"]
+  MON["Monerium<br/>EMI / MiCA EMT"]
+  RAIL["Naše šine<br/>mpt:0x&lt;addr&gt;?sid=&lt;id&gt;"]
+  SAFE["Račun projekta<br/>Safe M-od-N"]
+  IZV["Izvođač"]
+  BIZV["Banka izvođača"]
+  EL(["Elektrana<br/>ishod, NEMA saldo"])
+
+  BANKA -->|"SEPA nalog"| MON
+  MON -->|"Mod 1: izdavanje EURe"| RAIL
+  RAIL -->|"prosljeđivanje"| SAFE
+  MON -.->|"MOD 2: ravno na klijentov Safe"| SAFE
+  SAFE -->|"isplata po situaciji<br/>traži M potpisa"| IZV
+  IZV -->|"zahtjev za isplatu"| MON
+  MON -->|"SEPA natrag"| BIZV
+  IZV -.->|"primopredaja"| EL
+
+  classDef ishod fill:#F5EFE6,stroke:#DBD5CE,color:#6B6B6B
+  class EL ishod
+```
+
+**Tri stvari koje se iz koda ne vide odmah:**
+
+1. **Točkasta veza `MON -.-> SAFE` je cijela tvrdnja Moda 2.** Novac preskače čvor
+   `RAIL`, koji smo mi. Test traži da `rail` ondje ima saldo **nula u svakom
+   koraku** — i, obrnuto, da ga u Modu 1 ima. Bez drugog dijela prvi ne znači ništa.
+2. **`EL` nije novčani čvor.** Mora biti na slici jer je razlog zbog kojeg se sve
+   događa, ali da drži saldo, invarijanta očuvanja bi se „zatvarala" tako što novac
+   nestane u elektranu. Zato `kind: "outcome"` i test da mu saldo ostane nula.
+3. **`MON` se pojavljuje dvaput u putanji** (ulaz i izlaz), pa se krug doista
+   zatvara u banci — novac je ušao iz banke i izašao u banku, a između je cijelo
+   vrijeme bio euro.
+
+### 10.7 Peta invarijanta koju `docs/06` nije tražio
 
 `docs/06` §2 imenuje četiri: 0 € platformi, zbroj salda konstantan, saldo nikad
 negativan, iz Safea se ne izlazi bez M potpisa. Sve četiri su u testovima.
@@ -539,7 +580,7 @@ uplatitelj nama plaća nulu u svakom koraku, ali **svojoj banci ne**. „0 €" 
 bi to prešutjelo bilo bi ista klasa greške kao „0 %" bez napomene da smo izvođač
 ([14](./14-poslovni-model.md) §3.1).
 
-### 10.7 Manje odluke
+### 10.8 Manje odluke
 
 - **Elektrana je čvor `outcome`, ne `account`.** Mora biti na slici, ali ne smije
   imati saldo — inače bi se invarijanta očuvanja „zatvarala" tako što novac
