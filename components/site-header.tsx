@@ -27,10 +27,18 @@ export function SiteHeader() {
 
         <nav aria-label={t("nav.menu")} className="flex items-center gap-4 sm:gap-6">
           <Link
-            href="/"
+            href="/karta/"
             className="text-sm text-inkSoft transition-colors hover:text-forest"
           >
             {t("nav.registry")}
+          </Link>
+          {/* Dijagram toka novca je sekcija landinga, ne zaseban ekran
+              (docs/06 §1, sekcija 4) — poveznica vodi na sidro. */}
+          <Link
+            href="/#kako-radi"
+            className="hidden text-sm text-inkSoft transition-colors hover:text-forest sm:inline"
+          >
+            {t("nav.how")}
           </Link>
           <Link
             href="/zajednice/"

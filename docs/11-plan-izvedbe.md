@@ -65,13 +65,23 @@ svakom ekranu.
 - [x] validacija opisa na zabranjene riječi (E3) dijeli popis s lintom
       (`lib/forbidden-words.ts`) — dvije kopije pravila raziđu se tiho
 
-### 1d · Landing (tjedan 3–4) — **sljedeće**
+### 1d · Landing (tjedan 3–4) ✅ **15.9.2026.**
 
-- [ ] 12 sekcija ([06](./06-produkt-landing.md) §1)
-- [ ] `lib/energy-machine.ts` + React Flow/Mermaid dijagram + 3 scenarija
-- [ ] testovi invarijanti (vitest)
-- [ ] kalkulator usporedbe, označen ilustrativnim
-- [ ] footer s ITalk impresumom
+- [x] 12 sekcija ([06](./06-produkt-landing.md) §1) — jedanaest na `/`, dvanaesta
+      je podnožje iz `app/layout.tsx`; svaka nosi `id`, pa su deep-linkovi
+      (`/#kako-radi`) posljedica strukture, ne dodatan posao
+- [x] **`/` je sada landing, registar je na `/karta/`.** Posjetitelj koji skenira
+      QR mora prvo dobiti odgovor „što je ovo i zašto je zakonito" (kriterij
+      dovršenosti br. 3). Isječak karte stoji kao treća sekcija landinga, pa
+      registar nije potisnut — filtri i dalje žive u URL-u, samo pod `/karta/?…`
+- [x] `lib/energy-machine.ts` + React Flow (≥1024px) / Mermaid (<1024px) + **4
+      scenarija**: tri tražene priče + „Što pravila odbijaju"
+- [x] testovi invarijanti (vitest) — četiri iz [06](./06-produkt-landing.md) §2 +
+      **peta**: u Modu 2 novac ne prolazi kroz nas, pa čvor `rail` ondje nema
+      saldo ni u jednom koraku
+- [x] kalkulator usporedbe, označen ilustrativnim uz sam rezultat
+- [x] footer s ITalk impresumom — **već je postojao** (`components/site-footer.tsx`,
+      Faza 1a); provjeren, ne prepisan
 
 ### 1e · Uglačavanje i štand (tjedan 5) — **gradimo za štand, idemo vjerojatno kao posjetitelj**
 
@@ -83,7 +93,9 @@ Stavke ispod su **poželjne, ne uvjet** — uvjet je kriterij dovršenosti na dn
       1a**, jer je kontrola usklađenosti jeftinija dok je copyja malo
       (`scripts/check-copy.ts`, dio `npm run verify`)
 - [ ] provjera kontrasta, posebno jantar
-- [ ] mobile prolaz na pravom uređaju
+- [ ] mobile prolaz na pravom uređaju — landing je **izmjeren na 414 px** (bez
+      vodoravnog scrolla, Mermaid grana, React Flow se ne učitava), ali u
+      `iframeu`, ne na uređaju ([dnevnik](./2026-09-15-dnevnik-izvedbe.md) §10.3)
 - [ ] **layout za 1080p TV u portretu** — štand, ne samo laptop
 - [x] deep-linkovi za demo na štandu — **povučeno u 1b**: filtri su u URL-u, pa su
       deep-linkovi posljedica izbora da URL bude izvor istine, a ne dodatan posao

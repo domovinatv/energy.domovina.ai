@@ -1,12 +1,17 @@
-import { Registry } from "@/components/registry";
+import { Landing } from "@/components/landing";
 
 /**
- * `/` — karta i registar. Najvažniji ekran (docs/07 §2.1).
+ * `/` — landing (docs/06).
  *
- * Radi bez prijave i bez ijednog projekta. To je jedini dio koji ima vrijednost
- * s nula korisnika (docs/01 §4.1) i, ako sve ostalo padne, i dalje je isporuka
- * (docs/11 §Rizici).
+ * Cilj je uzak i mjerljiv: posjetitelj s GEF-a u 90 sekundi razumije što je
+ * ovo, zašto je zakonito i zašto nema provizije — pa ostavi kontakt ili ode na
+ * kartu (docs/11 §Kriterij „gotovo za GEF" br. 3 i br. 5).
+ *
+ * ⚠️ Registar je preseljen na `/karta/`, ali NIJE potisnut: živi isječak karte
+ * je treća sekcija landinga, odmah iza problema. Registar je jedini dio koji
+ * ima vrijednost bez ijednog projekta (docs/01 §4.1) i ostaje isporuka ako sve
+ * ostalo padne (docs/11 §Rizici).
  */
 export default function HomePage() {
-  return <Registry />;
+  return <Landing />;
 }

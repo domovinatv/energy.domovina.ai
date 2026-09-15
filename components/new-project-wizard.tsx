@@ -224,7 +224,7 @@ export function NewProjectWizard() {
           <p className="mt-2 text-sm leading-relaxed text-inkSoft">{t("wizard.submittedHint")}</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href="/"
+              href="/karta/"
               className="rounded-sm bg-forest px-4 py-2 text-sm font-medium text-cream hover:bg-forest-700"
             >
               {t("project.back")}

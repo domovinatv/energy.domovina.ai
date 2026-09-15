@@ -12,6 +12,10 @@ Uzor tona i dijagrama: `mpt-landing` (jedan machine → dijagram + simulacija + 
 
 ## 1. Sekcije, redom
 
+**Ruta: landing je na `/`, registar na `/karta/`** (odlučeno u 1d). `docs/07` §2.1
+i `docs/08` §2 pisani su prije landinga i još govore o `/` kao karti — vrijedi
+ovaj redak. Razlog i posljedice: [dnevnik izvedbe](./2026-09-15-dnevnik-izvedbe.md) §10.5.
+
 | # | Sekcija | Nosi | Izvor istine |
 |---|---|---|---|
 | 1 | **Hero** | „Zakon to dopušta od 2021. Postoje tri takve zajednice. Radimo četvrtu." + CTA „Pogledaj kartu" / „Pokreni projekt" | [01](./01-vizija-i-pozicioniranje.md) §1.1 |
@@ -43,6 +47,13 @@ Najvrednija sekcija, i ona koja se najlakše pokvari. Obrazac je dokazan na mpt.
   - iz Safea se ne može izaći bez M potpisa.
 - ⚠️ Naučeno na mpt.hr: **ne modeliraj tok iz sjećanja.** Izvor je
   `pay.domovina.ai` + `mpt-machine.ts`.
+- **PETA invarijanta, dodana u 1d:** u Modu 2 novac **ne prolazi kroz nas**
+  ([14](./14-poslovni-model.md) §1). Čvor `rail` u tim scenarijima nema saldo ni
+  u jednom koraku, a u Modu 1 ga mora imati — inače usporedba ne znači ništa.
+- ⚠️ **„0 € platformi" nije „0 € ukupno".** Uplatitelj svojoj banci plaća naknadu
+  za nalog kao i inače. Machine to vodi zasebno (`platformFeeCents` /
+  `ownBankFeeCents`) i UI oboje prikazuje; prešutjeti drugo bilo bi ista greška
+  kao „0 %" bez napomene da smo izvođač ([14](./14-poslovni-model.md) §3.1).
 
 Scenariji za simulaciju (minimalno tri):
 
@@ -120,6 +131,13 @@ Iz `zef-novcanik-prototip/CLAUDE.md`:
   mermaid mjeri širinu čvorova fallback fontom i tekst se odsiječe.
 - **Ne stavljati `zoom` na `html`** — lomi mermaidov `getBoundingClientRect`.
 
+Naučeno u **1d** (dnevnik §10.2, §10.4):
+- ⚠️ **Mermaid `classDef` ne podnosi `rgba()`** — zarez ondje razdvaja svojstva,
+  parser pukne i **cijeli dijagram tiho ostane prazan**, bez greške u konzoli.
+  Svaka boja koja ide u Mermaid mora biti heks (`lib/diagram-colors.ts`).
+- **React Flow:** vodoravan tok traži `sourcePosition: Right` /
+  `targetPosition: Left`. Zadano je gore/dolje i strelice cik-cakaju kroz čvorove.
+
 ---
 
 ## 6. Nastup na GEF-u — gradimo za štand, vjerojatno idemo kao posjetitelj
@@ -149,4 +167,11 @@ padne, nastup nije ugrožen.
 - [ ] Pravni tekst uvjeta i privatnosti — **pravnik**, ne mi.
 - [x] ~~Ime i domena~~ — **odlučeno**: `domovina.energy`, live na `energy.domovina.ai`
       ([12](./12-ime-domena-okruzenja.md)).
-- [ ] `robots.txt` + `noindex` — closed beta ne smije u tražilice.
+- [x] ~~`robots.txt` + `noindex`~~ — **isporučeno u 1b**
+      ([12](./12-ime-domena-okruzenja.md) §6).
+- [x] ~~Dijagram, kalkulator i 12 sekcija~~ — **isporučeno u 1d**
+      ([11](./11-plan-izvedbe.md)).
+- [ ] **Kontrast jantara na `solar-soft`** — i dalje nije mjeren
+      ([09](./09-dizajn-sustav.md) §2 ga imenuje kao poznatu zamku).
+- [ ] **Mobilni na pravom uređaju** — 414 px je izmjeren u `iframeu`, ne na
+      telefonu (dnevnik §10.3).

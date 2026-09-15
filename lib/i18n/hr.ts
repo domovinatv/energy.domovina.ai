@@ -579,6 +579,235 @@ export const hr = {
     "Nijedan podatak nije poslan. U pravoj verziji projekt ide u stanje „u pregledu“ i objavljuje se tek nakon provjere nositelja i prava na lokaciju.",
   "wizard.startOver": "Počni ispočetka",
 
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // LANDING — Faza 1d (docs/06 §1). Dvanaest sekcija; dvanaesta je podnožje.
+  //
+  // ⚠️ Nijedna brojka nije ovdje (docs/06 §4.4) — sve dolazi iz `lib/facts.ts`
+  // i `lib/fees.ts` i ubacuje se kroz `{varijablu}`.
+  // ⚠️ Riječ „crowdfunding" se NE koristi u heroju (docs/01 §1.1).
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // 1 · Hero
+  "landing.hero.eyebrow": "Energetske zajednice u Hrvatskoj",
+  "landing.hero.title":
+    "Zakon to dopušta od 2021. U Hrvatskoj postoje {communities} takve zajednice. Radimo četvrtu — lakšom od prve tri.",
+  "landing.hero.lede":
+    "Tko ima krov, kapital i strpljenje, ima elektranu. Tko živi u stanu ili nema dvanaest tisuća eura — nema. To je struktura, ne neinformiranost, i mijenja se zajedničkim vlasništvom.",
+  "landing.hero.ctaMap": "Pogledaj kartu",
+  "landing.hero.ctaProject": "Pokreni projekt",
+  "landing.hero.disclaimer":
+    "Za to bi trebalo odobrenje HANFA-e po Uredbi (EU) 2020/1503, i mi ga nemamo. Nudimo ono što zakon dopušta od 2021., a gotovo nitko ne koristi: da zajedno posjedujete elektranu i koristite struju koju proizvodi.",
+
+  // 2 · Problem
+  "landing.problem.eyebrow": "Problem",
+  "landing.problem.title": "Solar u Hrvatskoj je pojedinačan sport",
+  "landing.problem.lead":
+    "Nije da ljudi ne znaju za sunce. Znaju, i grade. Ali grade svatko za sebe, jer je sve ostalo preskupo i predugo.",
+  "landing.problem.plantsLabel": "elektrana na mreži",
+  "landing.problem.plantsNote":
+    "Oko {mw} MW ukupno. Znanje i volja postoje — nedostaje način da se ljudi udruže.",
+  "landing.problem.communitiesLabel": "energetske zajednice",
+  "landing.problem.communitiesNote":
+    "Zajednica obnovljive energije ima {zoe}, pet godina nakon zakona koji ih uvodi.",
+  "landing.problem.costLabel": "za osnivanje zajednice",
+  "landing.problem.costNote":
+    "Donja granica. Toliko stoji doći do papira, prije nego što se postavi ijedan panel.",
+  "landing.problem.monthsValue": "{months}+ mj.",
+  "landing.problem.monthsLabel": "koliko to traje",
+  "landing.problem.monthsNote":
+    "Prva zajednica koja stvarno dijeli struju je {place}. Jedna, u cijeloj zemlji.",
+  "landing.problem.demandProof":
+    "Potražnja je dokazana, alat nije. Zelena energetska zadruga prikupila je {amount} u desetak dana ({days}), od {members} ljudi — a alat za prijavu bio je obrazac u tablici. Njima ovo nije konkurencija nego alat koji im je nedostajao.",
+
+  // 3 · Karta
+  "landing.map.eyebrow": "Registar",
+  "landing.map.title": "Karta elektrana, otvorena i bez prijave",
+  "landing.map.lead":
+    "Registar radi bez ijednog projekta i bez ijednog korisnika. Elektrana smije postojati na karti i kad nitko ništa ne prikuplja — to je i razlog zašto je registar napravljen prvi.",
+  "landing.map.cta": "Otvori cijeli registar",
+
+  // 4 · Kako radi
+  "landing.flow.eyebrow": "Kako radi",
+  "landing.flow.title": "Gdje je novac u svakom trenutku",
+  "landing.flow.lead":
+    "Bez blagajnika kojem se mora vjerovati. Novac ulazi iz banke, stoji na računu s više potpisa, izlazi izvođaču po napretku gradnje i završava opet u banci. Odaberi scenarij i prođi ga korak po korak.",
+
+  // 5 · Zašto 0 %
+  "landing.fees.eyebrow": "Naknade",
+  "landing.fees.title": "Ne uzimamo postotak od prikupljenog",
+  "landing.fees.lead":
+    "To ne znači da je svaki korak besplatan za svakoga. Tablica ispod kaže tko što plaća, uključujući ono što uplatitelj plati svojoj banci i ono na čemu zarađujemo mi.",
+
+  // 6 · Modeli
+  "landing.models.eyebrow": "Modeli",
+  "landing.models.title": "Dva modela koja radimo i dva koja ne",
+  "landing.models.lead":
+    "Razlika među njima nije stilska nego licencna. Zato ovdje piše i ono što ne radimo — ako to ne kažemo mi, kaže netko drugi, i to pred publikom koja zna.",
+  "landing.models.donationTitle": "Financiraš tuđi krov",
+  "landing.models.donationWho":
+    "Za škole, vatrogasne domove, udruge i mjesne odbore. Nositelj je ustanova, uplatitelj je darovatelj, elektrana ostaje ustanovi.",
+  "landing.models.communityTitle": "Postaješ suvlasnik",
+  "landing.models.communityWho":
+    "Za susjedstva, zgrade i zadruge. Nositelj je energetska zajednica, uplatitelj postaje član s glasom, a struja se dijeli među članovima.",
+  "landing.models.boundary":
+    "Granica je jednostavna: čim ono što uplatitelj drži nosi očekivanje financijske koristi ili prenosivost s tržišnom cijenom, treba odobrenje HANFA-e po Uredbi (EU) 2020/1503. Nemamo ga, pa ni ne gradimo proizvod koji ga traži. Ista dva modela stoje onemogućena i u čarobnjaku za novi projekt — to je provjera pri upisu, ne napomena.",
+
+  // 7 · Provjereno
+  "landing.proof.eyebrow": "Provjereno",
+  "landing.proof.title": "Što se može provjeriti bez da nam vjeruješ",
+  "landing.proof.lead":
+    "Tvrdnja koja se ne može provjeriti nije tvrdnja nego reklama. Ovo su četiri stvari koje se provjeravaju izvan ove stranice.",
+  "landing.proof.eid.title": "Identitet nositelja",
+  "landing.proof.eid.body":
+    "Nositelj projekta potvrđuje identitet državnim eID-om. Oznaku provjerenog računa poslužitelj, ne obrazac — nitko je ne može sam sebi upisati.",
+  "landing.proof.safe.title": "Račun s više potpisa",
+  "landing.proof.safe.body":
+    "Iz računa projekta ne izlazi ništa bez M od N potpisa. Prag mora odgovarati statutu nositelja, a naš potpis nikad ne čini većinu praga.",
+  "landing.proof.ledger.title": "Javna knjiga",
+  "landing.proof.ledger.body":
+    "Saldo i svaka isplata vide se javno, bez prijave i bez dozvole. Tko je koliko dao stoji zapisano s vremenskom oznakom.",
+  "landing.proof.exit.title": "Izlaz u nekoliko klikova",
+  "landing.proof.exit.body":
+    "Projekt se prebacuje na vlastiti bankovni račun, vlastiti račun s potpisima i izvođača po izboru. Tada novac ne prolazi kroz nas uopće.",
+  "landing.proof.prototypeNote":
+    "U zatvorenoj beti eID i račun projekta su simulirani, a adrese su izvedene iz naziva projekta. Ovo opisuje kako je sustav složen, ne što je danas spojeno.",
+  "landing.proof.rippleTitle": "Platforma propadne, imovina ostane",
+  "landing.proof.rippleBody":
+    "Ripple Energy je otišao u stečajnu upravu, a zadruge koje je pokrenuo rade dalje — jedna od njih ima {members} članova. Elektrane nikad nisu bile Rippleove, nego njihove. To je dokaz teze na stvarnom slučaju, a ne naše obećanje.",
+  "landing.proof.sunexTitle": "Zašto trošak po članu mora biti blizu nule",
+  "landing.proof.sunexBody":
+    "Sun Exchange je propao na trošku administriranja oko {owners} suvlasnika. Bez postotka od prikupljenog, svaka značajka koja traži ljudski rad po članu je trošak koji se ne vraća — pa se odbija ili automatizira.",
+
+  // 8 · Za koga
+  "landing.audience.eyebrow": "Za koga",
+  "landing.audience.title": "Četiri situacije iz kojih se ovamo dolazi",
+  "landing.audience.lead":
+    "Svaka ima svoj prvi korak. Nijedan ne traži prijavu da bi se vidjelo o čemu je riječ.",
+  "audience.community.title": "Zajednica u nastajanju",
+  "audience.community.pain":
+    "Dvadeset ljudi želi elektranu, a nitko ne želi držati zajednički novac.",
+  "audience.community.offer":
+    "Račun s više potpisa, javna knjiga uloga i predložak koraka do registrirane zajednice.",
+  "audience.community.cta": "Pogledaj zajednice",
+  "audience.holder.title": "Nositelj projekta",
+  "audience.holder.pain":
+    "Imaš projekt i legitimitet, ali nemaš alat za prikupljanje ni za izvještavanje.",
+  "audience.holder.offer":
+    "Stranica projekta, razrada troška stavku po stavku i javni tijek s rokovima koji se ne prepisuju.",
+  "audience.holder.cta": "Pokreni projekt",
+  "audience.contributor.title": "Doprinositelj",
+  "audience.contributor.pain":
+    "Želiš sudjelovati s dvjesto eura, a ne s dvanaest tisuća.",
+  "audience.contributor.offer":
+    "Ulaz od malog iznosa, javan dokaz doprinosa i vidljivost gdje je novac u svakom trenutku.",
+  "audience.contributor.cta": "Projekti koji traže suradnju",
+  "audience.owner.title": "Vlasnik elektrane",
+  "audience.owner.pain":
+    "Tvoja elektrana nije nigdje vidljiva i nema referentne točke za usporedbu.",
+  "audience.owner.offer":
+    "Besplatan upis u javni registar i mjesto na karti, bez ikakve kampanje i bez obveze.",
+  "audience.owner.cta": "Otvori registar",
+
+  // 9 · Otvoreni kod
+  "landing.open.eyebrow": "Otvoreni kod",
+  "landing.open.title": "Softver koji te ne drži",
+  "landing.open.lead":
+    "Ako je izlaz stvaran, mora postojati i kad mi nestanemo. Zato je plan isti kao u ostatku obitelji proizvoda: kod otvoren, implementacija plaćena.",
+  "landing.open.codeTitle": "Kod pod MIT licencom",
+  "landing.open.codeBody":
+    "Zadruga, općina ili druga platforma smije uzeti isti softver, pokrenuti ga na svojoj adresi i raditi bez nas. Za to se ne traži dozvola ni naknada.",
+  "landing.open.codePending":
+    "Repozitorij još nije javan, pa ovdje namjerno nema poveznice — poveznica u prazno gora je od nijedne.",
+  "landing.open.labelTitle": "Bijela etiketa i uvođenje",
+  "landing.open.labelBody":
+    "Naplaćujemo postavljanje, prilagodbu i održavanje, a ne pristup. Tko to hoće sam, ima kod; tko hoće da mu se postavi, ima račun.",
+
+  // 10 · Plan
+  "landing.roadmap.eyebrow": "Plan",
+  "landing.roadmap.title": "Gdje smo i što slijedi",
+  "landing.roadmap.lead":
+    "Poredano po fazama, ne po kvartalima. Faza koja nije gotova ostaje na svom mjestu, umjesto da se tiho pomakne.",
+  "landing.roadmap.done": "Isporučeno",
+  "landing.roadmap.done1": "Temelj: tokeni dizajna, dvojezični katalog, provjere pri svakoj izmjeni.",
+  "landing.roadmap.done2": "Registar: karta cijele zemlje, filtri u adresi, stranica svake elektrane.",
+  "landing.roadmap.done3": "Marketplace: stranica projekta, tijek doprinosa, zajednice i lista čekanja.",
+  "landing.roadmap.done4": "Čarobnjak za novi projekt s provjerom opisa pri upisu.",
+  "landing.roadmap.now": "U tijeku",
+  "landing.roadmap.now1": "Ova stranica: dvanaest sekcija, od problema do kontakta.",
+  "landing.roadmap.now2": "Dijagram toka novca sa scenarijima i testovima koji ga čuvaju.",
+  "landing.roadmap.now3": "Usporedba naknada, označena kao ilustrativna.",
+  "landing.roadmap.now4": "Mjerenje kontrasta i prolaz na pravom mobilnom uređaju.",
+  "landing.roadmap.next": "Slijedi",
+  "landing.roadmap.next1": "Rad bez mreže — prikaz na sajmu ne smije ovisiti o WiFi-ju.",
+  "landing.roadmap.next2": "Prikaz na velikom ekranu, ne samo na mobitelu i laptopu.",
+  "landing.roadmap.next3": "Živi podaci: pravi račun projekta, pravi eID, pravi nalozi.",
+  "landing.roadmap.next4": "Sloj sunčanih elektrana na zajedničkoj karti Hrvatske.",
+  "landing.roadmap.note":
+    "Zajam, vlasnički udio i prenosivi udio nisu u planu nego iza uvjeta: traže odobrenje kojeg nemamo. Dok ga nema, ne stoje ni kao „uskoro“.",
+
+  // 11 · Kontakt
+  "landing.contact.eyebrow": "Kontakt",
+  "landing.contact.title": "Javi se ako imaš krov, zajednicu ili pitanje",
+  "landing.contact.lead":
+    "Lista čekanja stoji i kad je projekt otvoren i kad nije. Razdoblje između dva projekta je normalno stanje, a ne kvar — i nije razlog da se nekoga pošalje u prazno.",
+
+  // ── Tok novca: sučelje oko dijagrama (lib/energy-machine.ts nosi tekst toka)
+  "flow.totalLabel": "Ukupno u primjeru",
+  "flow.peopleLabel": "Ljudi",
+  "flow.thresholdLabel": "Potpisa za isplatu",
+  "flow.threshold": "{m} od {n}",
+  "flow.ourKeysLabel": "Naših ključeva",
+  "flow.ourKeys": "{count}",
+  "flow.ourKeysNone": "nijedan",
+  "flow.prev": "Natrag",
+  "flow.next": "Dalje",
+  "flow.restart": "Ispočetka",
+  "flow.stepOf": "Korak {index} od {total}",
+  "flow.noMoney": "Ne miče novac",
+  "flow.signatures": "Potpisa: {given}, traži se {required}",
+  "flow.diagramFailed":
+    "Dijagram se nije uspio nacrtati. Koraci ispod prikazuju isti tok i točni su bez obzira na sliku.",
+  "flow.invariantTitle": "Uplatitelj je nama platio {amount}.",
+  "flow.invariantBody":
+    "Toliko u svakom koraku i u svakom scenariju — to nije obećanje nego pravilo koje testovi ruše čim se pokvari. Svojoj banci platio je {bankFee} za naloge, kao i za svaki drugi nalog. Mi zarađujemo kao izvođač, na izgradnji, a cijena izvedbe stoji javno u razradi troška svakog projekta.",
+
+  // ── Tablica „tko što plaća" (docs/04 §4)
+  "fees.tableCaption": "Tko plaća koji korak i koliko",
+  "fees.colStep": "Korak",
+  "fees.colWhoPays": "Tko plaća",
+  "fees.colHowMuch": "Koliko",
+  "fees.rowSepa": "Nalog iz banke",
+  "fees.rowMint": "Zamjena eura u elektronički novac i natrag",
+  "fees.rowChain": "Transakcija na lancu",
+  "fees.rowContribution": "Doprinos projektu",
+  "fees.rowPayout": "Isplata izvođaču",
+  "fees.rowPlatform": "Platforma",
+  "fees.paysContributorBank": "uplatitelj, svojoj banci",
+  "fees.paysNobody": "nitko",
+  "fees.paysUs": "mi",
+  "fees.aboutCent": "oko 0,01 €",
+  "fees.notFreeTitle": "Nula posto nije isto što i besplatno.",
+  "fees.notFreeBody":
+    "Ne uzimamo postotak od prikupljenog novca. Zarađujemo kao izvođač — na izgradnji elektrane — i cijena izvedbe je javna u razradi troška svakog projekta, stavku po stavku, prije nego itko išta uplati.",
+
+  // ── Kalkulator usporedbe (ilustrativan, docs/06 §4.5)
+  "calc.title": "Koliko stigne do projekta",
+  "calc.lead":
+    "Upiši koliko vas je i koliko svatko daje. Usporedba je s tipičnom platformom za skupno financiranje, ne s imenovanim proizvodom.",
+  "calc.peopleLabel": "Koliko ljudi",
+  "calc.amountLabel": "Koliko svatko daje (€)",
+  "calc.total": "{people} ljudi × {each} = {total}",
+  "calc.classicTitle": "Kroz tipičnu platformu",
+  "calc.classicCut": "naknada platforme {pct}: −{amount}",
+  "calc.classicCard": "kartična naknada {pct} + {fixed} po uplati: −{amount}",
+  "calc.oursTitle": "Ovim putem",
+  "calc.oursCut": "naknada platforme {pct}: −{amount}",
+  "calc.oursBank": "uplatitelji svojim bankama za naloge: {amount}",
+  "calc.difference": "Razlika koja stigne do projekta: {amount}.",
+  "calc.illustrative":
+    "Ilustrativno. Stope su javne stope kartičnog procesora i tipična naknada platforme za skupno financiranje, a naknada banke uzeta je po gornjoj granici raspona za hrvatske banke. Stvaran iznos ovisi o banci uplatitelja i o platformi s kojom se uspoređuje. Ovo nije ponuda ni financijski savjet.",
+
   // Zajedničko
   "common.of": "od",
   "common.close": "Zatvori",

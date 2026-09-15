@@ -415,3 +415,178 @@ Da se ne ponavlja posao, i da se zna dokle seže tvrdnja „radi":
 - `/zajednice` i `/zajednica/:slug`: traka registracije, vodič s 20.000 € i 6+
   mjeseci iz `lib/facts.ts`, te rečenica „Ovo ne radimo umjesto vas" (E9)
 - tijek doprinosa na modelu zajednice ima šest koraka s eID-om i pristupnicom
+
+---
+
+## 10. Faza 1d — landing: što se naučilo
+
+### 10.1 ⚠️ Lint na imena polja padao je na hrvatskoj riječi
+
+Druga pojava iste klase kao padeži iz §7.1: **uzorak pisan za engleski ne
+prenosi se na hrvatski.**
+
+Pravilo je glasilo `/\b\w*[rR]oi\w*\s*[:=(]/` i trebalo je hvatati imena polja
+tipa `expectedRoi =`. Umjesto toga je palo na običnoj rečenici:
+
+```
+"landing.open.lead": "… u ostatku obitelji proizvoda: kod otvoren …"
+                                            ^^^^^^^^^^  p·roi·zvoda:
+```
+
+`\w*` prije korijena pojede bilo koji prefiks, pa `roi` usred hrvatske riječi
+postaje pogodak. Isto vrijedi za „broj", „uroni", „proizvodnja".
+
+**Lažni pozitiv je ovdje skoro jednako štetan kao propust.** Rješenje na koje
+navodi je nova iznimka u `ALLOWLIST` — a iznimka po iznimka je točno način na
+koji kontrola usklađenosti prestane biti kontrola (§7.2). Zato korijen sada mora
+početi na granici riječi ili na granici unutar camelCasea:
+
+```ts
+{ pattern: /(\broi|[a-z]Roi)\w*\s*[:=(]/, why: "ime polja/komponente s `roi`" }
+```
+
+Uz to su dodana **dva** popisa, oba u `lib/forbidden-words.ts`:
+`FORBIDDEN_IDENTIFIER_EXAMPLES` (mora pasti) i
+`FORBIDDEN_IDENTIFIER_NON_EXAMPLES` (**ne smije** pasti). Pravilo bez
+protuprimjera nitko ne provjerava dok ne pukne.
+
+### 10.2 ⚠️ Mermaid tiho nestane na `rgba()` u `classDef`
+
+Najskuplji nalaz faze, i pronašao ga je preglednik, ne kod — kao i maplibre
+worker iz §1.
+
+Boja obruba je u tokenima `rgba(26, 26, 26, 0.12)`. U mermaidovom `classDef`
+zarez razdvaja **svojstva**, pa `stroke:rgba(26, 26, 26, 0.12)` razbije parser:
+
+```
+Parse error on line 26:
+...:#F5EFE6,stroke:rgba(26, 26, 26, 0.12),c
+-----------------------^
+```
+
+Posljedica nije ružan dijagram nego **nikakav**. Host `div` ostane prazan,
+stranica izgleda ispravno, a u konzoli **nema ničega** — jer je iznimka bila
+neuhvaćena promise rejekcija koju `read_console_messages` ne vidi. Otkrivena je
+tek ručnim `unhandledrejection` slušačem.
+
+Tri ispravka, jer jedan ne bi bio dovoljan:
+
+1. `BORDER_SOLID` (`#DBD5CE`) — `ink` 12 % spljošten preko `sand`. Svaka boja
+   koja ide u Mermaid mora biti **heks bez zareza**.
+2. `money-flow-mermaid.tsx` kvar **prikazuje** (`flow.diagramFailed`) umjesto da
+   ostavi prazan okvir. Dijagram koji tiho nestane je ista klasa greške kao
+   worker koji se ne podigne bez poruke.
+3. Test u `energy-machine.test.ts` provjerava **izvor**, ne sliku: nijedan
+   `classDef`/`linkStyle` redak ne smije sadržavati `(`. Provjereno je i da test
+   stvarno pada na staroj boji — inače je to test koji ništa ne čuva.
+
+> **Pouka:** dizajn-token i sintaksa vanjskog alata nisu ista stvar. `map-colors.ts`
+> je tu iznimku već imao za maplibre; `diagram-colors.ts` je druga, i neće biti
+> zadnja.
+
+### 10.3 ⚠️ `resize_window` i dalje ne mijenja maksimiziran prozor
+
+Potvrđeno ponovno, i to dvaput zaredom (414 px pa 1200 px): poziv javi uspjeh,
+`window.innerWidth` ostane **1920**. Maksimiziran prozor se tim putem ne može
+smanjiti.
+
+Zaobilaznica koja radi i ništa ne laže: **`iframe` širine 414 px na istom
+podrijetlu**. Unutar njega `window.innerWidth` je stvarnih 410 px (4 px uzme
+klizač), `matchMedia` se ponaša ispravno, a `contentDocument` je dostupan za
+mjerenje. To je stvaran viewport, ne `zoom` — a `zoom` na `html` je ionako
+zabranjen jer lomi mermaidov `getBoundingClientRect`.
+
+⚠️ Što to **ne** dokazuje: nije uređaj. Dodir, stvarni DPR, tipkovnica koja
+prekrije pola ekrana i Safari na iOS-u ostaju neprovjereni (1e).
+
+### 10.4 React Flow: vodoravan tok traži vodoravna hvatišta
+
+Zadana hvatišta su gore/dolje. Na grafu koji ide slijeva nadesno strelice tada
+cik-cakaju kroz čvorove umjesto da teku. Rješenje je jedan redak
+(`sourcePosition: Position.Right`, `targetPosition: Position.Left`), ali se
+**vidjelo tek u pregledniku** — u kodu izgleda jednako ispravno.
+
+Uz to: prvi pokušaj provjere („`.react-flow__edge` ih ima nula") bio je **kriva
+mjera, ne kvar**. Dijagram je cijelo vrijeme imao veze; selektor nije odgovarao
+DOM-u. Screenshot je to riješio u jednom potezu. Isto upozorenje kao §3: mjeri
+ono što se vidi, a ne ono za što misliš da se mjeri.
+
+### 10.5 Landing je preuzeo `/`, registar je otišao na `/karta/`
+
+`docs/06` traži landing, a `docs/07` §2.1 i `docs/08` §2 stavljaju kartu na `/`.
+Sudar je razriješen u korist landinga: posjetitelj koji skenira QR sa sajma mora
+prvo dobiti odgovor „što je ovo i zašto je zakonito" (kriterij dovršenosti br. 3
+u [11](./11-plan-izvedbe.md)).
+
+Registar time nije potisnut — živi isječak karte je **treća** sekcija landinga,
+odmah iza problema, s poveznicom na puni registar. Deep-linkovi iz §9 sele se na
+`/karta/?zupanija=…` i `/karta/?e=…`; povratne poveznice sa svake podstranice
+ažurirane su u istom prolazu.
+
+### 10.6 Peta invarijanta koju `docs/06` nije tražio
+
+`docs/06` §2 imenuje četiri: 0 € platformi, zbroj salda konstantan, saldo nikad
+negativan, iz Safea se ne izlazi bez M potpisa. Sve četiri su u testovima.
+
+Peta je izašla iz `docs/14` §1 pri modeliranju: **u Modu 2 novac ne prolazi kroz
+nas.** Bez nje bi to bila rečenica na landingu koju ništa ne drži. U machineu je
+to zaseban put (`mintToClientSafe`, bez čvora `rail`), a test traži da u svakom
+scenariju na klijentovim šinama `rail` **nema saldo ni u jednom koraku** — i,
+obrnuto, da ga u Modu 1 ima, inače usporedba ne znači ništa.
+
+Iz istog razloga postoji i razlika `platformFeeCents` / `ownBankFeeCents`:
+uplatitelj nama plaća nulu u svakom koraku, ali **svojoj banci ne**. „0 €" koje
+bi to prešutjelo bilo bi ista klasa greške kao „0 %" bez napomene da smo izvođač
+([14](./14-poslovni-model.md) §3.1).
+
+### 10.7 Manje odluke
+
+- **Elektrana je čvor `outcome`, ne `account`.** Mora biti na slici, ali ne smije
+  imati saldo — inače bi se invarijanta očuvanja „zatvarala" tako što novac
+  nestane u elektranu. Test traži da joj saldo ostane nula.
+- **Iznosi u machineu su u centima**, kao i drugdje (`lib/format.ts`). Zbroj
+  salda je tada cjelobrojan i očuvanje nema zaokruživanja koje bi tiho popustilo.
+  `mpt-machine` koristi decimalne eure i `1e-9` toleranciju; ovdje ne treba.
+- **Četvrti scenarij („Što pravila odbijaju") nije ukras.** Prototip u kojem
+  svako pravilo prolazi ne pokazuje ono zbog čega pravila postoje — isti razlog
+  iz kojeg Bilogora namjerno kasni (§7.5). Odbijaju se tri koraka, svaki iz
+  drugog razloga, i test provjerava **koji** razlog, ne samo da je pao.
+- **`useMediaQuery` kroz `useSyncExternalStore`** — četvrti put da je to točan
+  odgovor na vanjsko stanje (§7.6). `getServerSnapshot` vraća `false`, pa je
+  prerenderirani HTML uvijek uži prikaz: mobitel na sajmu ne dobije ni na
+  trenutak layout za laptop.
+- **Mermaid crta imperativno u `ref`**, bez `useState` — vanjski crtač, kao
+  maplibre. Time otpada i `react-hooks/set-state-in-effect`.
+- **Sekcija 9 nema poveznicu na repo**, jer repo nije javan. Poveznica u prazno
+  je ista klasa greške kao lažni „provjeri na pregledniku blokova" link (§7.7).
+
+---
+
+## 11. Što je provjereno u pregledniku — Faza 1d
+
+U `next dev`, Brave, prozor 1745–1920 px; usko u `iframeu` od 414 px (§10.3).
+
+- landing ima **jedanaest sekcija s `id`-em** (`pocetak`, `problem`, `karta`,
+  `kako-radi`, `zasto-nula`, `modeli`, `provjereno`, `za-koga`, `otvoreni-kod`,
+  `plan`, `kontakt`) + podnožje; `/#kako-radi` otvara točnu sekciju
+- **karta na landingu stvarno crta**: 30 `.pbf` zahtjeva, klasteri se zbrajaju na
+  352, statistika iznad karte pokazuje 352 elektrane i 17,2 MW
+- **React Flow (širok prozor)**: sedam čvorova, vodoravan tok
+  banka → Monerium → naše šine → račun projekta → izvođač → banka izvođača, s
+  granom na elektranu; aktivan čvor je jantaran i prati korak
+- **Mermaid (410 px)**: sedam čvorova, osam veza, SVG 329 px u 410 px viewportu;
+  veze izvan scenarija su točkaste, aktivna je jantarna
+- **React Flow se na uskom ekranu uopće ne učitava** (`.react-flow__node` = 0), i
+  obrnuto — dinamički import radi ono zbog čega je ondje
+- prolazak kroz korake radi: „Korak 6 od 11" je isplata po situaciji, 3.000 €, uz
+  objašnjenje i broj potpisa
+- **tablica naknada i napomena stoje u istom vidnom polju**: redak „Platforma …
+  0 %" pa odmah „Nula posto nije isto što i besplatno. … Zarađujemo kao izvođač"
+  ([14](./14-poslovni-model.md) §3.1)
+- kalkulator: 12 × 800 € = 9.600 €; kroz tipičnu platformu ostaje 8.493 €
+  (−960 € naknada platforme, −147 € kartične naknade)
+- **na 414 px nema vodoravnog scrolla** (`scrollWidth` 395 < 410). Jedina široka
+  stavka je tablica naknada (544 px), u `overflow-x-auto` — kao i razrada troška
+  iz 1c
+- **EN katalog radi na cijelom landingu**, uključujući labele i imena scenarija
+  iz machinea; nijedna hrvatska rečenica ne propušta

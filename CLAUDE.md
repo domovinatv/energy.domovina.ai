@@ -13,11 +13,15 @@ novac ne prolazi kroz nas (**Mod 2**). Zbog toga **ne treba ECSP** — `docs/14`
 **JEDNO OKRUŽENJE — development = staging = production.** Grana `main` je ono što
 ljudi vide; nema „probat ću na stagingu". Detalji i pravila: `docs/12`.
 
-**Stanje: Faza 1a + 1b + 1c isporučene** — temelj (Next.js, tokeni, `lib/*`, i18n),
-registar (maplibre karta s klasterima, filtri, popis, `/elektrana/:slug`) i
+**Stanje: Faza 1a + 1b + 1c + 1d isporučene** — temelj (Next.js, tokeni, `lib/*`,
+i18n), registar (maplibre karta s klasterima, filtri, popis, `/elektrana/:slug`),
 marketplace (`/projekt/:slug` s osam tabova, tijek doprinosa, `/zajednice`,
-`/novi-projekt`, lista čekanja). Sljedeće je **Faza 1d — landing** (`docs/11`).
-Fiksni rok: **Green Energy Fair, Arena Zagreb, 28.–29.10.2026.**
+`/novi-projekt`, lista čekanja) i landing (11 sekcija + podnožje, dijagram toka
+novca s 4 scenarija, kalkulator). Sljedeće je **Faza 1e — uglačavanje i štand**
+(`docs/11`). Fiksni rok: **Green Energy Fair, Arena Zagreb, 28.–29.10.2026.**
+
+⚠️ **Rute: `/` je LANDING, registar je na `/karta/`** (odluka u 1d). `docs/07` §2.1
+i `docs/08` §2 još govore o `/` kao karti — vrijedi `docs/06` §1 i dnevnik §10.5.
 
 ### Potvrđene odluke (15.9.2026.)
 
@@ -108,12 +112,16 @@ stvar koja bi na sajmu izgledala kao prijevara umjesto kao maketa.
 - **Bez emojija u UI-ju.**
 - Iznosi: `Intl.NumberFormat('hr-HR', { style: 'currency', currency: 'EUR' })`.
   Energija: `kWp` (snaga) · `kWh`/`MWh` (proizvodnja) · `MW` (agregat).
-- **Nikad `any`.** Verifikacija: `npm run verify` = lint + tsc + build.
+- **Nikad `any`.** Verifikacija: `npm run verify` = lint + lint:copy + tsc +
+  testovi + build.
+- Boje za **maplibre** su u `lib/map-colors.ts`, za **React Flow i Mermaid** u
+  `lib/diagram-colors.ts` — jedine dvije iznimke od „nikad hex u komponenti".
 - Ekrani su **sadržaj-agnostični** — svi podaci iz `lib/mock.ts`
   (obrazac iz `zef-novcanik-prototip`). To omogućuje bijelu etiketu kasnije.
 - **Mobile-first.** Publika na sajmu gleda na mobitelu.
-- Boje samo preko Tailwind tokena (`docs/09`), nikad hex u komponenti. Jedina
-  iznimka: maplibre paint properties — uz komentar iz kojeg tokena boja dolazi.
+- Boje samo preko Tailwind tokena (`docs/09`), nikad hex u komponenti. Iznimke su
+  samo alati koji ne čitaju Tailwind (maplibre, React Flow, Mermaid) i žive u
+  dvije datoteke iznad — uz svaku boju stoji iz kojeg tokena dolazi.
 
 ---
 
@@ -164,6 +172,25 @@ Iz **ovog repoa** (`docs/2026-09-15-dnevnik-izvedbe.md`):
   pa canvas ne crta. To **ne dokazuje** da je kod ispravan — odgodi zaključak.
 - **ESLint ostaje na 9** dok `eslint-config-next` ne osvježi `eslint-plugin-react`
   (na 10 puca s `contextOrFilename.getFilename is not a function`).
+
+Iz Faze 1d (`docs/2026-09-15-dnevnik-izvedbe.md` §10):
+- **Mermaid `classDef` ne podnosi `rgba()`** — zarez ondje razdvaja svojstva, pa
+  parser pukne i **cijeli dijagram tiho ostane prazan**, bez greške u konzoli
+  (iznimka je bila neuhvaćena promise rejekcija). Boje za dijagrame idu u
+  `lib/diagram-colors.ts` i **moraju biti heks** (dnevnik §10.2).
+- **Uzorak za `roi`/`yield` u imenima polja mora biti na granici riječi.**
+  `\b\w*[rR]oi\w*` pada na hrvatskoj riječi „p**roi**zvoda:". Lažni pozitiv tjera
+  sljedećeg na iznimku u `ALLOWLIST`, a to ubija kontrolu — zato uz svako pravilo
+  ide i **protuprimjer** (`FORBIDDEN_IDENTIFIER_NON_EXAMPLES`, dnevnik §10.1).
+- **React Flow:** vodoravan tok traži `sourcePosition: Right` / `targetPosition:
+  Left`; zadano je gore/dolje i strelice cik-cakaju.
+- **`resize_window` ne smanjuje maksimiziran prozor** (`innerWidth` ostane 1920,
+  a poziv javi uspjeh). Za usku širinu koristi **`iframe` na istom podrijetlu** i
+  mjeri `contentWindow.innerWidth`. To nije uređaj i ne smije se tako zvati
+  (dnevnik §10.3).
+- **Tok novca je u CENTIMA** (`lib/energy-machine.ts`), za razliku od
+  `mpt-machine.ts` koji radi s decimalnim eurima. Zbroj salda je tada cjelobrojan
+  i invarijanta očuvanja nema zaokruživanja.
 
 Iz `pinka-finance/app`:
 - Statički export → `script-src` mora imati `'unsafe-inline'` (inline RSC bez

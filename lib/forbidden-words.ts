@@ -60,13 +60,33 @@ export const FORBIDDEN_RULES: readonly ForbiddenRule[] = [
 /**
  * Imena polja i komponenti — u lintu se provjeravaju u CIJELOM izvoru, ne samo
  * u stringovima, jer završe u API-ju i na screenshotovima (docs/05 §5).
+ *
+ * ⚠️ HRVATSKI SADRŽI ENGLESKE KRATICE KAO SLOGOVE. Prva izvedba pravila za
+ * `roi` glasila je `\b\w*[rR]oi\w*\s*[:=(]` i hvatala je običnu riječ
+ * „p·roi·zvoda:" — `\w*` prije korijena pojede bilo koji prefiks. Lažni
+ * pozitiv je opasniji nego što izgleda: rješenje na koje navodi je nova iznimka
+ * u `ALLOWLIST`, a iznimka po iznimka je točno način na koji kontrola
+ * usklađenosti prestane biti kontrola.
+ *
+ * Zato korijen mora početi na granici riječi (`\broi`) ili na granici riječi
+ * unutar camelCasea (`[a-z]Roi`). Isti oblik vrijedi za sve kratice koje bi se
+ * mogle naći usred hrvatske riječi. Vidi `FORBIDDEN_NON_EXAMPLES`.
  */
 export const FORBIDDEN_IDENTIFIER_RULES: readonly ForbiddenRule[] = [
-  { pattern: /\b\w*[yY]ield\w*\s*[:=(]/, why: "ime polja/komponente s `yield`" },
-  { pattern: /\b\w*[dD]ividend\w*\s*[:=(]/, why: "ime polja/komponente s `dividend`" },
-  { pattern: /\b\w*[rR]oi\w*\s*[:=(]/, why: "ime polja/komponente s `roi`" },
+  { pattern: /(\byield|[a-z]Yield)\w*\s*[:=(]/, why: "ime polja/komponente s `yield`" },
+  { pattern: /(\bdividend|[a-z]Dividend)\w*\s*[:=(]/, why: "ime polja/komponente s `dividend`" },
+  { pattern: /(\broi|[a-z]Roi)\w*\s*[:=(]/, why: "ime polja/komponente s `roi`" },
   { pattern: /\breturnOn\w*\s*[:=(]/, why: "ime polja/komponente s `returnOn`" },
 ];
+
+/** Pada li redak izvornog koda na nekom pravilu o imenima polja i komponenti. */
+export function findForbiddenIdentifier(line: string): ForbiddenHit | null {
+  for (const rule of FORBIDDEN_IDENTIFIER_RULES) {
+    const found = rule.pattern.exec(line);
+    if (found !== null) return { match: found[0], why: rule.why };
+  }
+  return null;
+}
 
 /**
  * ODOBRENE NEGACIJE — jedine rečenice u kojima zabranjeni pojam smije stajati.
@@ -157,4 +177,35 @@ export const FORBIDDEN_EXAMPLES: readonly ForbiddenExample[] = [
   { text: "Best return on investment in the region.", expected: "return on investment" },
   { text: "Members get a share of profit.", expected: "share of profit" },
   { text: "Trade it on the secondary market.", expected: "secondary market" },
+];
+
+/**
+ * Primjeri i PROTUPRIMJERI za pravila o imenima polja i komponenti.
+ *
+ * ⚠️ Protuprimjeri su ovdje zato što je lažni pozitiv u ovoj kontroli skoro
+ * jednako štetan kao propust. Pravilo koje padne na hrvatskoj riječi tjera
+ * sljedećeg čovjeka da doda iznimku u `ALLOWLIST` umjesto da popravi uzorak —
+ * a nakon dovoljno iznimaka kontrola ne provjerava više ništa.
+ *
+ * `roi` u „proizvoda", „broj" ili „uroni" NIJE ROI. `yield` i `dividend` stoje
+ * iz istog razloga, iako za njih danas nema hrvatske riječi koja ih sadrži:
+ * pravilo koje nema protuprimjer nitko ne provjerava dok ne pukne.
+ */
+export const FORBIDDEN_IDENTIFIER_EXAMPLES: readonly ForbiddenExample[] = [
+  { text: "  const expectedRoi = 0.07;", expected: "Roi =" },
+  { text: "  roi: number;", expected: "roi:" },
+  { text: "  annualYield: number;", expected: "Yield:" },
+  { text: "  yieldPct = 7;", expected: "yieldPct =" },
+  { text: "  dividendCents: number;", expected: "dividendCents:" },
+  { text: "  monthlyDividend(amount);", expected: "Dividend(" },
+  { text: "  returnOnCapital = 3;", expected: "returnOnCapital =" },
+];
+
+/** Retci koji NE SMIJU pasti — obične hrvatske riječi s engleskim slogom. */
+export const FORBIDDEN_IDENTIFIER_NON_EXAMPLES: readonly string[] = [
+  // Zbog ovog retka je pravilo za `roi` prepisano (Faza 1d).
+  '  "landing.open.lead": "Zato je plan isti kao u ostatku obitelji proizvoda: kod otvoren.",',
+  '  "x": "Razrada troška po stavkama proizvoda: oprema, montaža, dokumentacija.",',
+  '  "y": "Uroni: pogledaj knjigu doprinosa.",',
+  "  const brojPotpisnika = 5;",
 ];

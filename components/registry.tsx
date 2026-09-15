@@ -170,7 +170,7 @@ export function Registry() {
       <OpenProjects />
 
       <p className="mt-10 text-xs text-inkMuted">
-        <Link href="/" className="underline underline-offset-2 hover:text-forest">
+        <Link href="/karta/" className="underline underline-offset-2 hover:text-forest">
           {t("map.resetView")}
         </Link>
       </p>

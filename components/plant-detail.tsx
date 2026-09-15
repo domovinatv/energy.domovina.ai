@@ -44,7 +44,7 @@ export function PlantDetail({
   return (
     <article className="container-content py-6 sm:py-10">
       <Link
-        href="/"
+        href="/karta/"
         className="inline-flex items-center gap-1.5 text-sm text-inkMuted transition-colors hover:text-forest"
       >
         <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
@@ -122,7 +122,7 @@ export function PlantDetail({
             {plant.latitude !== null && plant.longitude !== null ? (
               <Row label={t("plant.coordinates")}>
                 <Link
-                  href={`/?e=${encodeURIComponent(plant.slug)}`}
+                  href={`/karta/?e=${encodeURIComponent(plant.slug)}`}
                   className="text-forest underline underline-offset-2"
                 >
                   {plant.latitude.toFixed(4)}, {plant.longitude.toFixed(4)}

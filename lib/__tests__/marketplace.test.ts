@@ -33,7 +33,14 @@ import {
   shareBasisPoints,
   timelineStepView,
 } from "../project";
-import { APPROVED_NEGATIONS, FORBIDDEN_EXAMPLES, findForbidden } from "../forbidden-words";
+import {
+  APPROVED_NEGATIONS,
+  FORBIDDEN_EXAMPLES,
+  FORBIDDEN_IDENTIFIER_EXAMPLES,
+  FORBIDDEN_IDENTIFIER_NON_EXAMPLES,
+  findForbidden,
+  findForbiddenIdentifier,
+} from "../forbidden-words";
 import { TIMELINE_STEPS, violatesConflictInvariant } from "../types";
 
 describe("razrada troška je cijena tvrdnje o 0 % (P5, docs/14 §3.1)", () => {
@@ -260,6 +267,38 @@ describe("kontrola usklađenosti na tuđem tekstu (E3)", () => {
     expect(multi).toBeDefined();
     if (multi === undefined) return;
     expect(findForbidden(`${multi.text} ${FORBIDDEN_EXAMPLES[1]?.text ?? ""}`).length).toBe(2);
+  });
+});
+
+/**
+ * ⚠️ Nalaz iz Faze 1d, ista klasa kao padeži iz 1c (dnevnik §7.1): uzorak pisan
+ * za engleski ne prenosi se na hrvatski. Pravilo `\b\w*[rR]oi\w*\s*[:=(]`
+ * padalo je na riječi „p·roi·zvoda:", jer `\w*` prije korijena pojede svaki
+ * prefiks.
+ *
+ * Lažni pozitiv je ovdje skoro jednako štetan kao propust: rješenje na koje
+ * navodi je nova iznimka u `ALLOWLIST`, a iznimka po iznimka ubija kontrolu.
+ * Zato se pravila o imenima polja testiraju u OBA smjera.
+ */
+describe("pravila o imenima polja podnose hrvatski (dnevnik §10.1)", () => {
+  it("svako ime koje mora pasti — pada, i na očekivanom izrazu", () => {
+    for (const example of FORBIDDEN_IDENTIFIER_EXAMPLES) {
+      const hit = findForbiddenIdentifier(example.text);
+      expect(hit, example.text).not.toBeNull();
+      expect(hit?.match, example.text).toContain(example.expected);
+    }
+  });
+
+  it("obična hrvatska riječ s engleskim slogom NE pada", () => {
+    for (const line of FORBIDDEN_IDENTIFIER_NON_EXAMPLES) {
+      expect(findForbiddenIdentifier(line), line).toBeNull();
+    }
+  });
+
+  it("popis protuprimjera postoji i nije prazan", () => {
+    // Pravilo bez protuprimjera nitko ne provjerava dok ne pukne.
+    expect(FORBIDDEN_IDENTIFIER_NON_EXAMPLES.length).toBeGreaterThan(0);
+    expect(FORBIDDEN_IDENTIFIER_EXAMPLES.length).toBeGreaterThan(0);
   });
 });
 

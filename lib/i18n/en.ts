@@ -556,6 +556,221 @@ export const en: Catalog = {
     "No data was sent. In the real version the project moves to the “in review” state and is published only after the holder and the right to the site have been checked.",
   "wizard.startOver": "Start over",
 
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // LANDING — Phase 1d (docs/06 §1). Twelve sections; the twelfth is the footer.
+  //
+  // ⚠️ The same legal boundary applies, and the forbidden list is longer in
+  // English. Every figure arrives through a `{variable}` from `lib/facts.ts` or
+  // `lib/fees.ts` — none is written here.
+  // ───────────────────────────────────────────────────────────────────────────
+
+  "landing.hero.eyebrow": "Energy communities in Croatia",
+  "landing.hero.title":
+    "The law has allowed this since 2021. Croatia has {communities} such communities. We are building the fourth — and making it easier than the first three.",
+  "landing.hero.lede":
+    "Whoever has a roof, capital and patience has a plant. Whoever lives in a flat, or does not have twelve thousand euros, does not. That is a matter of structure, not of information, and shared ownership is what changes it.",
+  "landing.hero.ctaMap": "See the map",
+  "landing.hero.ctaProject": "Start a project",
+  "landing.hero.disclaimer":
+    "That would require authorisation from HANFA under Regulation (EU) 2020/1503, and we do not have it. We offer what the law has allowed since 2021 and almost nobody uses: that you own a plant together and use the electricity it makes.",
+
+  "landing.problem.eyebrow": "The problem",
+  "landing.problem.title": "In Croatia, solar is a solo sport",
+  "landing.problem.lead":
+    "It is not that people do not know about the sun. They know, and they build. But each of them builds alone, because everything else is too expensive and takes too long.",
+  "landing.problem.plantsLabel": "plants on the grid",
+  "landing.problem.plantsNote":
+    "Around {mw} MW in total. The knowledge and the will are there — what is missing is a way for people to join forces.",
+  "landing.problem.communitiesLabel": "energy communities",
+  "landing.problem.communitiesNote":
+    "Renewable energy communities number {zoe}, five years after the law that introduced them.",
+  "landing.problem.costLabel": "to register a community",
+  "landing.problem.costNote":
+    "A lower bound. That is what the paperwork costs, before a single panel goes up.",
+  "landing.problem.monthsValue": "{months}+ mo.",
+  "landing.problem.monthsLabel": "how long it takes",
+  "landing.problem.monthsNote":
+    "The first community actually sharing electricity is {place}. One, in the whole country.",
+  "landing.problem.demandProof":
+    "The demand is proven; the tooling is not. A Croatian energy cooperative raised {amount} in about ten days ({days}) from {members} people — and the sign-up tool was a form in a spreadsheet. To them this is not competition but the tool they were missing.",
+
+  "landing.map.eyebrow": "The registry",
+  "landing.map.title": "A map of plants, open and without an account",
+  "landing.map.lead":
+    "The registry works with no projects and no users at all. A plant may sit on the map even when nobody is raising anything — which is exactly why the registry was built first.",
+  "landing.map.cta": "Open the full registry",
+
+  "landing.flow.eyebrow": "How it works",
+  "landing.flow.title": "Where the money is at every moment",
+  "landing.flow.lead":
+    "No treasurer to trust. The money comes in from a bank, sits in an account that needs several signatures, goes out to the contractor as the build progresses, and ends up in a bank again. Pick a scenario and walk through it step by step.",
+
+  "landing.fees.eyebrow": "Fees",
+  "landing.fees.title": "We take no percentage of what is raised",
+  "landing.fees.lead":
+    "That does not make every step free for everyone. The table below says who pays what — including what the contributor pays their own bank, and what we ourselves earn on.",
+
+  "landing.models.eyebrow": "Models",
+  "landing.models.title": "Two models we do, and two we do not",
+  "landing.models.lead":
+    "The difference between them is not a matter of style but of licensing. So this section also states what we do not do — if we do not say it, somebody else will, in front of an audience that knows.",
+  "landing.models.donationTitle": "You fund somebody else's roof",
+  "landing.models.donationWho":
+    "For schools, fire stations, associations and local councils. The holder is the institution, the contributor is a donor, and the plant stays with the institution.",
+  "landing.models.communityTitle": "You become a co-owner",
+  "landing.models.communityWho":
+    "For neighbourhoods, apartment buildings and cooperatives. The holder is an energy community, the contributor becomes a member with a vote, and the electricity is shared among the members.",
+  "landing.models.boundary":
+    "The line is simple: the moment what a contributor holds carries an expectation of financial gain, or is transferable at a market price, it needs authorisation from HANFA under Regulation (EU) 2020/1503. We do not have one, so we do not build a product that needs one. The same two models sit disabled in the new-project wizard — that is a check at entry, not a note.",
+
+  "landing.proof.eyebrow": "Checkable",
+  "landing.proof.title": "What you can check without taking our word for it",
+  "landing.proof.lead":
+    "A claim that cannot be checked is not a claim but an advertisement. These four can be checked outside this website.",
+  "landing.proof.eid.title": "The holder's identity",
+  "landing.proof.eid.body":
+    "A project holder confirms their identity with a state eID. The verified mark is computed on the server, not filled into a form — nobody can award it to themselves.",
+  "landing.proof.safe.title": "An account with several signatures",
+  "landing.proof.safe.body":
+    "Nothing leaves the project account without M of N signatures. The threshold must match the holder's statute, and our signature never makes up a majority of it.",
+  "landing.proof.ledger.title": "A public ledger",
+  "landing.proof.ledger.body":
+    "The balance and every release are public, with no account and no permission needed. Who gave how much is recorded and time-stamped.",
+  "landing.proof.exit.title": "An exit in a few clicks",
+  "landing.proof.exit.body":
+    "A project can move to its own bank account, its own multi-signature account and a contractor of its choice. From then on the money does not pass through us at all.",
+  "landing.proof.prototypeNote":
+    "In the closed beta the eID and the project account are simulated, and the addresses are derived from the project name. This describes how the system is put together, not what is connected today.",
+  "landing.proof.rippleTitle": "The platform fails, the asset remains",
+  "landing.proof.rippleBody":
+    "Ripple Energy went into administration, and the cooperatives it started carry on — one of them has {members} members. The plants were never Ripple's; they were theirs. That is the argument proven on a real case, not a promise of ours.",
+  "landing.proof.sunexTitle": "Why the cost per member must be near zero",
+  "landing.proof.sunexBody":
+    "Sun Exchange failed on the cost of administering some {owners} co-owners. Without a percentage of what is raised, any feature that needs human work per member is a cost that never comes back — so it gets refused or automated.",
+
+  "landing.audience.eyebrow": "Who it is for",
+  "landing.audience.title": "Four situations people arrive from",
+  "landing.audience.lead":
+    "Each has its own first step. None of them needs an account to see what this is about.",
+  "audience.community.title": "A community forming",
+  "audience.community.pain":
+    "Twenty people want a plant, and nobody wants to hold the shared money.",
+  "audience.community.offer":
+    "An account with several signatures, a public ledger of contributions, and a template for the steps to a registered community.",
+  "audience.community.cta": "See the communities",
+  "audience.holder.title": "A project holder",
+  "audience.holder.pain":
+    "You have the project and the standing, but no tool for collecting or for reporting.",
+  "audience.holder.offer":
+    "A project page, a cost breakdown item by item, and a public timeline whose deadlines are not quietly rewritten.",
+  "audience.holder.cta": "Start a project",
+  "audience.contributor.title": "A contributor",
+  "audience.contributor.pain":
+    "You want to take part with two hundred euros, not twelve thousand.",
+  "audience.contributor.offer":
+    "Entry from a small amount, public proof of your contribution, and sight of where the money is at any moment.",
+  "audience.contributor.cta": "Projects seeking partners",
+  "audience.owner.title": "A plant owner",
+  "audience.owner.pain":
+    "Your plant is nowhere to be seen and there is no reference point to compare it with.",
+  "audience.owner.offer":
+    "A free entry in the public registry and a place on the map, with no campaign and no obligation.",
+  "audience.owner.cta": "Open the registry",
+
+  "landing.open.eyebrow": "Open source",
+  "landing.open.title": "Software that does not hold on to you",
+  "landing.open.lead":
+    "If the exit is real, it has to work once we are gone. So the plan is the same as in the rest of the product family: the code open, the implementation paid for.",
+  "landing.open.codeTitle": "MIT-licensed code",
+  "landing.open.codeBody":
+    "A cooperative, a municipality or another platform may take the same software, run it at their own address and work without us. No permission and no fee is required for that.",
+  "landing.open.codePending":
+    "The repository is not public yet, so there is deliberately no link here — a link into nothing is worse than no link.",
+  "landing.open.labelTitle": "White label and setup",
+  "landing.open.labelBody":
+    "We charge for setting it up, adapting it and maintaining it — never for access. Whoever wants to do it themselves has the code; whoever wants it done gets an invoice.",
+
+  "landing.roadmap.eyebrow": "The plan",
+  "landing.roadmap.title": "Where we are and what comes next",
+  "landing.roadmap.lead":
+    "Ordered by phase, not by quarter. A phase that is not finished stays where it is instead of quietly sliding.",
+  "landing.roadmap.done": "Delivered",
+  "landing.roadmap.done1": "Foundations: design tokens, a bilingual catalogue, checks on every change.",
+  "landing.roadmap.done2": "Registry: a map of the whole country, filters in the address, a page per plant.",
+  "landing.roadmap.done3": "Marketplace: the project page, the contribution flow, communities and a waiting list.",
+  "landing.roadmap.done4": "A new-project wizard that checks the description as it is written.",
+  "landing.roadmap.now": "In progress",
+  "landing.roadmap.now1": "This page: twelve sections, from the problem to the contact form.",
+  "landing.roadmap.now2": "The money-flow diagram, with scenarios and the tests that guard it.",
+  "landing.roadmap.now3": "A fee comparison, marked as illustrative.",
+  "landing.roadmap.now4": "Contrast measurement and a pass on a real mobile device.",
+  "landing.roadmap.next": "Next",
+  "landing.roadmap.next1": "Working offline — a demo at a fair must not depend on the WiFi.",
+  "landing.roadmap.next2": "A layout for a large screen, not just for phones and laptops.",
+  "landing.roadmap.next3": "Live data: a real project account, a real eID, real bank orders.",
+  "landing.roadmap.next4": "A solar plant layer on the shared map of Croatia.",
+  "landing.roadmap.note":
+    "Loans, equity stakes and transferable stakes are not on the plan but behind a condition: they need an authorisation we do not have. Until it exists, they do not appear even as “coming soon”.",
+
+  "landing.contact.eyebrow": "Get in touch",
+  "landing.contact.title": "Write if you have a roof, a community or a question",
+  "landing.contact.lead":
+    "The waiting list stands whether a project is open or not. The gap between two projects is a normal state rather than a fault — and no reason to send anyone away empty-handed.",
+
+  "flow.totalLabel": "Total in this example",
+  "flow.peopleLabel": "People",
+  "flow.thresholdLabel": "Signatures to release",
+  "flow.threshold": "{m} of {n}",
+  "flow.ourKeysLabel": "Keys we hold",
+  "flow.ourKeys": "{count}",
+  "flow.ourKeysNone": "none",
+  "flow.prev": "Back",
+  "flow.next": "Next",
+  "flow.restart": "Start over",
+  "flow.stepOf": "Step {index} of {total}",
+  "flow.noMoney": "Moves no money",
+  "flow.signatures": "Signatures: {given}, {required} required",
+  "flow.diagramFailed":
+    "The diagram could not be drawn. The steps below show the same flow and are correct regardless of the picture.",
+  "flow.invariantTitle": "The contributor has paid us {amount}.",
+  "flow.invariantBody":
+    "That much at every step and in every scenario — not a promise but a rule the tests break the moment it stops holding. To their own bank they paid {bankFee} for the orders, exactly as for any other order. We earn as the contractor, on the build, and the price of the build is public in every project's cost breakdown.",
+
+  "fees.tableCaption": "Who pays for which step, and how much",
+  "fees.colStep": "Step",
+  "fees.colWhoPays": "Who pays",
+  "fees.colHowMuch": "How much",
+  "fees.rowSepa": "Bank order",
+  "fees.rowMint": "Swapping euro for e-money and back",
+  "fees.rowChain": "On-chain transaction",
+  "fees.rowContribution": "Contribution to a project",
+  "fees.rowPayout": "Release to the contractor",
+  "fees.rowPlatform": "The platform",
+  "fees.paysContributorBank": "the contributor, to their own bank",
+  "fees.paysNobody": "nobody",
+  "fees.paysUs": "we do",
+  "fees.aboutCent": "about €0.01",
+  "fees.notFreeTitle": "Zero per cent is not the same as free.",
+  "fees.notFreeBody":
+    "We take no percentage of the money raised. We earn as the contractor — on building the plant — and the price of the build is public in every project's cost breakdown, item by item, before anyone pays anything.",
+
+  "calc.title": "How much reaches the project",
+  "calc.lead":
+    "Enter how many of you there are and how much each one gives. The comparison is with a typical crowdfunding platform, not with a named product.",
+  "calc.peopleLabel": "How many people",
+  "calc.amountLabel": "How much each one gives (€)",
+  "calc.total": "{people} people × {each} = {total}",
+  "calc.classicTitle": "Through a typical platform",
+  "calc.classicCut": "platform fee {pct}: −{amount}",
+  "calc.classicCard": "card fee {pct} + {fixed} per payment: −{amount}",
+  "calc.oursTitle": "This way",
+  "calc.oursCut": "platform fee {pct}: −{amount}",
+  "calc.oursBank": "contributors to their own banks for the orders: {amount}",
+  "calc.difference": "The difference that reaches the project: {amount}.",
+  "calc.illustrative":
+    "Illustrative. The rates are the card processor's public rates and a typical crowdfunding platform fee, and the bank charge is taken at the upper end of the range for Croatian banks. The real figure depends on the contributor's bank and on the platform being compared against. This is neither an offer nor financial advice.",
+
   "common.of": "of",
   "common.close": "Close",
   "common.showMore": "Show more",
