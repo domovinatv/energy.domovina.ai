@@ -34,6 +34,7 @@ Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.**
 | što gradimo sljedeće | [`docs/11-plan-izvedbe.md`](./docs/11-plan-izvedbe.md) |
 | ime, domena, okruženja | [`docs/12-ime-domena-okruzenja.md`](./docs/12-ime-domena-okruzenja.md) |
 | konkurencija i pouke | [`docs/13-konkurencija.md`](./docs/13-konkurencija.md) |
+| **poslovni model, zašto nismo ECSP** | [`docs/14-poslovni-model.md`](./docs/14-poslovni-model.md) |
 
 **Prije bilo kakvog koda pročitaj 00, 01 i 03.** Granica iz 03 §3 nije stilska nego
 licencna — određuje koje rečenice smiju stajati u sučelju.
@@ -48,6 +49,11 @@ licencna — određuje koje rečenice smiju stajati u sučelju.
   multisig** na Gnosis Chainu — novac drže sami članovi, ne platforma.
 - **Dva dopuštena modela:** doprinos (donacijski) i energetska zajednica
   (član dobiva **energiju i glas**, ne prinos).
+- **Nismo posrednik — mi gradimo.** U nosivom modu smo **izvođač** koji prodaje
+  elektranu ključ u ruke; uplata je predujam na elektranu, ne ulaganje. Zarađujemo
+  na izvedbi, **ne na postotku od prikupljenog**, i cijena izvedbe je javna.
+- **Tko želi, ide bez nas u sredini.** U nekoliko klikova klijent prebacuje projekt
+  na **vlastiti Monerium IBAN i vlastiti Safe** — tada novac ne prolazi kroz nas.
 - **Ne nudimo** kamatu, udio u dobiti ni prenosive udjele. Za to treba odobrenje
   HANFA-e po Uredbi (EU) 2020/1503 i mi ga nemamo.
 

@@ -76,13 +76,24 @@ Središnji ekran marketplacea. Struktura tabova posuđena iz
 | **Pregled** | cilj, prikupljeno, broj doprinositelja, rok, **model** (doprinos / zajednica), nositelj + eID badge |
 | **Elektrana** | tehnika, lokacija, status priključka, procjena proizvodnje |
 | **Financiranje** | razrada troška: oprema, montaža, priključak, dokumentacija, rezerva. **Bez „očekivanog prinosa"** |
-| **Račun** | Safe adresa, prag M-od-N, popis potpisnika, poveznica na explorer, **oznaka demo** |
+| **Račun** | Safe adresa, prag M-od-N, popis potpisnika (tko je od nas), poveznica na explorer, **oznaka demo**, poveznica „Prebaci na svoje šine" (§2.10) |
+| **Situacije** | **P6** — plaćanje po napretku: temelj, oprema na gradilištu, montaža, puštanje u pogon. Svaka isplata uz potpise članova |
 | **Knjiga doprinosa** | javni zid: iznos, ime/anonimno, poruka, vrijeme, tx |
 | **Dokumenti** | dokaz prava na lokaciju, statut (kod zajednice), ponuda instalatera |
 | **Tijek** | **K1** — vremenska crta od uplate do prve kWh: predano, prikupljeno, potpisano, naručeno, montirano, priključeno. Pomaci i **kašnjenja se vide**, ne šalju mailom |
 
 **Trajno vidljivo, ne u fusnoti:** model financiranja i rečenica „Ne nudimo prinos
 ni udio u dobiti" ([03](./03-pravni-okvir.md) §3).
+
+**Objava sukoba interesa (P4)** — u `mode = integrated`, trajno na stranici, ne u
+uvjetima:
+
+> „Izvođač ovog projekta je domovina.energy. Isplata iz računa projekta traži M od N
+> potpisa, a naš je jedan."
+
+**Tab Financiranje nosi javnu razradu troška izvedbe (P5)** stavku po stavku —
+oprema, montaža, dokumentacija, priključak, rezerva, **naša marža**. To je cijena
+tvrdnje da ne uzimamo proviziju ([14](./14-poslovni-model.md) §3.1).
 
 Za `model = community` dodatno: **udio u proizvedenoj energiji** u bazičnim
 bodovima i što nosi (glas + kWh), nikad novac.
@@ -152,7 +163,27 @@ Upravljanje: uređivanje projekta, potpisi koji čekaju, objava novosti,
 > svaki priljev je već javan i vremenski označen. Isto zapažanje kao
 > `pravni-okvir-primanja-sredstava.md` §8.2.
 
-### 2.9 `/kako-radi`
+### 2.10 `/projekt/:slug/sine` — „Prebaci na svoje šine" (P3)
+
+Ono što tvrdnju „ne držimo vaš novac" čini provjerljivom
+([14](./14-poslovni-model.md) §1). Mora biti **nekoliko klikova**, ne razgovor s
+prodajom.
+
+```mermaid
+flowchart LR
+  A["Trenutno:<br/>naše šine"] --> B["Unesi svoj<br/>Monerium IBAN"]
+  B --> C["Poveži svoj<br/>Safe multisig"]
+  C --> D["Potvrdi potpisnike<br/>i prag M-od-N"]
+  D --> E["Gotovo —<br/>novac više ne ide kroz nas"]
+```
+
+- Vrijedi za **N projekata** klijenta, ne samo jedan — postavka je na razini računa.
+- Nakon prebacivanja `rails = client`, a mi **prestajemo biti potpisnik**.
+- Ako i dalje želi nas kao izvođača, to je zaseban odnos: `mode` ostaje
+  `integrated`, ali nas plaća sa svog Safea.
+- **Ne skrivati iza postavki.** Poveznica stoji na stranici projekta, vidljivo.
+
+### 2.11 `/kako-radi`
 
 Dijagram toka novca (isti machine kao landing), objašnjenje Safea i EURe-a,
 pravne granice, poveznice na dokumente. Mermaid obrazac postoji u

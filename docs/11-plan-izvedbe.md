@@ -129,7 +129,10 @@ Ne može se riješiti u ovom repou. Vlasnik = tko to mora pokrenuti.
 | B10 | **Registracija za GEF** (ulaz besplatan uz registraciju; štand samo ako se predomisliš) | Matija | pristup sajmu |
 | B11 | Aktualni FZOEU natječaj i uvjeti | istraživanje | točnost kalkulatora |
 | B12 | **Kontakt sa ZEZ-om / ZEZ Suncem** — dokazali su potražnju (140.000 € u 10 dana), alat im je Google obrazac. Idealan pilot i recenzent | Matija | **prije GEF-a**, ne poslije ([13](./13-konkurencija.md) §2.2) |
-| B13 | **Ručna provjera Registra OIEKPP** u pregledniku — što stvarno pokriva | bilo tko | pozicioniranje karte ([13](./13-konkurencija.md) §9.1) |
+| ~~B13~~ | ~~Provjera Registra OIEKPP~~ — **riješeno 15.9.2026.**: radi na `oie-aplikacije.mingo.hr` (ne `mzoe.hr`) ([08](./08-karta-i-geo.md) §4.1) | — | — |
+| B15 | **Pravni oblik nositelja u Modu 1** — ITalk d.o.o. ili zadruga kao ZEZ? | Matija + odvjetnik | tko sklapa ugovor s uplatiteljima ([14](./14-poslovni-model.md) §7) |
+| B16 | **Registracija djelatnosti izvođenja** FN sustava + ovlašteni inženjer | Matija | možemo li uopće biti izvođač |
+| B17 | **Kapacitet izvedbe** — koliko projekata istovremeno stvarno možemo izgraditi | Matija | obećanja bez kapaciteta proizvode Rippleov Trustpilot |
 
 ---
 
@@ -145,7 +148,9 @@ Ne može se riješiti u ovom repou. Vlasnik = tko to mora pokrenuti.
 | Izlagački opseg pojede pet tjedana | srednja | nastup je posjetiteljski — kriterij dovršenosti (dolje) je namjerno uzak; 1e je bonus |
 | Wallet `createAccount` ne stigne | srednja | feature-detect, legacy derivacija kao fallback |
 | **Netko kaže „država to već ima" (OIEKPP)** | **visoka** | B13 prije nastupa; ne tvrditi da smo prvi, diferencirati se opsegom i upotrebljivošću ([13](./13-konkurencija.md) §9.1) |
-| Bez provizije nemamo od čega živjeti | srednja | trošak po projektu ~0 je uvjet, ne štednja ([04](./04-financijska-arhitektura.md) §4.2) |
+| ~~Bez provizije nemamo od čega živjeti~~ | — | **riješeno**: marža na izvedbi ([14](./14-poslovni-model.md) §3) |
+| **Ne stignemo isporučiti ono što smo naplatili** | **visoka** | novac u Safeu s potpisima kupaca, plaćanje po situaciji; B17 prije bilo kakvog obećanja ([14](./14-poslovni-model.md) §5.1) |
+| Netko primijeti da smo i platforma i izvođač | **visoka** | **priznati prvi** — objava sukoba interesa trajno na projektu, naš potpis nikad većina ([14](./14-poslovni-model.md) §4) |
 
 ---
 

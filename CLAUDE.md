@@ -2,7 +2,12 @@
 
 P2P platforma za zajedničko financiranje i suvlasništvo **sunčanih elektrana u
 Hrvatskoj**. Registar svih FN elektrana + marketplace projekata na Safe multisig
-railu, bez provizije.
+railu.
+
+**Nismo posrednik — mi smo izvođač.** Gradimo elektrane i prodajemo ih ključ u ruke,
+a novac prikupljamo od ljudi koji tu elektranu dobivaju (**Mod 1**, uzor ZEZ). Tko
+želi, isti softver koristi sa **svojim** Monerium IBAN-om i **svojim** Safeom i tada
+novac ne prolazi kroz nas (**Mod 2**). Zbog toga **ne treba ECSP** — `docs/14`.
 
 **Ime: `domovina.energy`. Live na: `energy.domovina.ai` (closed beta).**
 **JEDNO OKRUŽENJE — development = staging = production.** Grana `main` je ono što
@@ -37,6 +42,14 @@ Prije rada pročitaj **00 (indeks), 01 (vizija) i 03 (pravni okvir)** + dokument
 relevantan za task. Za brojke uvijek **02**, za tok novca uvijek **04**, za
 konkurenciju i njezine pouke **13**.
 
+⚠️ **Sukob interesa je strukturni:** istovremeno smo platforma i izvođač koji
+naplaćuje. Zato **naš potpisnik nikad ne smije činiti većinu praga Safea** (prag
+3-od-5 → mi držimo najviše jedan ključ), razrada troška izvedbe je javna, a objava
+sukoba interesa stoji trajno na stranici projekta (`docs/14` §4).
+
+⚠️ **„0 %" se nikad ne piše samo.** Ne uzimamo postotak od prikupljenog, ali
+zarađujemo kao izvođač — to mora stajati u istom vidnom polju (`docs/14` §3.1).
+
 ⚠️ Tri nalaza iz `docs/13` koja mijenjaju pretpostavke:
 **(a)** model već radi u HR — ZEZ Sunce, 140.000 € u 10 dana, alat im je Google
 obrazac (partner, ne konkurent). **(b)** Ripple Energy propao, a njegove zadruge
@@ -58,7 +71,15 @@ Zabranjeno u copyju, u imenima polja i u imenima komponenti:
 `yield` · `return` · `roi` · `sekundarno tržište` · `prodaj udio`
 
 Dopušteno: **doprinos**, **članski ulog**, **udio u proizvedenoj energiji**,
-**glas u zajednici**, **javni dokaz doprinosa**.
+**glas u zajednici**, **javni dokaz doprinosa**, **predujam na elektranu**.
+
+⚠️ **Uplata se nikad ne opisuje kao povratna.** „Daj novac pa ti ga vraćamo" nije
+ECSPR nego **primanje povratnih sredstava od javnosti** = rezervirana bankovna
+djelatnost. Strože, ne blaže (`docs/14` §2.3).
+
+⚠️ **U Modu 2 nas ne štiti non-custody.** ECSPR ne traži skrbništvo — štiti nas
+samo to što su instrumenti izvan opsega. Zato su onemogućeni modeli C/D i lint na
+zabranjene riječi **kontrola usklađenosti**, ne kozmetika (`docs/14` §2.4).
 
 ### 2. Jedan broj = jedno mjesto istine
 
@@ -147,8 +168,10 @@ kopiranjem natrag.
 - **B1** pravno mišljenje: je li članski ulog u energetsku zadrugu izvan ECSPR-a,
   i gdje je granica samoizdavanja vs posredovanja (`docs/03` §9.8)
 - **B12** kontakt sa ZEZ-om — **prije GEF-a**
-- **B13** ručna provjera Registra OIEKPP u pregledniku
 - **B14** kako se tehnički zatvara beta
+- **B15** pravni oblik nositelja u Modu 1 — ITalk d.o.o. ili zadruga kao ZEZ?
+- **B16** registracija djelatnosti izvođenja + ovlašteni inženjer
+- **B17** kapacitet izvedbe — obećanja bez kapaciteta proizvode Rippleov Trustpilot
 - **B10** registracija za GEF
 
 ⚠️ **Passkey zamka:** u closed beti passkey je **simuliran** i mora tako ostati dok

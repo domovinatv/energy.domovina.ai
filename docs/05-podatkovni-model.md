@@ -130,6 +130,11 @@ vlastitim entitetom, jer energetski projekt nosi polja koja kampanja nema.
 | `slug` | text, unique | |
 | `title` | text | |
 | `model` | enum | **`donation` \| `community`** — C/D onemogućeni ([E2](./03-pravni-okvir.md)) |
+| `mode` | enum | **`integrated`** (mi smo izvođač i nositelj) \| **`byo`** (klijentove šine) — P1 ([14](./14-poslovni-model.md)) |
+| `rails` | enum | `platform` \| `client` — čiji su Monerium IBAN i Safe. P2 |
+| `contractor` | text? | tko gradi; u `integrated` modu to smo **mi** → obavezna objava sukoba interesa ([14](./14-poslovni-model.md) §4) |
+| `cost_breakdown` | jsonb | razrada troška izvedbe, **javna prije uplate** (P5) |
+| `milestones` | jsonb | plaćanje **po situaciji**, svaka uz potpise (P6) — vidi §4.1 |
 | `holder_type` | enum | `association \| cooperative \| municipality \| company \| person \| community` — **prvo pitanje** ([E1](./03-pravni-okvir.md)) |
 | `holder_name` | text | |
 | `holder_oib` | text? | **prikazuje se, ne pretražuje**; za pravne osobe javan podatak |
@@ -185,6 +190,18 @@ stateDiagram-v2
 > `threshold`/`owners` **moraju odgovarati statutu zajednice**
 > ([04](./04-financijska-arhitektura.md) §3.2). Model to mora moći izraziti da
 > bi UI mogao upozoriti na nesklad.
+
+### 4.1 Invarijanta sukoba interesa (P7)
+
+U `mode = integrated` **mi smo izvođač i ujedno jedan od potpisnika**. Zato:
+
+> **Naš potpisnik nikad ne smije činiti većinu praga.** Ako je prag 3-od-5, mi
+> držimo najviše **jedan** ključ. Konfiguracija u kojoj izvođač može sam sebi
+> isplatiti novac poništava cijeli argument platforme
+> ([14](./14-poslovni-model.md) §4).
+
+Model to mora moći provjeriti: `platform_signer_count` vs `threshold`. UI odbija
+spremiti projekt koji krši invarijantu.
 
 ---
 

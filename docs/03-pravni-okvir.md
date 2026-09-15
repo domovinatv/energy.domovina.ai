@@ -47,6 +47,30 @@ model razlikuju se po modelu, a ne samo po tonu.
 | Može li ITalk ovo danas | **✅ da** | **✅ da** | ❌ ne | ❌ ne |
 | Prototip za GEF | ✅ | ✅ | prikaz kao „Faza N" | prikaz kao „Faza N" |
 
+### 2.1 Druga os — tko je nositelj, a tko posrednik
+
+Modeli A–D govore **što uplatitelj dobiva**. Druga, jednako važna os je **jesmo li
+mi nositelj ili posrednik** — jer ECSPR uređuje **posrednika** koji spaja **treće**
+nositelje s ulagateljima. Puna razrada: [14-poslovni-model.md](./14-poslovni-model.md).
+
+| | **Mod 1 — vertikalno integriran** | **Mod 2 — samoposluga (BYO)** |
+|---|---|---|
+| Nositelj | **mi** (ili zadruga koju ugošćujemo) | klijent |
+| Mi smo | **izvođač** koji prodaje elektranu ključ u ruke | **samo softver** |
+| Novac | kroz naš Monerium / Safe projekta | klijentov IBAN i Safe, **nikad kroz nas** |
+| Zašto nije ECSP | **nema trećeg nositelja** — nema koga spajati; uplata je **predujam na ugovor o djelu**, ne ulaganje | **instrument je izvan opsega** (donacija / zadružni udjel), ne zato što novac ide mimo nas |
+
+⚠️ **Najčešći nesporazum, zapisan da se ne ponovi:** u Modu 2 nas **ne štiti**
+non-custody. ECSPR ne traži skrbništvo — platforma može biti ECSP i bez da ikad
+dotakne euro. Štiti nas isključivo to što donacija i zadružni udjel nisu ni zajam ni
+prenosivi vrijednosni papir. **Zato je ograničenje na modele A i B jedina stvar koja
+Mod 2 drži izvan licence**, a `E2`/`E3` su kontrola usklađenosti, ne kozmetika.
+
+⚠️ **Strože od ECSPR-a:** ako bi uplata bila **povratna** (dajem novac da ga dobijem
+natrag), to je **primanje povratnih sredstava od javnosti** — rezervirana bankovna
+djelatnost po Zakonu o kreditnim institucijama. Nikad ne opisuj uplatu kao povratnu
+([14](./14-poslovni-model.md) §2.3).
+
 ---
 
 ## 3. Granica koju ne smijemo prijeći — i gdje točno leži
@@ -274,12 +298,21 @@ pravnog dokumenta, ali za energetiku.
 7. Pod kojim uvjetima smijemo **objaviti registar postojećih elektrana** iz javnih
    izvora (HROTE/HERA/HEP-ODS/**OIEKPP**) — licenca podataka i GDPR za elektrane
    fizičkih osoba.
-8. **NAJHITNIJE — samoizdavanje vs posredovanje.** ZEZ Sunce javno nudi članovima
-   „prinos do 5 % godišnje" kao zadruga koja prikuplja **za sebe**. Gdje je granica
-   na kojoj platforma prestaje biti tehnički alat te zadruge i postaje **pružatelj
-   usluga skupnog financiranja** po ECSPR-u — broj nositelja, naplata, tko oglašava,
-   tko sklapa ugovor s članom? O tome ovisi smijemo li uopće prikazati tuđu brojku
-   od 5 % na stranici njihovog projekta. Razrada: [13](./13-konkurencija.md) §2.1, §8.
+8. **Samoizdavanje vs posredovanje.** Odabir Moda 1 ([14](./14-poslovni-model.md))
+   ovo uvelike rješava strukturno — mi smo nositelj, nema trećeg koga spajamo. Ostaje
+   preciznije pitanje za **Mod 2**: gdje je granica na kojoj softver prestaje biti
+   alat klijenta i postaje platforma za skupno financiranje — broj nositelja,
+   naplaćujemo li, tko oglašava, tko sklapa ugovor s uplatiteljem? I dalje relevantno
+   za prikaz tuđih brojki (npr. ZEZ-ovih 5 %) na stranici njihovog projekta.
+9. **Escrow ili primljeni predujam?** Ako novac stoji u Safeu čiji su potpisnici
+   kupci, a mi naplaćujemo po situaciji — je li to **pohrana** (novac nikad nije ušao
+   u našu imovinsku masu) ili **primljeni predujam** u trenutku uplate? O tome ovisi
+   i trenutak nastanka obveze PDV-a, i jesu li kupci u našem stečaju neosigurani
+   vjerovnici ([14](./14-poslovni-model.md) §5.1).
+10. **Potrošački predujmi** za elektranu koja se isporučuje mjesecima kasnije —
+    rokovi, pravo na raskid, povrat, treba li jamstvo (Zakon o zaštiti potrošača).
+11. **Registracija djelatnosti izvođenja** FN sustava: što ITalk treba da bi bio
+    izvođač, i tko potpisuje kao ovlašteni inženjer?
 
 ---
 

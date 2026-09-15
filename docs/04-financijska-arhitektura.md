@@ -144,18 +144,29 @@ vidi `landing/docs/EKOSUSTAV.md` §4.1):
 raspon 0,25–**0,45** €, dok su kanonski dokument i mpt-ov vlastiti `CLAUDE.md`
 oboje 0,25–**0,40** €. Ispravno je **0,40**. Ne prenosi grešku u ovaj repo.
 
-### 4.1 Kako se onda platforma financira
+### 4.1 Kako se onda platforma financira — **maržom na izvedbi**
 
-Pošteno pitanje koje će netko postaviti na GEF-u. Odgovori koji ne ruše model:
+**Odluka 15.9.2026.: mi smo izvođač.** Prodajemo elektranu ključ u ruke i zarađujemo
+na izgradnji, ne na prikupljanju. Puna razrada: [14-poslovni-model.md](./14-poslovni-model.md) §3.
 
-- **bijela etiketa / konzalting** — isti obrazac kao pinka (MIT kod + plaćena
-  implementacija za JLS, zadrugu ili instalatera),
-- **dobrovoljna napojnica** (⚠️ otvoreno porezno pitanje, vidi
-  `landing/docs/pravni-okvir-primanja-sredstava.md` §9.5),
-- **javni/EU natječaji** za energetske zajednice.
+| Izvor | Mod |
+|---|---|
+| **Marža na izvedbi** ključ u ruke | 1 — **glavni prihod** |
+| Održavanje i monitoring | 1 — ponavljajući |
+| Bijela etiketa / konzalting | 2 |
+| Javni / EU natječaji | oba |
+| **Postotak od prikupljenog** | ❌ **nikad** — ruši i tvrdnju i pozicioniranje |
 
-Ono što **ne** smije biti odgovor: postotak od prikupljenog. Time pada i tvrdnja i
-dio pravnog pozicioniranja.
+#### Kako sad glasi tvrdnja o 0 %
+
+„Bez provizije" ostaje istinito, ali **samo za sebe nije pošteno** ako zarađujemo kao
+izvođač. Točna formulacija:
+
+> **Ne uzimamo postotak od prikupljenog novca.** Zarađujemo kao izvođač — na izgradnji
+> elektrane, i **cijena izvedbe je javna** u razradi troška svakog projekta.
+
+⚠️ **Zabranjeno:** napisati „0 % naknada" bez da u istom vidnom polju stoji da smo
+izvođač. To bi bilo obmanjujuće i najlakše oborivo na sajmu.
 
 ### 4.2 Egzistencijalno ograničenje koje iz toga slijedi
 
@@ -165,9 +176,10 @@ trošku administriranja ~10.000 suvlasnika: prihod projekata pokrivao je vlastit
 troškove projekata, ali ne i trošak upravljanja vlasnicima
 ([13](./13-konkurencija.md) §5.1).
 
-Budući da mi provizije **nemamo po dizajnu**, jedini način da preživimo je da
-**operativni trošak po projektu i po članu bude blizu nule**. To nije štednja nego
-uvjet postojanja, i ima tri posljedice:
+**Dopuna 15.9.2026.:** odlukom da smo izvođač ([14](./14-poslovni-model.md)) ovo
+više nije egzistencijalna prijetnja — marža na izvedbi pokriva platformu. Ali pouka
+ostaje na snazi u **Modu 2**, gdje prihoda nema, i kao opće ograničenje:
+**operativni trošak po projektu i po članu mora biti blizu nule**. Tri posljedice:
 
 1. maksimalno posuđivanje iz obitelji repoa ([10](./10-reuse-mapa.md)), statički
    export, bez vlastite infrastrukture koja se održava;

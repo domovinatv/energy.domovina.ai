@@ -79,7 +79,7 @@ razinu naselja**, bez adrese ([05](./05-podatkovni-model.md) §8). Krov je dom.
 
 | Izvor | Faza | Status |
 |---|---|---|
-| **Registar OIEKPP** (Ministarstvo) | — | ⚠️ **već postoji, s interaktivnom kartom** — `oie-aplikacije.mzoe.hr/InteraktivnaKarta/`. **Provjeriti ručno u pregledniku što pokriva prije bilo kakve tvrdnje** ([13](./13-konkurencija.md) §9) |
+| **Registar OIEKPP** (Ministarstvo) | — | **provjereno 15.9.2026.** — vidi §4.1 |
 | **Samoupis** (`/prijava-elektrane`) | 1 | radi — RPC postoji |
 | **Mock seed** za prototip | 1 | plauzibilne elektrane, `demo: true` |
 | **HROTE / HERA / HEP-ODS** | 2 | ⚠️ **otvoreno** — ne zna se smijemo li ([02](./02-trziste-hrvatska.md) §6.1, [03](./03-pravni-okvir.md) §9.7) |
@@ -88,6 +88,32 @@ razinu naselja**, bez adrese ([05](./05-podatkovni-model.md) §8). Krov je dom.
 > Dok se ne riješi licenca javnih registara, **ne prikazuj agregat kao da je
 > potpun.** „44.000 elektrana u Hrvatskoj, 312 na ovoj karti" je poštena
 > formulacija; prešutjeti razliku nije.
+
+### 4.1 Registar OIEKPP — provjereno 15.9.2026.
+
+**Ispravak ranije bilješke:** aplikacije rade, samo je domena **`mingo.hr`**, ne
+`mzoe.hr`. Ranija tvrdnja da ne odgovaraju bila je posljedica zastarjelog URL-a.
+
+| | |
+|---|---|
+| Pregledi | `https://oie-aplikacije.mingo.hr/pregledi/` — **JIZ-01** (pregled projekata upisanih u registar OIEKPP) i **JIZ-02** (grafička analiza raspodjele projekata) |
+| Karta | `https://oie-aplikacije.mingo.hr/InteraktivnaKarta/` — **živa** |
+| Tehnologija karte | Angular + **Azure Maps** (koji ispod koristi **maplibre**), transloco i18n, prekidači granica države i županija |
+| Otvoreni podaci | ⚠️ **nema očitog javnog GeoJSON/API endpointa** — podaci idu kroz vlastite servise uz Azure subscription key |
+
+**Što to znači za nas — pošteno:**
+
+1. **Naša karta nije prva.** Ne smije se tako pozicionirati
+   ([13](./13-konkurencija.md) §9.1).
+2. **Izbor maplibre je potvrđen** — i službena karta je na njemu.
+3. **Opseg je i dalje naš prostor, ali ga treba provjeriti.** OIEKPP je registar
+   **projekata OIE i povlaštenih proizvođača** — dakle onih koji prolaze kroz
+   registraciju/poticaje. **Kupci s vlastitom proizvodnjom** (~44.000 krovnih
+   postrojenja, [02](./02-trziste-hrvatska.md) §1) priključuju se preko HEP-ODS-a i
+   vjerojatno **nisu** u OIEKPP-u. Ako je tako, to je jaz koji popunjavamo.
+   ⚠️ **Provjeriti u JIZ-01 prije nego se to javno kaže.**
+4. **Seed podaci nisu riješeni.** Nema otvorenog izvoza; ostaje upit ministarstvu o
+   licenci i formatu ([03](./03-pravni-okvir.md) §9.7).
 
 ---
 

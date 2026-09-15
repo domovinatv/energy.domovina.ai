@@ -63,9 +63,20 @@ razlika je suptilna i mora biti zapisana da je netko kasnije ne previdi:
   prikuplja od javnosti je upravo ono što ECSPR opisuje.
 
 > **Posljedica:** ne smijemo iz ZEZ-ovog primjera zaključiti da smijemo prikazivati
-> prinos. Njima je dopušteno ono što nama nije, jer nisu u istoj ulozi. Ovo je sad
-> **najkonkretnije pitanje za odvjetnika** — vidi [03](./03-pravni-okvir.md) §9.1 i
-> dopunu u §8 ovog dokumenta.
+> prinos **dok smo u ulozi posrednika**. Njima je dopušteno ono što posredniku nije.
+> ⚠️ **Ovaj zaključak je 15.9.2026. djelomično prevladan** — vidi §2.1.1.
+
+### 2.1.1 Dopuna 15.9.2026. — mi idemo istim putem
+
+Odlukom da smo **izvođač i nositelj** ([14](./14-poslovni-model.md)) stajemo u
+**istu ulogu kao ZEZ**, a ne u ulogu posrednika iznad njega. To rješava dvojbu iz
+§2.1 strukturno: kao nositelj koji prikuplja za vlastite projekte, nismo pružatelj
+usluga skupnog financiranja.
+
+Razlika prema ZEZ-u je u dvije stvari koje oni nemaju:
+1. **softver** — javna knjiga uloga, Safe vidljiv članovima, karta, stranica projekta;
+2. **Mod 2** — klijent može uzeti softver i **bez nas u sredini**, sa svojim IBAN-om
+   i Safeom.
 
 ### 2.2 Zašto je ZEZ partner, a ne konkurent
 
@@ -265,16 +276,14 @@ Dodaje se na [03](./03-pravni-okvir.md) §9:
 
 | Rješenje | Zemlja | Što ima |
 |---|---|---|
-| **Registar OIEKPP** | **HR** | Ministarstvo nadležno za energetiku vodi jedinstvenu evidenciju projekata OIE, proizvodnih postrojenja i **povlaštenih proizvođača**. Javno dostupan pregled **i interaktivna karta**: `oie-aplikacije.mzoe.hr/Pregledi/`, `/InteraktivnaKarta/`, `/eObrasci/` |
+| **Registar OIEKPP** | **HR** | Ministarstvo vodi evidenciju projekata OIE, proizvodnih postrojenja i **povlaštenih proizvođača**. **Provjereno 15.9.2026.**, radi na `oie-aplikacije.mingo.hr`: `/pregledi/` (JIZ-01 projekti, JIZ-02 grafička analiza) i `/InteraktivnaKarta/` (Angular + Azure Maps, ispod **maplibre**). Bez očitog otvorenog API-ja. Razrada: [08](./08-karta-i-geo.md) §4.1 |
 | **Marktstammdatenregister (MaStR)** | DE | **svaka** proizvodna jedinica priključena na mrežu — milijuni solarnih postrojenja; otvoreni podaci, uvezeni i u OpenStreetMap. Zlatni standard |
 | **OpenStreetMap** | — | `generator:source=solar`, ODbL (traži atribuciju) |
 | **Electricity Maps** | — | proizvodni miks i emisije u stvarnom vremenu, po zonama (i HR) — agregat, ne pojedinačne elektrane |
 
-⚠️ **Obje vladine aplikacije (`/Pregledi/`, `/InteraktivnaKarta/`) nisu odgovorile s
-ovog stroja 15.9.2026.** (HTTP 000, timeout). To **ne znači** da su ugašene — može
-biti geo-blokada, TLS ili privremeni ispad. **Mora se provjeriti ručno u pregledniku
-prije bilo kakve tvrdnje**, i pogotovo prije nego što se na sajmu kaže „država to
-nema".
+✅ **Provjereno i ispravljeno 15.9.2026.** Raniji pokušaj nije uspio jer je domena
+zastarjela (`mzoe.hr`); ispravna je **`mingo.hr`**. Obje aplikacije rade. Tvrdnja
+„država to nema" bila bi netočna — **ne koristiti je**.
 
 ### 9.1 Iskren zaključak
 
@@ -282,10 +291,11 @@ nema".
 **ne smije** biti pozicioniran kao „prvi" ni „jedini". Diferencijacija mora biti
 stvarna, a kandidati su:
 
-1. **Opseg.** OIEKPP prati **projekte OIE i povlaštene proizvođače** — dakle
-   poticane/registrirane projekte. Otvoreno je pokriva li ~44.000 krovnih
-   postrojenja kupaca s vlastitom proizvodnjom ([02](./02-trziste-hrvatska.md) §1).
-   Ako ne pokriva, tu je naš prostor. **Provjeriti prije tvrdnje.**
+1. **Opseg.** OIEKPP prati **projekte OIE i povlaštene proizvođače** — dakle one
+   koji prolaze registraciju/poticaje. Otvoreno je pokriva li ~44.000 krovnih
+   postrojenja kupaca s vlastitom proizvodnjom ([02](./02-trziste-hrvatska.md) §1),
+   koji se priključuju preko HEP-ODS-a. Ako ne pokriva, **tu je naš prostor** —
+   ⚠️ provjeriti u pregledu JIZ-01 prije nego se to javno kaže.
 2. **Namjena.** Njihov registar je administrativni alat; naš je **ulaz u
    sudjelovanje** — elektrana koja traži suradnju je klikabilna.
 3. **Upotrebljivost.** Karta koja radi na mobitelu, s clusteringom i filtrima
@@ -293,9 +303,10 @@ stvarna, a kandidati su:
 4. **Status priključka po županijama** — nitko to ne agregira, a usko je grlo
    ([02](./02-trziste-hrvatska.md) §4).
 
-> Dodano u [08](./08-karta-i-geo.md) kao obveza: prije lansiranja karte **provjeriti
-> što OIEKPP stvarno nudi** i prilagoditi poziciju. Tvrdnja „ovo ne postoji" je
-> najlakše oboriva rečenica na sajmu.
+> **Usput potvrđeno:** i službena karta je na **maplibre** (kroz Azure Maps), pa je
+> naš tehnički izbor ([08](./08-karta-i-geo.md) §5) potvrđen.
+>
+> Tvrdnja „ovo ne postoji" je najlakše oboriva rečenica na sajmu — **ne koristiti je**.
 
 ---
 
@@ -309,8 +320,12 @@ stvarna, a kandidati su:
    teze, i treba ga citirati poimence.
 4. **Sun Exchange je propao na trošku administriranja 10.000 suvlasnika**, ne na
    tehnologiji. Bez provizije, trošak po članu mora biti ~0.
-5. **Registar s kartom već postoji** (OIEKPP). Provjeriti što pokriva i prepozicionirati
-   se — ne tvrditi da smo prvi.
+5. **Registar s kartom već postoji** (OIEKPP, `mingo.hr`, na maplibreu). **Ne tvrditi
+   da smo prvi.** Naš prostor je vjerojatno segment kupaca s vlastitom proizvodnjom
+   koji kroz OIEKPP ne prolaze — provjeriti u JIZ-01.
+6. **Mi idemo u istu ulogu kao ZEZ** — nositelj i izvođač, ne posrednik
+   ([14](./14-poslovni-model.md)). To rješava ECSPR dvojbu strukturno i donosi
+   prihodovni model kojeg prije nije bilo.
 
 ---
 

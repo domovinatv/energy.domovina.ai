@@ -73,6 +73,25 @@ Problem je u tri koraka:
 
 ---
 
+## 3.1 Nismo samo platforma — **gradimo**
+
+Odluka 15.9.2026. ([14](./14-poslovni-model.md)): u nosivom modu smo **izvođač koji
+prodaje elektranu ključ u ruke**, a ne posrednik tuđih ulaganja. Novac koji ljudi
+uplate nije ulog nego **predujam na elektranu koju od nas naručuju**.
+
+To mijenja tri stvari:
+
+1. **Prihod postoji** — marža na izvedbi, ne postotak od prikupljenog.
+2. **ECSP nije potreban** — nema trećeg nositelja kojeg bismo spajali s ulagateljima.
+3. **Odgovorni smo za isporuku.** Kašnjenje više nije tuđa greška koju prenosimo
+   dalje nego naše neispunjenje ugovora.
+
+Tko ne želi nas kao izvođača, u nekoliko klikova prebacuje projekt na **vlastiti
+Monerium IBAN i vlastiti Safe** — i tada novac ne prolazi kroz nas uopće. To nije
+ustupak nego dokaz da tvrdnja „ne držimo vaš novac" nije marketinška.
+
+---
+
 ## 4. Dva proizvoda u jednom
 
 ### 4.1 Registar (javan, bez prijave)
