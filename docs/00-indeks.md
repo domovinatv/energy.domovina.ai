@@ -1,7 +1,8 @@
 # 00 — Indeks baze znanja
 
-`energy.domovina.ai` je **P2P platforma za zajedničko financiranje i suvlasništvo
-sunčanih elektrana u Hrvatskoj**. Ovaj `docs/` direktorij je **jedini izvor istine**
+**domovina.energy** je **P2P platforma za zajedničko financiranje i suvlasništvo
+sunčanih elektrana u Hrvatskoj**. Živi na **energy.domovina.ai** (closed beta,
+jedno okruženje — vidi [12](./12-ime-domena-okruzenja.md)). Ovaj `docs/` direktorij je **jedini izvor istine**
 iz kojeg se gradi landing i aplikacija. Kod se piše iz dokumenata, ne obrnuto.
 
 Datum osnivanja baze: **15. rujna 2026.**
@@ -24,7 +25,7 @@ Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.** ([11
 | 09 | [dizajn-sustav](./09-dizajn-sustav.md) | Boje, tipografija, komponente; odnos prema pinka/airKUNA brandu | redizajn |
 | 10 | [reuse-mapa](./10-reuse-mapa.md) | Točno što se kopira iz kojeg repoa i pod kojim uvjetima | novi izvorni repo |
 | 11 | [plan-izvedbe](./11-plan-izvedbe.md) | Faze do GEF-a i nakon; što je blokirano na eksterno | svaki sprint |
-| 12 | [ime-i-domena](./12-ime-i-domena.md) | Prijedlozi imena s provjerom domena; kriteriji | odluka o imenu |
+| 12 | [ime-domena-okruzenja](./12-ime-domena-okruzenja.md) | **Ime `domovina.energy`, live na `energy.domovina.ai`, jedno okruženje** | promjena domene ili razdvajanje okruženja |
 | 13 | [konkurencija](./13-konkurencija.md) | **Pet klasa konkurencije**, dvije ugašene platforme i njihove pouke, K1–K8 izmjene | novi igrač ili nalaz |
 
 ---
@@ -63,7 +64,7 @@ jer se ista greška već dogodila u obitelji proizvoda.
 ```mermaid
 flowchart TB
   subgraph ITalk["ITalk d.o.o. — isti pravni subjekt"]
-    EN["energy.domovina.ai<br/>solarni P2P marketplace<br/>OVAJ REPO"]
+    EN["domovina.energy<br/>solarni P2P marketplace<br/>live: energy.domovina.ai<br/>OVAJ REPO"]
     PF["pinka.finance / pinka.io<br/>kampanje + checkout"]
     MPT["mpt.hr<br/>rail, 0 % naknada"]
     AK["airkuna.com / .org<br/>personhood + stablecoin"]

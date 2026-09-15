@@ -68,7 +68,7 @@ Stavke ispod su **poželjne, ne uvjet** — uvjet je kriterij dovršenosti na dn
 - [ ] deep-linkovi za demo na štandu
 - [ ] **offline build** — service worker, demo radi bez mreže
 - [ ] **kiosk povratak** na početni ekran nakon neaktivnosti
-- [ ] deploy na Cloudflare + domena
+- [ ] deploy na Cloudflare (`energy.domovina.ai`) + `robots.txt`/`noindex`
 - [ ] QR na materijalima (`?izvor=gef2026`)
 
 ### Namjerno IZVAN Faze 1
@@ -117,9 +117,10 @@ Ne može se riješiti u ovom repou. Vlasnik = tko to mora pokrenuti.
 | # | Što | Vlasnik | Blokira |
 |---|---|---|---|
 | B1 | **Pravno mišljenje** na pitanja [03](./03-pravni-okvir.md) §9 — prvenstveno §9.1 (je li članski ulog izvan ECSPR-a) | odvjetnik | skaliranje modela B |
-| B2 | Odluka o domeni | Matija | deploy, CSP, Certilia origins, **passkey RP ID** ([12](./12-ime-i-domena.md) §3) |
-| B3 | **Ime proizvoda** — prijedlozi spremni, preporuka *Prisoje* | Matija | landing copy, logo, OG ([12](./12-ime-i-domena.md)) |
-| B4 | Cloudflare projekt + DNS | Matija | deploy |
+| ~~B2~~ | ~~Odluka o domeni~~ — **riješeno 15.9.2026.**: live na `energy.domovina.ai` ([12](./12-ime-domena-okruzenja.md)) | — | — |
+| ~~B3~~ | ~~Ime proizvoda~~ — **riješeno**: `domovina.energy` | — | — |
+| B14 | **Kako se tehnički zatvara beta** (CF Access / lozinka / neindeksirani link) | Matija | dijeljenje linka na sajmu ([12](./12-ime-domena-okruzenja.md) §6) |
+| B4 | Cloudflare projekt + DNS za `energy.domovina.ai` (zona `domovina.ai`); provjeriti je li `domovina.energy` registriran na ITalk | Matija | deploy |
 | B5 | Certilia `ALLOWED_ORIGINS` | Coolify na certilia-serveru | Faza 2 |
 | B6 | Primjena DB migracije | `domovina-api` tim | Faza 2 |
 | B7 | `Domovina.createAccount` (SDK 0.10) u walletu | `pay.domovina.ai` | pravi Safe po projektu |

@@ -186,6 +186,11 @@ uvjet postojanja, i ima tri posljedice:
 | **Certilia eID** | verifikacija **nositelja** projekta — pravi čovjek, pravi OIB | `lib/certilia.ts`, `lib/auth.tsx` |
 | Recovery owner | oporavak računa bez seed fraze | wallet |
 
+⚠️ **Passkeyi ne prelaze granicu domene.** U closed beti passkey je **simuliran**
+i to mora tako ostati dok se ne odluči na kojoj domeni produkcija trajno živi —
+inače korisnici gube pristup pri prelasku `energy.domovina.ai` → `domovina.energy`
+([12](./12-ime-domena-okruzenja.md) §4).
+
 **Invarijanta iz `DB-MIGRATION.sql`, prenosi se doslovno:** `is_verified` i
 `owner` su **server-computed**, nikad iz klijentskog patcha. Upis projekta ide
 isključivo kroz `SECURITY DEFINER` RPC koji sam provjerava eID. Klijent nikad ne

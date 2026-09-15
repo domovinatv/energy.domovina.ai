@@ -1,8 +1,12 @@
-# energy.domovina.ai — CLAUDE.md
+# domovina.energy — CLAUDE.md
 
 P2P platforma za zajedničko financiranje i suvlasništvo **sunčanih elektrana u
 Hrvatskoj**. Registar svih FN elektrana + marketplace projekata na Safe multisig
 railu, bez provizije.
+
+**Ime: `domovina.energy`. Live na: `energy.domovina.ai` (closed beta).**
+**JEDNO OKRUŽENJE — development = staging = production.** Grana `main` je ono što
+ljudi vide; nema „probat ću na stagingu". Detalji i pravila: `docs/12`.
 
 **Stanje: Faza 0 — baza znanja, koda još nema.**
 Fiksni rok: **Green Energy Fair, Arena Zagreb, 28.–29.10.2026.**
@@ -15,8 +19,12 @@ Fiksni rok: **Green Energy Fair, Arena Zagreb, 28.–29.10.2026.**
 - **Nastup: vjerojatno posjetitelj**, ali opseg gradimo na izlagački standard
   (offline build, layout za TV, kiosk povratak, deep-linkovi — `docs/06` §6).
   Veći opseg se lako smanjuje; obrnuto ne ide.
-- **Ime: otvoreno**, preporuka *Prisoje* (`docs/12`). Do odluke ne hardkodiraj ime
-  u copy — koristi konstantu.
+- **Ime: `domovina.energy`**, radna/live adresa `energy.domovina.ai`. Ime **ne
+  hardkodiraj** u copy — ide preko `lib/brand.ts` (`docs/12` §5), jer je prelazak na
+  `domovina.energy` kasnije jedna izmjena.
+- **Jedno okruženje, idemo live s njim.** Svaki push u `main` je objava:
+  `npm run verify` prolazi prije commita, nedovršeno ide **iza zastavice** a ne na
+  `main` bez nje, migracije su samo aditivne (`docs/12` §2.1).
 
 ---
 
@@ -136,7 +144,13 @@ kopiranjem natrag.
 
 ## Otvoreno (blokira, vidi `docs/11` §Blokirano)
 
-- **B1** pravno mišljenje: je li članski ulog u energetsku zadrugu izvan ECSPR-a
-- **B2** domena: `energy.domovina.ai` vs `domovina.energy`
-- **B3** ime proizvoda — „energy.domovina.ai" je adresa, ne ime
-- **B10** registracija za GEF — **prvo po hitnosti**
+- **B1** pravno mišljenje: je li članski ulog u energetsku zadrugu izvan ECSPR-a,
+  i gdje je granica samoizdavanja vs posredovanja (`docs/03` §9.8)
+- **B12** kontakt sa ZEZ-om — **prije GEF-a**
+- **B13** ručna provjera Registra OIEKPP u pregledniku
+- **B14** kako se tehnički zatvara beta
+- **B10** registracija za GEF
+
+⚠️ **Passkey zamka:** u closed beti passkey je **simuliran** i mora tako ostati dok
+se ne odluči trajna produkcijska domena. WebAuthn passkeyi su vezani uz registrable
+domain i **ne migriraju** s `domovina.ai` na `domovina.energy` (`docs/12` §4).

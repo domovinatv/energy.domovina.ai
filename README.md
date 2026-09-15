@@ -1,8 +1,12 @@
-# energy.domovina.ai
+# domovina.energy
 
 **P2P platforma za zajedničko financiranje i suvlasništvo sunčanih elektrana u
 Hrvatskoj.** Bez provizije, bez posrednika koji drži novac, s javnim dokazom tko je
 što uložio.
+
+> **Ime:** `domovina.energy` · **Live:** `energy.domovina.ai` (closed beta)
+> **Jedno okruženje:** development = staging = production. Grana `main` je ono što
+> ljudi vide. Vidi [`docs/12`](./docs/12-ime-domena-okruzenja.md).
 
 > Zakon zajedničko vlasništvo nad elektranom dopušta od 2021.
 > U Hrvatskoj postoje **tri** takve zajednice.
@@ -17,9 +21,6 @@ gradi landing i aplikacija.
 
 Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.**
 
-Ime proizvoda još nije odabrano; prijedlozi i provjera domena u
-[`docs/12-ime-i-domena.md`](./docs/12-ime-i-domena.md) (preporuka: **Prisoje**).
-
 ---
 
 ## Gdje početi
@@ -31,6 +32,8 @@ Ime proizvoda još nije odabrano; prijedlozi i provjera domena u
 | **što smijemo, a što ne** | [`docs/03-pravni-okvir.md`](./docs/03-pravni-okvir.md) |
 | kako teče novac | [`docs/04-financijska-arhitektura.md`](./docs/04-financijska-arhitektura.md) |
 | što gradimo sljedeće | [`docs/11-plan-izvedbe.md`](./docs/11-plan-izvedbe.md) |
+| ime, domena, okruženja | [`docs/12-ime-domena-okruzenja.md`](./docs/12-ime-domena-okruzenja.md) |
+| konkurencija i pouke | [`docs/13-konkurencija.md`](./docs/13-konkurencija.md) |
 
 **Prije bilo kakvog koda pročitaj 00, 01 i 03.** Granica iz 03 §3 nije stilska nego
 licencna — određuje koje rečenice smiju stajati u sučelju.

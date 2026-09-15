@@ -115,7 +115,7 @@ flowchart LR
 
 ## 5. Čime se razlikujemo
 
-| | Klasična crowdfunding platforma | Banka / kredit | **energy.domovina.ai** |
+| | Klasična crowdfunding platforma | Banka / kredit | **domovina.energy** |
 |---|---|---|---|
 | Tko drži novac | platforma | banka | **nitko osim samih članova** (Safe M-od-N) |
 | Provizija | 5–8 % | kamata | **0 %** ([04](./04-financijska-arhitektura.md)) |

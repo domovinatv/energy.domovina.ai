@@ -147,4 +147,6 @@ padne, nastup nije ugrožen.
 
 - [ ] OG slike (hr/en) — obrazac postoji u `pinka-finance/app/public/og/`.
 - [ ] Pravni tekst uvjeta i privatnosti — **pravnik**, ne mi.
-- [ ] Ime i domena — prijedlozi u [`12-ime-i-domena.md`](./12-ime-i-domena.md), čeka odluku.
+- [x] ~~Ime i domena~~ — **odlučeno**: `domovina.energy`, live na `energy.domovina.ai`
+      ([12](./12-ime-domena-okruzenja.md)).
+- [ ] `robots.txt` + `noindex` — closed beta ne smije u tražilice.
