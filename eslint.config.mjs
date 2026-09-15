@@ -4,7 +4,17 @@ import coreWebVitals from "eslint-config-next/core-web-vitals";
 import nextTypescript from "eslint-config-next/typescript";
 
 const config = [
-  { ignores: ["node_modules/**", ".next/**", "out/**", "next-env.d.ts"] },
+  {
+    ignores: [
+      "node_modules/**",
+      ".next/**",
+      "out/**",
+      "next-env.d.ts",
+      // Vendoriran maplibre worker (scripts/copy-maplibre-worker.mjs) — tuđi
+      // minificirani kod, ne naš.
+      "public/maplibre/**",
+    ],
+  },
   ...coreWebVitals,
   ...nextTypescript,
   {
@@ -21,7 +31,7 @@ const config = [
   {
     // `scripts/` su CLI alati — stdout im je izlazni kanal, ne ostatak otklanjanja
     // pogrešaka.
-    files: ["scripts/**/*.ts"],
+    files: ["scripts/**/*.ts", "scripts/**/*.mjs"],
     rules: { "no-console": "off" },
   },
 ];

@@ -7,7 +7,9 @@
     "node": ">=20"
   },
   "scripts": {
+    "predev": "node scripts/copy-maplibre-worker.mjs",
     "dev": "next dev -p 3020",
+    "prebuild": "node scripts/copy-maplibre-worker.mjs",
     "build": "next build",
     "start": "npx serve out",
     "lint": "eslint .",

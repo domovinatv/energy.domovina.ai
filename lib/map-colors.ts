@@ -59,15 +59,33 @@ export const MARKER_COLOR_EXPRESSION: ExpressionSpecification = [
  * ⚠️ Raspon je od ~3 kWp (krov) do stotina kWp, pa LINEARNO skaliranje pojede
  * kartu (docs/08 §3.1). `logKwp` je predizračunat u svojstvima značajke jer
  * maplibre `ln` izrazi ne rade u svim verzijama stila.
+ *
+ * ⚠️ Izraz koji čita `["zoom"]` smije stajati SAMO kao vrh `step`/`interpolate`
+ * izraza. Zato se prsten ne može napisati kao `["+", MARKER_RADIUS, 5]` —
+ * maplibre to odbija s „zoom expression may only be used as input to a
+ * top-level step or interpolate expression". Umjesto toga se odmak upiše u
+ * svaku točku, a oba izraza nastaju iz istog izvora da ne mogu razići.
  */
-export const MARKER_RADIUS_EXPRESSION: ExpressionSpecification = [
-  "interpolate",
-  ["linear"],
-  ["zoom"],
-  5, ["interpolate", ["linear"], ["get", "logKwp"], 0, 3, 1, 6.5],
-  9, ["interpolate", ["linear"], ["get", "logKwp"], 0, 4.5, 1, 11],
-  13, ["interpolate", ["linear"], ["get", "logKwp"], 0, 7, 1, 18],
+
+/** [zoom, polumjer pri logKwp=0, polumjer pri logKwp=1] */
+const RADIUS_STOPS: ReadonlyArray<readonly [number, number, number]> = [
+  [5, 3, 6.5],
+  [9, 4.5, 11],
+  [13, 7, 18],
 ];
+
+function radiusExpression(offset: number): ExpressionSpecification {
+  const stops = RADIUS_STOPS.flatMap(([zoom, small, large]) => [
+    zoom,
+    ["interpolate", ["linear"], ["get", "logKwp"], 0, small + offset, 1, large + offset],
+  ]);
+  return ["interpolate", ["linear"], ["zoom"], ...stops] as ExpressionSpecification;
+}
+
+export const MARKER_RADIUS_EXPRESSION: ExpressionSpecification = radiusExpression(0);
+
+/** Prsten oko onih koje traže suradnju — isti izraz, pomaknut prema van. */
+export const MARKER_RING_RADIUS_EXPRESSION: ExpressionSpecification = radiusExpression(5);
 
 /** Obrub: deblji kad je elektrana bez priključka — upozorenje (docs/09 §3). */
 export const MARKER_STROKE_COLOR_EXPRESSION: ExpressionSpecification = [

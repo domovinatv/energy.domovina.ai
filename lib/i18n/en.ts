@@ -137,6 +137,8 @@ export const en: Catalog = {
     "A contribution funds construction. It grants no claim to money and no share of profit.",
   "model.communityExplain":
     "A membership stake grants membership, a vote in the community, and a share of the energy produced. It grants no claim to money.",
+  "conflict.disclosure":
+    "The contractor for this project is {contractor}. Paying out of the project account takes {threshold} of {owners} signatures, and only one of them is ours.",
 
   "footer.about": "About the platform",
   "footer.disclaimerTitle": "Regulatory notice",

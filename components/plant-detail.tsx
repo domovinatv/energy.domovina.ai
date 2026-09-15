@@ -14,6 +14,7 @@ import Link from "next/link";
 import { ArrowLeft, MapPin, ShieldCheck, Zap } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { formatDate, formatEur, formatKwp, formatNumber, formatProduction } from "@/lib/format";
+import { SAFES } from "@/lib/mock";
 import type { Plant, Project } from "@/lib/types";
 import { DemoBadge, GridStatusBadge, SeekingBadge, StatusBadge } from "./badges";
 
@@ -35,7 +36,7 @@ export function PlantDetail({
   readonly project: Project | null;
   readonly nearby: readonly Plant[];
 }) {
-  const { t } = useT();
+  const { t, locale } = useT();
   const tech = plant.tech;
   const hasTech =
     tech.panels !== undefined || tech.inverters !== undefined || tech.mounting !== undefined;
@@ -97,7 +98,9 @@ export function PlantDetail({
             ) : null}
 
             {plant.commissioning_date !== null ? (
-              <Row label={t("plant.commissioned")}>{formatDate(plant.commissioning_date)}</Row>
+              <Row label={t("plant.commissioned")}>
+                {formatDate(plant.commissioning_date, locale)}
+              </Row>
             ) : null}
 
             <Row label={t("owner.label")}>{t(`owner.${plant.owner_type}`)}</Row>
@@ -146,7 +149,7 @@ export function PlantDetail({
             </div>
             {plant.grid_requested_at !== null ? (
               <p className="mt-2 text-sm text-inkMuted">
-                {t("grid.requestedAt", { date: formatDate(plant.grid_requested_at) })}
+                {t("grid.requestedAt", { date: formatDate(plant.grid_requested_at, locale) })}
               </p>
             ) : null}
             {plant.grid_status === "not_requested" || plant.grid_status === "rejected" ? (
@@ -213,6 +216,7 @@ export function PlantDetail({
  */
 function ProjectCard({ project }: { readonly project: Project }) {
   const { t } = useT();
+  const safe = SAFES[project.slug];
   const pct =
     project.goal_cents > 0
       ? Math.min(100, Math.round((project.raised_cents / project.goal_cents) * 100))
@@ -251,10 +255,13 @@ function ProjectCard({ project }: { readonly project: Project }) {
         interesa je strukturni i priznaje se PRVI, trajno na stranici projekta —
         ne u uvjetima korištenja.
       */}
-      {project.mode === "integrated" && project.contractor !== null ? (
+      {project.mode === "integrated" && project.contractor !== null && safe !== undefined ? (
         <p className="mt-3 rounded-sm bg-cream/80 p-2.5 text-xs leading-relaxed text-inkSoft">
-          Izvođač ovog projekta je {project.contractor}. Isplata iz računa projekta traži više
-          potpisa, a naš je samo jedan.
+          {t("conflict.disclosure", {
+            contractor: project.contractor,
+            threshold: safe.threshold,
+            owners: safe.owners.length,
+          })}
         </p>
       ) : null}
 

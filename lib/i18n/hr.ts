@@ -104,7 +104,8 @@ export const hr = {
   "grid.connected": "Priključena",
   "grid.rejected": "Zahtjev odbijen",
   "grid.label": "Status priključka",
-  "grid.requestedAt": "Zahtjev predan {date}.",
+  // Bez točke na kraju: hrvatski datum („8. ožujka 2026.") već završava točkom.
+  "grid.requestedAt": "Zahtjev predan {date}",
   "grid.warning":
     "Zahtjev za priključak još nije predan. Elektrana bez priključka ne predaje u mrežu.",
 
@@ -154,6 +155,11 @@ export const hr = {
     "Doprinos financira izgradnju. Ne daje pravo na novac ni na udio u dobiti.",
   "model.communityExplain":
     "Članski ulog daje članstvo, glas u zajednici i udio u proizvedenoj energiji. Ne daje pravo na novac.",
+  // P4 (docs/14 §4) — objava sukoba interesa. Stoji TRAJNO na stranici
+  // projekta, ne u uvjetima korištenja. Sukob je strukturni: istovremeno smo
+  // platforma i izvođač koji naplaćuje. Priznaje se prvi.
+  "conflict.disclosure":
+    "Izvođač ovog projekta je {contractor}. Isplata iz računa projekta traži {threshold} od {owners} potpisa, a naš je samo jedan.",
 
   // Podnožje
   "footer.about": "O platformi",

@@ -63,12 +63,24 @@ export function formatPercent(fraction: number, maximumFractionDigits = 0): stri
   }).format(fraction);
 }
 
+/**
+ * Datumi prate JEZIK SUČELJA, za razliku od iznosa.
+ *
+ * Iznosi su uvijek hr-HR jer je valuta euro u Hrvatskoj i format je dio
+ * konvencije (CLAUDE.md §Konvencije). Datum nije — „8. ožujka 2026." usred
+ * engleske rečenice je greška, a uz to razbija interpunkciju: hrvatski datum
+ * već završava točkom, engleski ne.
+ */
+type DateLocale = "hr" | "en";
+
+const DATE_LOCALE: Record<DateLocale, string> = { hr: HR, en: "en-GB" };
+
 /** ISO datum → 15. rujna 2026. Prazan ulaz vraća prazan string, ne „Invalid Date". */
-export function formatDate(iso: string | null): string {
+export function formatDate(iso: string | null, locale: DateLocale = "hr"): string {
   if (iso === null || iso === "") return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return new Intl.DateTimeFormat(HR, {
+  return new Intl.DateTimeFormat(DATE_LOCALE[locale], {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -76,11 +88,11 @@ export function formatDate(iso: string | null): string {
 }
 
 /** Kratki datum — 15.9.2026. */
-export function formatDateShort(iso: string | null): string {
+export function formatDateShort(iso: string | null, locale: DateLocale = "hr"): string {
   if (iso === null || iso === "") return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return new Intl.DateTimeFormat(HR, {
+  return new Intl.DateTimeFormat(DATE_LOCALE[locale], {
     day: "numeric",
     month: "numeric",
     year: "numeric",

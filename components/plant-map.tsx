@@ -20,6 +20,8 @@ import {
   Map as MapLibreMap,
   NavigationControl,
   Popup,
+  getWorkerUrl,
+  setWorkerUrl,
   type GeoJSONSource,
   type MapGeoJSONFeature,
   type MapLayerMouseEvent,
@@ -35,6 +37,7 @@ import {
   INK,
   MARKER_COLOR_EXPRESSION,
   MARKER_RADIUS_EXPRESSION,
+  MARKER_RING_RADIUS_EXPRESSION,
   MARKER_STROKE_COLOR_EXPRESSION,
   SAND_DEEP,
   SOLAR,
@@ -48,6 +51,20 @@ const POINT_RING_LAYER = "plants-point-ring";
 
 /** OpenFreeMap positron — bez ključa, ista podloga kao gis.domovina.ai. */
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
+
+/**
+ * ⚠️ Worker se mora postaviti ručno — inače karta ostane prazna BEZ greške.
+ *
+ * maplibre 6 traži svoj worker preko `import.meta.url` i odustane ako to nije
+ * `http(s):` URL. Turbopack (Next 16) ga prepiše u nešto drugo, pa maplibre
+ * dobije prazan URL: stil, sprite i TileJSON se dohvate s 200, canvas i WebGL
+ * rade, ali nijedan `.pbf` se ne zatraži i `map.loaded()` zauvijek ostaje
+ * `false`. U konzoli nema ničega.
+ *
+ * Datoteke vendorira `scripts/copy-maplibre-worker.mjs` pri `predev`/`prebuild`.
+ * Vlastita domena, ne CDN — demo na sajmu mora raditi offline (docs/06 §6).
+ */
+const WORKER_URL = "/maplibre/maplibre-gl-worker.mjs";
 
 /**
  * Podržava li preglednik WebGL. maplibre bez njega ne radi, a publika na sajmu
@@ -150,6 +167,10 @@ export function PlantMap({ plants, focusSlug = null }: Props) {
 
     if (!webglAvailable) return;
 
+    // Postavi prije prvog `new MapLibreMap` — nakon toga se worker pool već
+    // podigao s praznim URL-om.
+    if (getWorkerUrl() !== WORKER_URL) setWorkerUrl(WORKER_URL);
+
     let map: MapLibreMap;
     try {
       map = new MapLibreMap({
@@ -245,7 +266,7 @@ export function PlantMap({ plants, focusSlug = null }: Props) {
       filter: ["all", ["!", ["has", "point_count"]], ["get", "seeking"]],
       paint: {
         "circle-color": "rgba(0,0,0,0)",
-        "circle-radius": ["+", MARKER_RADIUS_EXPRESSION, 5],
+        "circle-radius": MARKER_RING_RADIUS_EXPRESSION,
         "circle-stroke-color": MARKER_COLOR_EXPRESSION,
         "circle-stroke-width": 1.5,
         "circle-stroke-opacity": 0.55,
