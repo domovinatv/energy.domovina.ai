@@ -46,17 +46,26 @@ svakom ekranu.
       fly-to — deep-linkovi za štand ([06](./06-produkt-landing.md) §6) stižu ranije
 - [x] `robots.txt` + `noindex` ([12](./12-ime-domena-okruzenja.md) §6)
 
-### 1c · Marketplace (tjedan 2–3)
+### 1c · Marketplace (tjedan 2–3) ✅ **15.9.2026.**
 
-- [ ] `/projekt/:slug` s tabovima ([07](./07-produkt-app.md) §2.3)
-- [ ] knjiga doprinosa
-- [ ] tijek doprinosa do ekrana potvrde (simuliran)
-- [ ] `/zajednice` + `/zajednica/:slug` s trakom registracije
-- [ ] **tab „Tijek"** na projektu (K1) — vremenska crta uplata → prva kWh
-- [ ] **trajna lista čekanja** (K4) kad nijedan projekt nije otvoren
-- [ ] `/novi-projekt` čarobnjak — redoslijed po [03](./03-pravni-okvir.md) §8
+- [x] `/projekt/:slug` s osam tabova ([07](./07-produkt-app.md) §2.3); aktivni tab
+      je u URL-u (`?tab=`), pa su deep-linkovi sa štanda posljedica, ne dodatan posao
+- [x] **model + „Ne nudimo prinos ni udio u dobiti." i objava sukoba interesa stoje
+      IZNAD tabova**, ne u njima — unutar taba bi nestali pri prvom prebacivanju
+- [x] knjiga doprinosa
+- [x] tijek doprinosa do ekrana potvrde (simuliran); kod modela B eID je obavezan
+- [x] `/zajednice` + `/zajednica/:slug` s trakom registracije i vodičem (E9)
+- [x] **tab „Tijek"** na projektu (K1) — plan I ostvarenje po koraku, pa se kašnjenje
+      ne može sakriti prepisivanjem plana; Bilogora namjerno kasni
+- [x] **trajna lista čekanja** (K4) — stoji i kad projekt JEST otvoren
+- [x] `/novi-projekt` čarobnjak — redoslijed po [03](./03-pravni-okvir.md) §8,
+      modeli C/D vidljivi i onemogućeni s objašnjenjem (E2)
+- [x] **`/projekt/:slug/sine`** (P3, [07](./07-produkt-app.md) §2.10) — povučeno u 1c
+      jer tab „Račun" traži poveznicu, a poveznica u prazno je gora od nijedne
+- [x] validacija opisa na zabranjene riječi (E3) dijeli popis s lintom
+      (`lib/forbidden-words.ts`) — dvije kopije pravila raziđu se tiho
 
-### 1d · Landing (tjedan 3–4)
+### 1d · Landing (tjedan 3–4) — **sljedeće**
 
 - [ ] 12 sekcija ([06](./06-produkt-landing.md) §1)
 - [ ] `lib/energy-machine.ts` + React Flow/Mermaid dijagram + 3 scenarija

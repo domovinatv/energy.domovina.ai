@@ -1,12 +1,12 @@
-# 2026-09-15 — Dnevnik izvedbe: odluke o stacku, zamke i ispravci iz Faze 1a/1b
+# 2026-09-15 — Dnevnik izvedbe: odluke o stacku, zamke i ispravci (Faza 1a–1c)
 
 Parnjak [istraživačkog dnevnika](./2026-09-15-istrazivacki-dnevnik.md), ali za
 **kod**. Onaj nosi što je provjereno o tržištu; ovaj nosi zašto stack izgleda
 ovako, što je koštalo vremena, i koje su tvrdnje iz `docs/` pri izvedbi morale
 biti precizirane.
 
-Pokriva prva dva commita s kodom: `94b7db7` (Faza 1a + 1b) i `c87afbe`
-(ispravci karte).
+Pokriva kod od početka: `94b7db7` (Faza 1a + 1b), `c87afbe` (ispravci karte) i
+Fazu 1c (marketplace) — §7 niže.
 
 **Vezani dokumenti:** [05-podatkovni-model](./05-podatkovni-model.md) ·
 [06-produkt-landing](./06-produkt-landing.md) §5 ·
@@ -245,7 +245,129 @@ pri sljedećem deployu.
 
 ---
 
-## 7. Što je ostalo neprovjereno ili otvoreno
+## 7. Faza 1c — marketplace: što se naučilo
+
+### 7.1 ⚠️ Lint na zabranjene riječi propuštao je padeže
+
+**Najvrjednija stavka iz 1c**, i pronašao ju je test, ne čitanje koda — isto kao
+oba ispravka iz §5.
+
+Uzorak je bio `/\bsekundarno trži/i`. Hvatao je **nominativ** i ništa drugo:
+
+| Tekst | Prije | Sada |
+|---|---|---|
+| „sekundarno tržište" | ❌ pada | ❌ pada |
+| „na **sekundarnom** tržištu" | ✅ **prolazi** | ❌ pada |
+| „nema **sekundarnog** tržišta" | ✅ **prolazi** | ❌ pada |
+
+Isto je vrijedilo za `povrat na ulaganje` („povrat**a** na ulaganje") i
+`udio u dobiti` („udjel u dobiti").
+
+Jednorječni uzorci su bili u redu jer rade na prefiksu: `\bprinos` hvata i
+„prinosa" i „prinosom". Problem su imali **isključivo višerječni**, gdje je
+razmak zaključavao točan oblik prve riječi.
+
+Ispravak: `\w*` na svakoj riječi koja se sklanja —
+`/\bsekundarn\w*\s+trži/i`, `/\bpovrat\w*\s+na\s+ulaganj/i`,
+`/\b(udio|udjel\w*)\s+u\s+dobit/i`.
+
+> **Pouka:** uzorak pisan za engleski ne prenosi se na hrvatski. Ovo nije bila
+> kozmetička rupa nego rupa u **kontroli usklađenosti** ([14](./14-poslovni-model.md) §2.4):
+> opis projekta s „prinosom na sekundarnom tržištu" prošao bi validaciju.
+
+Svaki propušteni oblik sada stoji kao primjer u `FORBIDDEN_EXAMPLES`. Test ne
+provjerava samo da tekst padne, nego **na kojem točno izrazu** — inače bi prošao
+slučajno, preko nekog drugog pravila.
+
+### 7.2 Popis zabranjenih riječi morao je izaći iz linta
+
+E3 traži provjeru na **dva** mjesta: naš copy (lint, pri `verify`) i **tuđi**
+opis projekta u čarobnjaku (u pregledniku, prije predaje). Dvije kopije popisa
+razišle bi se tiho, a razlika bi značila da tuđi tekst prolazi ono što naš ne
+smije.
+
+Zato popis živi u `lib/forbidden-words.ts`, a `scripts/check-copy.ts` ga uvozi.
+Cijena je jedan novi redak u `ALLOWLIST` linta — datoteka koja zabranjene pojmove
+nosi kao **uzorke** ne može samu sebe proći.
+
+⚠️ To je i razlog zašto su primjeri (`FORBIDDEN_EXAMPLES`) ondje, a ne u testu:
+da stoje u testu, trebalo bi allowlistati i njega. **Iznimka po iznimka je točno
+način na koji kontrola usklađenosti prestane biti kontrola.**
+
+⚠️ `APPROVED_NEGATIONS` vrijedi **samo za naš copy**. Korisnički unos nema
+iznimke — nitko izvana ne smije odobravati vlastite pravne formulacije kroz
+obrazac. Test to čuva izrijekom.
+
+### 7.3 Trajno vidljivo ne smije živjeti u tabu
+
+[07](./07-produkt-app.md) §2.3 traži da model financiranja, rečenica „Ne nudimo
+prinos ni udio u dobiti." i objava sukoba interesa budu **trajno vidljivi, ne u
+fusnoti**. Prva namjera bila je staviti ih u tab „Pregled".
+
+To bi bilo pogrešno: nestali bi pri prvom prebacivanju taba. **Tab je fusnota s
+karticama.** Blok stoji iznad tablice tabova i vidi se bez obzira što je otvoreno,
+uključujući i tijek doprinosa — ekran na kojem bi izostanak najviše zavarao.
+
+### 7.4 Sat prototipa stoji (`DEMO_NOW`)
+
+Tab „Tijek" računa kašnjenje u danima, a rok odbrojava. Da se to računa iz
+stvarnog vremena, demo bi **trulio**: na sajmu 28.10.2026. isti bi projekt kasnio
+šest tjedana više nego danas, bez ijedne izmjene podataka.
+
+`DEMO_NOW = "2026-09-15"` je fiksan iz istog razloga iz kojeg je generiranje
+determinističko (§6.5): deep-link sa štanda mora pokazati ono što je pokazivao
+kad je snimljen. Uz to su testovi kašnjenja stabilni.
+
+### 7.5 Bilogora namjerno kasni
+
+Prototip u kojem svaki projekt teče po planu **ne pokazuje ono zbog čega tab
+postoji**. Stanje `late` se nikad ne vidi — ni na sajmu ni u razvoju.
+
+Zato jedan projekt ima plan u prošlosti i prazno ostvarenje, a test to čuva
+(„barem jedan projekt vidljivo kasni"). Drugi test traži da **svaki** korak koji
+kasni nosi objašnjenje — kašnjenje koje je samo obojano je ista šutnja na koju se
+žalio Rippleov Trustpilot ([13](./13-konkurencija.md) §4.2), samo u boji.
+
+### 7.6 React compiler ne da `setState` u efektu
+
+Nacrt čarobnjaka čuva se u `sessionStorage` prije wallet handoffa (naučeno u
+`pinka-finance/app`). Prva izvedba čitala ga je u `useEffect` pa pozivala
+`setState` — `eslint-plugin-react-hooks` to **odbija**:
+
+```
+react-hooks/set-state-in-effect: Avoid calling setState() directly within an effect
+```
+
+Rješenje nije bilo gušenje pravila nego isti obrazac koji repo već koristi za
+jezik (`lib/i18n`) i filtre (`lib/url-state`): **`useSyncExternalStore`** nad
+spremnikom, uz `getServerSnapshot` koji vraća prazno. Uz to nestaje i problem
+hidracije — prerenderirani obrazac je uvijek prazan i poklapa se.
+
+> Treći put u ovom repou da je `useSyncExternalStore` točan odgovor na „vanjsko
+> stanje u statičkom exportu". Vrijedi ga tretirati kao zadani izbor.
+
+### 7.7 Manje odluke
+
+- **Tab u URL-u** (`?tab=racun`) iz istog razloga kao filtri: deep-link sa štanda
+  je posljedica, ne dodatan posao.
+- **`/projekt/:slug/sine` povučen u 1c.** Nije bio na popisu 1c, ali tab „Račun"
+  po [07](./07-produkt-app.md) §2.3 traži poveznicu na njega — a poveznica u
+  prazno je gora od nijedne.
+- **Dokumenti imaju `url: null`**, i UI to kaže tim riječima. Poveznica na
+  nepostojeći PDF je ista klasa greške kao lažni „provjeri na Gnosisscanu" link
+  ([04](./04-financijska-arhitektura.md) §6).
+- **Razrada troška se zbraja u cilj**, i test to čuva. Da se ne zbraja, postojao
+  bi iznos koji se prikuplja a nije objašnjen — a upravo je javna razrada cijena
+  tvrdnje o 0 % ([14](./14-poslovni-model.md) §3.1).
+- **`violatesConflictInvariant` prima `Pick<…>`**, ne cijeli `SafeAccount`, pa
+  ista provjera radi na postojećem računu i na nacrtu iz čarobnjaka.
+- **`udio u proizvedenoj energiji`** računa se na jednom mjestu
+  (`shareBasisPoints`), a test provjerava da se mock podaci slažu s njim — inače
+  bi ekran potvrde pokazivao jedan broj, a knjiga doprinosa drugi.
+
+---
+
+## 8. Što je ostalo neprovjereno ili otvoreno
 
 | Stavka | Status |
 |---|---|
@@ -255,10 +377,12 @@ pri sljedećem deployu.
 | **Offline build** / service worker | ne postoji (1e). Worker i pločice su zasad s mreže |
 | Deploy | blokiran na **B4** (Cloudflare) i **B14** (kako se zatvara beta) |
 | **V1 — JIZ-01** | i dalje otvoren. Registar zato nigdje u copyju nije „prvi" ni „jedini"; stoji poštena formulacija „44.000 u Hrvatskoj, 352 na ovoj karti" |
+| **Mobilni na 414 px za ekrane iz 1c** | ⚠️ **nije izmjeren.** Prozor preglednika je bio maksimiziran i `resize_window` nije primijenjen (`innerWidth` je ostao 1920), pa tvrdnja o 414 px za marketplace ekrane **ne stoji**. Jedina široka stavka je tablica razrade troška, koja je u `overflow-x-auto` s `min-w-[22rem]` (352 px < 414 px) — to je konstrukcija, ne mjerenje |
+| **Pridruživanje potpisnika osobi** | mock nema vezu adresa → osoba, pa tab „Račun" označava naš potpis po redoslijedu (prvih `platform_signer_count`). Kad stigne pravi Safe (**B7**), oznaka mora doći iz podataka |
 
 ---
 
-## 8. Što je provjereno u pregledniku
+## 9. Što je provjereno u pregledniku
 
 Da se ne ponavlja posao, i da se zna dokle seže tvrdnja „radi":
 
@@ -272,3 +396,22 @@ Da se ne ponavlja posao, i da se zna dokle seže tvrdnja „radi":
 - EN katalog radi; datumi prate jezik sučelja, iznosi ostaju `hr-HR`
 - mobilni 414 px: bez vodoravnog scrolla, demo traka prelazi na kratki oblik
 - **i u `next dev` i na statičkom exportu iz `out/`**
+
+### Faza 1c (u `next dev`, Brave)
+
+- `/projekt/:slug` — osam tabova; model, „Ne nudimo prinos ni udio u dobiti." i
+  objava sukoba interesa („3 od 5 potpisa, a naš je samo jedan") stoje **iznad**
+  tabova i ne nestaju pri prebacivanju
+- **deep-link na tab radi**: `?tab=tijek` i `?tab=financiranje` otvaraju točan tab
+- tab **Tijek** prikazuje traku kašnjenja, „33 dana kasnije od plana" uz naručenu
+  opremu i objašnjenje pomaka; koraci bez roka stoje kao „Rok još nije postavljen"
+- tab **Financiranje**: marža je zasebno označen redak, zbroj 92.000 € jednak cilju,
+  uz potvrdu „Zbroj razrade jednak je cilju projekta"
+- tab **Račun**: prag „3 od 5", naš potpisnik označen, **bez** poveznice na
+  preglednik blokova — umjesto nje objašnjenje zašto je nema
+- `/novi-projekt`: korak 2 prikazuje modele C i D **onemogućene s objašnjenjem**;
+  korak 7 odbija opis „Očekivani prinos je 7 % godišnje, a udjel u dobiti…" —
+  oba izraza imenovana, „Dalje" onemogućen
+- `/zajednice` i `/zajednica/:slug`: traka registracije, vodič s 20.000 € i 6+
+  mjeseci iz `lib/facts.ts`, te rečenica „Ovo ne radimo umjesto vas" (E9)
+- tijek doprinosa na modelu zajednice ima šest koraka s eID-om i pristupnicom

@@ -13,9 +13,10 @@ novac ne prolazi kroz nas (**Mod 2**). Zbog toga **ne treba ECSP** — `docs/14`
 **JEDNO OKRUŽENJE — development = staging = production.** Grana `main` je ono što
 ljudi vide; nema „probat ću na stagingu". Detalji i pravila: `docs/12`.
 
-**Stanje: Faza 1a + 1b isporučeni** — temelj (Next.js, tokeni, `lib/*`, i18n) i
-registar (maplibre karta s klasterima, filtri, popis, `/elektrana/:slug`).
-Sljedeće je **Faza 1c — marketplace** (`docs/11`).
+**Stanje: Faza 1a + 1b + 1c isporučene** — temelj (Next.js, tokeni, `lib/*`, i18n),
+registar (maplibre karta s klasterima, filtri, popis, `/elektrana/:slug`) i
+marketplace (`/projekt/:slug` s osam tabova, tijek doprinosa, `/zajednice`,
+`/novi-projekt`, lista čekanja). Sljedeće je **Faza 1d — landing** (`docs/11`).
 Fiksni rok: **Green Energy Fair, Arena Zagreb, 28.–29.10.2026.**
 
 ### Potvrđene odluke (15.9.2026.)
@@ -140,6 +141,19 @@ Iz `zef-novcanik-prototip/CLAUDE.md`:
   inače `bg-forest/10` prestane raditi.
 
 Iz **ovog repoa** (`docs/2026-09-15-dnevnik-izvedbe.md`):
+- **Zabranjene riječi i padeži:** višerječni uzorak pisan za nominativ propušta
+  sklonidbu — „sekundarno tržište" je padalo, „na **sekundarnom** tržištu" je
+  prolazilo. Svaka riječ koja se sklanja treba `\w*`. To je rupa u **kontroli
+  usklađenosti**, ne kozmetika (dnevnik §7.1).
+- **Popis zabranjenih riječi je u `lib/forbidden-words.ts`**, ne u lintu: isti
+  popis treba i lint nad našim copyjem i validacija **tuđeg** opisa u čarobnjaku.
+  Ne dodavati nove iznimke u `ALLOWLIST` — iznimka po iznimka ubija kontrolu.
+- **Trajno vidljivo ne ide u tab.** Tab je fusnota s karticama (dnevnik §7.3).
+- **`useSyncExternalStore` je zadani odgovor** na vanjsko stanje u statičkom
+  exportu (URL, `localStorage`, `sessionStorage`). `setState` u efektu ruši lint
+  (`react-hooks/set-state-in-effect`) i lomi hidraciju (dnevnik §7.6).
+- **`DEMO_NOW` je fiksan datum.** Kašnjenja i rokovi se računaju iz njega, inače
+  demo truli između danas i sajma (dnevnik §7.4).
 - **maplibre 6 + Turbopack:** worker se tiho ne podigne (`import.meta.url` nije
   `http(s):`). Stil, sprite i TileJSON stignu s 200, ali nema nijednog `.pbf`,
   `map.loaded()` ostaje `false`, **greške nema**. Treba `setWorkerUrl()` +
