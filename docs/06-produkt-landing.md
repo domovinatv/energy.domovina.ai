@@ -14,7 +14,7 @@ Uzor tona i dijagrama: `mpt-landing` (jedan machine → dijagram + simulacija + 
 
 | # | Sekcija | Nosi | Izvor istine |
 |---|---|---|---|
-| 1 | **Hero** | jedna rečenica + dva CTA-a („Pogledaj kartu", „Pokreni projekt") | [01](./01-vizija-i-pozicioniranje.md) §1 |
+| 1 | **Hero** | „Zakon to dopušta od 2021. Postoje tri takve zajednice. Radimo četvrtu." + CTA „Pogledaj kartu" / „Pokreni projekt" | [01](./01-vizija-i-pozicioniranje.md) §1.1 |
 | 2 | **Problem** | 44.000 elektrana, **3** zajednice, 20.000 € i 6 mjeseci za osnivanje | [02](./02-trziste-hrvatska.md) §3 |
 | 3 | **Karta** | živi isječak registra — pravi razlog da se ostane na stranici | [08](./08-karta-i-geo.md) |
 | 4 | **Kako radi** | interaktivni dijagram toka novca: banka → EURe → Safe zajednice → instalater → banka | [04](./04-financijska-arhitektura.md) §2 |
@@ -122,10 +122,23 @@ Iz `zef-novcanik-prototip/CLAUDE.md`:
 
 ---
 
-## 6. Otvoreno
+## 6. Nastup na GEF-u — izlagač sa štandom
 
-- [ ] Odluka o domeni: `energy.domovina.ai` (repo) vs `domovina.energy` (registrirana
-      za prethodnika). Utječe na CSP, Certilia `ALLOWED_ORIGINS` i passkey RP ID.
+Potvrđeno 15.9.2026. Podiže standard: prototip nije podrška razgovoru nego **izlog**.
+
+| Zahtjev | Zašto |
+|---|---|
+| **Offline build** | WiFi u Areni nije pretpostavka. Statički export + service worker; demo mora raditi bez mreže |
+| **Prikaz na velikom ekranu** | layout mora raditi i na 1080p TV-u u portretu, ne samo na mobitelu i laptopu |
+| **Deep-linkovi za demo** | `?slug=` na svakom ekranu — pokazuje se otvaranjem točne stranice, ne klikanjem kroz pet koraka |
+| **Kiosk povratak** | nakon N minuta neaktivnosti vrati se na početni ekran |
+| **QR na materijalima** | vodi na landing s UTM-om `?izvor=gef2026` |
+| **Oznaka prototipa dostojanstvena** | na štandu se čita izbliza; traka mora biti jasna, ne sramežljiva |
+
+---
+
+## 7. Otvoreno
+
 - [ ] OG slike (hr/en) — obrazac postoji u `pinka-finance/app/public/og/`.
 - [ ] Pravni tekst uvjeta i privatnosti — **pravnik**, ne mi.
-- [ ] Ime proizvoda. „energy.domovina.ai" je adresa, ne ime.
+- [ ] Ime i domena — prijedlozi u [`12-ime-i-domena.md`](./12-ime-i-domena.md), čeka odluku.

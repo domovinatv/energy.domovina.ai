@@ -6,12 +6,34 @@ Zadnja revizija: **15.9.2026.**
 
 ## 1. Jedna rečenica
 
-> **energy.domovina.ai je mjesto gdje ljudi zajedno financiraju i posjeduju sunčane
-> elektrane u Hrvatskoj — bez provizije, bez posrednika koji drži novac, i s javnim
-> dokazom tko je što uložio.**
+> **Mjesto gdje ljudi zajedno financiraju i posjeduju sunčane elektrane u Hrvatskoj —
+> bez provizije, bez posrednika koji drži novac, i s javnim dokazom tko je što uložio.**
 
-Podnaslov koji nosi teret: *Zakon to dopušta od 2021. U Hrvatskoj postoje tri takve
-zajednice. Pokušavamo napraviti četvrtu lakšom od prve tri.*
+### 1.1 Odluka o pozicioniranju — potvrđeno 15.9.2026.
+
+**Nosiva priča su energetske zajednice, ne „crowdfunding za solar".**
+
+Hero:
+
+> Zakon to dopušta od 2021.
+> U Hrvatskoj postoje **tri** takve zajednice.
+> Radimo četvrtu — lakšom od prve tri.
+
+Razlozi, redom po težini:
+
+1. **Pravno najčišće.** Član zajednice dobiva energiju i glas, ne novac — to ga
+   drži izvan ECSPR-a ([03](./03-pravni-okvir.md) §5.2). Riječ „crowdfunding" u
+   heroju odmah poziva pitanje o prinosu i licenci, i to pred publikom koja zna.
+2. **Nitko to ne radi.** Solarnih ponuđača je mnogo; zajednica su tri
+   ([02](./02-trziste-hrvatska.md) §3). Razlika nije u tehnologiji nego u modelu
+   vlasništva.
+3. **Brojka „tri" radi posao umjesto nas.** Ne treba objašnjavati da problem
+   postoji.
+4. **Solar je sredstvo, ne tema.** Tema je tko smije posjedovati proizvodnju.
+
+**Posljedica za copy:** riječ „crowdfunding" se **ne koristi** u heroju ni u
+navigaciji. Smije se pojaviti niže, kao pojašnjenje mehanike („zajedničko
+financiranje"), nikad kao obećanje modela.
 
 ---
 

@@ -15,7 +15,11 @@ Hrvatskoj.** Bez provizije, bez posrednika koji drži novac, s javnim dokazom tk
 **Faza 0 — baza znanja.** Koda još nema. `docs/` je jedini izvor istine iz kojeg se
 gradi landing i aplikacija.
 
-Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.**
+Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026. — nastupamo
+kao izlagač sa štandom.**
+
+Ime proizvoda još nije odabrano; prijedlozi i provjera domena u
+[`docs/12-ime-i-domena.md`](./docs/12-ime-i-domena.md) (preporuka: **Prisoje**).
 
 ---
 

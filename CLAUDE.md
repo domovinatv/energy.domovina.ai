@@ -5,7 +5,17 @@ Hrvatskoj**. Registar svih FN elektrana + marketplace projekata na Safe multisig
 railu, bez provizije.
 
 **Stanje: Faza 0 — baza znanja, koda još nema.**
-Fiksni rok: **Green Energy Fair, Arena Zagreb, 28.–29.10.2026.**
+Fiksni rok: **Green Energy Fair, Arena Zagreb, 28.–29.10.2026. — izlagač sa štandom.**
+
+### Potvrđene odluke (15.9.2026.)
+
+- **Pozicioniranje: energetske zajednice**, ne „crowdfunding za solar". Hero nosi
+  „tri zajednice u cijeloj Hrvatskoj, radimo četvrtu". Riječ *crowdfunding* se
+  **ne koristi** u heroju ni u navigaciji (`docs/01` §1.1).
+- **Nastup: izlagač sa štandom** → offline build, layout za TV, kiosk povratak,
+  deep-linkovi (`docs/06` §6).
+- **Ime: otvoreno**, preporuka *Prisoje* (`docs/12`). Do odluke ne hardkodiraj ime
+  u copy — koristi konstantu.
 
 ---
 

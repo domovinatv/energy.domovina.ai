@@ -53,15 +53,20 @@ svakom ekranu.
 - [ ] kalkulator usporedbe, označen ilustrativnim
 - [ ] footer s ITalk impresumom
 
-### 1e · Uglačavanje i sajam (tjedan 5)
+### 1e · Uglačavanje i štand (tjedan 5) — **nastupamo kao izlagač**
+
+Potvrđeno 15.9.2026. Prototip je izlog, ne podrška razgovoru
+([06](./06-produkt-landing.md) §6).
 
 - [ ] lint na zabranjene riječi ([06](./06-produkt-landing.md) §4.6)
 - [ ] provjera kontrasta, posebno jantar
 - [ ] mobile prolaz na pravom uređaju
+- [ ] **layout za 1080p TV u portretu** — štand, ne samo laptop
 - [ ] deep-linkovi za demo na štandu
+- [ ] **offline build** — service worker, demo radi bez mreže
+- [ ] **kiosk povratak** na početni ekran nakon neaktivnosti
 - [ ] deploy na Cloudflare + domena
-- [ ] **offline fallback** — WiFi u Areni nije pretpostavka
-- [ ] QR na materijalima
+- [ ] QR na materijalima (`?izvor=gef2026`)
 
 ### Namjerno IZVAN Faze 1
 
@@ -109,15 +114,15 @@ Ne može se riješiti u ovom repou. Vlasnik = tko to mora pokrenuti.
 | # | Što | Vlasnik | Blokira |
 |---|---|---|---|
 | B1 | **Pravno mišljenje** na pitanja [03](./03-pravni-okvir.md) §9 — prvenstveno §9.1 (je li članski ulog izvan ECSPR-a) | odvjetnik | skaliranje modela B |
-| B2 | Odluka o domeni: `energy.domovina.ai` vs `domovina.energy` | Matija | deploy, CSP, Certilia origins, passkey RP ID |
-| B3 | Ime proizvoda | Matija | landing copy, logo, OG |
+| B2 | Odluka o domeni | Matija | deploy, CSP, Certilia origins, **passkey RP ID** ([12](./12-ime-i-domena.md) §3) |
+| B3 | **Ime proizvoda** — prijedlozi spremni, preporuka *Prisoje* | Matija | landing copy, logo, OG ([12](./12-ime-i-domena.md)) |
 | B4 | Cloudflare projekt + DNS | Matija | deploy |
 | B5 | Certilia `ALLOWED_ORIGINS` | Coolify na certilia-serveru | Faza 2 |
 | B6 | Primjena DB migracije | `domovina-api` tim | Faza 2 |
 | B7 | `Domovina.createAccount` (SDK 0.10) u walletu | `pay.domovina.ai` | pravi Safe po projektu |
 | B8 | Licenca podataka HROTE/HERA/HEP-ODS | upit institucijama | seed registra |
 | B9 | Pravni tekst uvjeta/privatnosti | pravnik | javni launch |
-| B10 | Registracija za GEF (izlagač ili posjetitelj?) | Matija | **prvo po hitnosti** |
+| B10 | **Prijava štanda i plaćanje kotizacije za GEF** | Matija | **prvo po hitnosti** — nastup je potvrđen kao izlagač, prijava nije |
 | B11 | Aktualni FZOEU natječaj i uvjeti | istraživanje | točnost kalkulatora |
 
 ---
@@ -130,7 +135,8 @@ Ne može se riješiti u ovom repou. Vlasnik = tko to mora pokrenuti.
 | Opseg naraste i ništa ne bude gotovo | **visoka** | 1b (karta) ima vrijednost i sama; ako padne sve ostalo, karta je i dalje isporuka |
 | Prototip izgleda kao da uzima prave uplate | srednja | oznaka demo u dizajnu, ne naknadno ([09](./09-dizajn-sustav.md) §6.4) |
 | Pravno mišljenje sruši model B | niska–srednja | model A radi bez ijednog otvorenog pitanja |
-| WiFi u Areni | **visoka** | statički build + offline fallback |
+| WiFi u Areni | **visoka** | statički build + service worker; demo mora raditi bez mreže |
+| Štand traži više poliranja nego što stane u 5 tjedana | **visoka** | kriterij „gotovo" (dolje) je namjerno uzak; sve iznad toga je bonus |
 | Wallet `createAccount` ne stigne | srednja | feature-detect, legacy derivacija kao fallback |
 
 ---
