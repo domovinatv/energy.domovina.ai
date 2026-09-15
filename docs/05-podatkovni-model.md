@@ -183,6 +183,7 @@ stateDiagram-v2
 | `chain` | text | `gnosis` (chainId 100) |
 | `threshold` | int | M |
 | `owners` | text[] | N adresa |
+| `platform_signer_count` | int | koliko je od tih potpisnika **naših**. U `byo` modu mora biti **0**. Vidi §4.1 |
 | `source` | enum | `domovina-wallet-account` \| `legacy-derive` ([04](./04-financijska-arhitektura.md) §3.1) |
 | `salt_nonce` | text? | kad dolazi iz wallet handoffa |
 | `deployed` | bool | counterfactual dok je false |
@@ -202,6 +203,25 @@ U `mode = integrated` **mi smo izvođač i ujedno jedan od potpisnika**. Zato:
 
 Model to mora moći provjeriti: `platform_signer_count` vs `threshold`. UI odbija
 spremiti projekt koji krši invarijantu.
+
+**Točan uvjet — precizirano 15.9.2026. pri izvedbi.** „Većina" je **strogo više
+od polovice**, pa je uvjet koji se krši:
+
+```
+platform_signer_count * 2 > threshold
+```
+
+Ne `>=`. Uz prag 3 većina je 2, pa je jedan naš ključ **dopušten** — točno kako
+[14](./14-poslovni-model.md) §4 i kaže („prag 3-od-5 → najviše jedan ključ").
+Prva izvedba je koristila `>=`, što je bilo **strože od pravila** i obaralo je
+legitimnu 2-od-3 konfiguraciju. Implementacija: `violatesConflictInvariant()`
+u `lib/types.ts`.
+
+⚠️ **U Modu 2 (`byo`) ovaj uvjet nije dovoljan.** Ondje je Safe **klijentov** i
+mi **nismo potpisnik uopće** ([14](./14-poslovni-model.md) §1), pa mora vrijediti
+`platform_signer_count = 0`. To je jača tvrdnja od invarijante gore i provjerava
+se zasebno — o njoj ovisi je li „ne držimo vaš novac" provjerljivo ili samo
+marketinški.
 
 ---
 

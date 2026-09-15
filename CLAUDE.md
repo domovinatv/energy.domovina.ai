@@ -139,6 +139,18 @@ Iz `zef-novcanik-prototip/CLAUDE.md`:
 - Ako se ikad uvede tamna tema: tokeni kao **CSS vars s RGB kanalima**, ne hex —
   inače `bg-forest/10` prestane raditi.
 
+Iz **ovog repoa** (`docs/2026-09-15-dnevnik-izvedbe.md`):
+- **maplibre 6 + Turbopack:** worker se tiho ne podigne (`import.meta.url` nije
+  `http(s):`). Stil, sprite i TileJSON stignu s 200, ali nema nijednog `.pbf`,
+  `map.loaded()` ostaje `false`, **greške nema**. Treba `setWorkerUrl()` +
+  vendoriran worker (`scripts/copy-maplibre-worker.mjs`).
+- **maplibre:** `zoom` izraz smije stajati samo kao vrh `step`/`interpolate` —
+  `["+", <interpolate on zoom>, 5]` ruši sloj.
+- **Provjera u pregledniku:** skrivena kartica pauzira `requestAnimationFrame`,
+  pa canvas ne crta. To **ne dokazuje** da je kod ispravan — odgodi zaključak.
+- **ESLint ostaje na 9** dok `eslint-config-next` ne osvježi `eslint-plugin-react`
+  (na 10 puca s `contextOrFilename.getFilename is not a function`).
+
 Iz `pinka-finance/app`:
 - Statički export → `script-src` mora imati `'unsafe-inline'` (inline RSC bez
   nonce-a). Dobitak traži u `frame-ancestors`, origin-pin, `object-src 'none'`.

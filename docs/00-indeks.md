@@ -34,6 +34,7 @@ Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.** ([11
 | Dokument | Što sadrži |
 |---|---|
 | [2026-09-15-istrazivacki-dnevnik](./2026-09-15-istrazivacki-dnevnik.md) | **Dug provjere** (V1–V8 — tvrdnje koje NISU potvrđene), slijepe ulice, odbačene alternative, lanac zaključivanja koji je lako izgubiti |
+| [2026-09-15-dnevnik-izvedbe](./2026-09-15-dnevnik-izvedbe.md) | Parnjak za **kod**: odluke o stacku i što je odbačeno, ⚠️ **maplibre worker pod Turbopackom** (tihi kvar), ispravci koje su izvukli testovi invarijanti, što je ostalo nemjereno |
 
 ---
 

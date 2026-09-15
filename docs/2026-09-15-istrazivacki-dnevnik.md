@@ -8,6 +8,9 @@ da je provjerena.
 **Vezani dokumenti:** [02-trziste-hrvatska](./02-trziste-hrvatska.md) ·
 [13-konkurencija](./13-konkurencija.md) · [08-karta-i-geo](./08-karta-i-geo.md)
 
+**Parnjak za kod:** [2026-09-15-dnevnik-izvedbe](./2026-09-15-dnevnik-izvedbe.md) —
+isti postupak, ali za stack, zamke u izvedbi i ispravke invarijanti.
+
 ---
 
 ## 1. Slijepe ulice — ne ponavljaj
