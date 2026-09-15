@@ -19,23 +19,32 @@ Od danas: **43 dana**, od čega ~6 radnih tjedana.
 **Opseg: UI bez backenda.** Mock podaci, simulirane transakcije, oznaka demo na
 svakom ekranu.
 
-### 1a · Temelj (tjedan 1)
+### 1a · Temelj (tjedan 1) ✅ **15.9.2026.**
 
-- [ ] Next.js + TS strict + Tailwind, tokeni iz [09](./09-dizajn-sustav.md)
-- [ ] `lib/mock.ts` — elektrane, projekti, zajednice, doprinosi po
-      [05](./05-podatkovni-model.md); svi `demo: true`
-- [ ] `lib/facts.ts` — tržišne brojke, citiraju [02](./02-trziste-hrvatska.md)
-- [ ] `lib/fees.ts` — kopija iz pinka landinga (SEPA 0,25–**0,40** €)
-- [ ] i18n skelet HR/EN, HR izvor
-- [ ] `npm run verify` = lint + tsc + build
+- [x] Next.js 16 + React 19 + TS strict (`noUncheckedIndexedAccess`) + Tailwind,
+      tokeni iz [09](./09-dizajn-sustav.md) u `tailwind.config.ts`
+- [x] `lib/mock.ts` — 352 elektrane, 4 projekta, 3 zajednice, 15 doprinosa po
+      [05](./05-podatkovni-model.md); svi `demo: true`, deterministički iz sjemena
+- [x] `lib/facts.ts` — samo **potvrđene** brojke; V1–V8 stoje u
+      `PENDING_VERIFICATION` **bez polja `value`**, pa se ne mogu formatirati u UI
+- [x] `lib/fees.ts` — kopija iz pinka landinga (SEPA 0,25–**0,40** €)
+- [x] `lib/brand.ts` — ime preko konstante ([12](./12-ime-domena-okruzenja.md) §5)
+- [x] i18n HR/EN, HR izvor; EN tipiziran prema HR pa nedostajući ključ ruši `tsc`
+- [x] `npm run verify` = lint + **lint:copy** + tsc + testovi + build
+- [x] `scripts/check-copy.ts` — lint na zabranjene riječi (zahtjev
+      [E3](./03-pravni-okvir.md)); odobrene negacije su doslovne rečenice, ne uzorak
 
-### 1b · Karta i registar (tjedan 1–2) — **najveća vrijednost po satu**
+### 1b · Karta i registar (tjedan 1–2) ✅ **15.9.2026.**
 
-- [ ] maplibre karta Hrvatske s markerima, clustering
-- [ ] filtri: županija, status, `grid_status`, kWp
-- [ ] statistika iznad karte
-- [ ] popis sinkroniziran s kartom (isti filtrirani skup)
-- [ ] `/elektrana/:slug`
+- [x] maplibre karta Hrvatske s markerima, **clustering** (broj + ukupni MW)
+- [x] filtri: županija, status, `grid_status`, raspon kWp, „traže suradnju", pretraga
+- [x] statistika iznad karte, računata iz **filtriranog** skupa
+- [x] popis sinkroniziran s kartom — `filterPlants` se zove **jednom** u
+      `components/registry.tsx` i hrani kartu, popis i statistiku
+- [x] `/elektrana/:slug` — 352 prerenderirane rute
+- [x] filtri u URL-u (`?zupanija=&status=&mreza=&snaga=&suradnja=&q=`) + `?e={slug}`
+      fly-to — deep-linkovi za štand ([06](./06-produkt-landing.md) §6) stižu ranije
+- [x] `robots.txt` + `noindex` ([12](./12-ime-domena-okruzenja.md) §6)
 
 ### 1c · Marketplace (tjedan 2–3)
 
@@ -61,14 +70,18 @@ Opseg je namjerno postavljen na izlagački standard iako je nastup vjerojatno
 posjetiteljski ([06](./06-produkt-landing.md) §6). Veći opseg se lako smanjuje.
 Stavke ispod su **poželjne, ne uvjet** — uvjet je kriterij dovršenosti na dnu.
 
-- [ ] lint na zabranjene riječi ([06](./06-produkt-landing.md) §4.6)
+- [x] lint na zabranjene riječi ([06](./06-produkt-landing.md) §4.6) — **povučeno u
+      1a**, jer je kontrola usklađenosti jeftinija dok je copyja malo
+      (`scripts/check-copy.ts`, dio `npm run verify`)
 - [ ] provjera kontrasta, posebno jantar
 - [ ] mobile prolaz na pravom uređaju
 - [ ] **layout za 1080p TV u portretu** — štand, ne samo laptop
-- [ ] deep-linkovi za demo na štandu
+- [x] deep-linkovi za demo na štandu — **povučeno u 1b**: filtri su u URL-u, pa su
+      deep-linkovi posljedica izbora da URL bude izvor istine, a ne dodatan posao
 - [ ] **offline build** — service worker, demo radi bez mreže
 - [ ] **kiosk povratak** na početni ekran nakon neaktivnosti
-- [ ] deploy na Cloudflare (`energy.domovina.ai`) + `robots.txt`/`noindex`
+- [ ] deploy na Cloudflare (`energy.domovina.ai`) — **blokirano na B4/B14**;
+      `robots.txt` + `noindex` su već u repou ([12](./12-ime-domena-okruzenja.md) §6)
 - [ ] QR na materijalima (`?izvor=gef2026`)
 
 ### Namjerno IZVAN Faze 1

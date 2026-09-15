@@ -7,3 +7,6 @@ dist/
 .wrangler/
 *.tsbuildinfo
 .firecrawl/
+
+# Next 16 generira ovo pri `next dev`
+.next/dev/

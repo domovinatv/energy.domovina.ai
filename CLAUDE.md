@@ -13,7 +13,9 @@ novac ne prolazi kroz nas (**Mod 2**). Zbog toga **ne treba ECSP** — `docs/14`
 **JEDNO OKRUŽENJE — development = staging = production.** Grana `main` je ono što
 ljudi vide; nema „probat ću na stagingu". Detalji i pravila: `docs/12`.
 
-**Stanje: Faza 0 — baza znanja, koda još nema.**
+**Stanje: Faza 1a + 1b isporučeni** — temelj (Next.js, tokeni, `lib/*`, i18n) i
+registar (maplibre karta s klasterima, filtri, popis, `/elektrana/:slug`).
+Sljedeće je **Faza 1c — marketplace** (`docs/11`).
 Fiksni rok: **Green Energy Fair, Arena Zagreb, 28.–29.10.2026.**
 
 ### Potvrđene odluke (15.9.2026.)
@@ -186,3 +188,13 @@ ne makne. Isti dokument nosi i slijepe ulice (§1) da se ne ponavljaju.
 ⚠️ **Passkey zamka:** u closed beti passkey je **simuliran** i mora tako ostati dok
 se ne odluči trajna produkcijska domena. WebAuthn passkeyi su vezani uz registrable
 domain i **ne migriraju** s `domovina.ai` na `domovina.energy` (`docs/12` §4).
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

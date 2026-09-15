@@ -16,10 +16,40 @@ Hrvatskoj.** Bez provizije, bez posrednika koji drži novac, s javnim dokazom tk
 
 ## Stanje
 
-**Faza 0 — baza znanja.** Koda još nema. `docs/` je jedini izvor istine iz kojeg se
-gradi landing i aplikacija.
+**Faza 1a + 1b — temelj i registar.** `docs/` je i dalje jedini izvor istine iz
+kojeg se piše kod, ne obrnuto ([`docs/00`](./docs/00-indeks.md)).
+
+Isporučeno:
+
+- **Karta Hrvatske** s klasterima, filtrima (županija, status, priključak, snaga)
+  i popisom koji gleda **isti filtrirani skup** ([`docs/07`](./docs/07-produkt-app.md) §2.1)
+- `/elektrana/:slug` za svaku elektranu u registru
+- `lib/mock.ts` — 352 elektrane, 4 projekta, 3 zajednice, **sve `demo: true`**
+- `lib/facts.ts` — samo **potvrđene** brojke; V1–V8 iz duga provjere nemaju
+  vrijednost i ne mogu se prikazati
+- `lib/brand.ts`, `lib/fees.ts`, i18n HR/EN (HR izvor)
+
+Sljedeće: **Faza 1c — marketplace** ([`docs/11`](./docs/11-plan-izvedbe.md)).
 
 Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.**
+
+---
+
+## Pokretanje
+
+```bash
+npm install
+npm run dev      # http://localhost:3020
+npm run verify   # lint + lint:copy + tsc + testovi + build
+```
+
+⚠️ **`npm run verify` prolazi PRIJE svakog commita, bez iznimke.** Jedno
+okruženje: svaki push u `main` je objava ([`docs/12`](./docs/12-ime-domena-okruzenja.md) §2.1).
+
+`npm run lint:copy` je **kontrola usklađenosti, ne kozmetika**: blokira riječi
+koje uplatu opisuju kao prinosnu ili povratnu ([`docs/03`](./docs/03-pravni-okvir.md) §3,
+zahtjev E3). Odobrene iznimke su doslovne rečenice odricanja, popisane u
+`scripts/check-copy.ts`.
 
 ---
 

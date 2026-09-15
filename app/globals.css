@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* maplibre vlastiti stilovi (kontrolni gumbi, popup, atribucija) uvoze se u
+   components/plant-map.tsx — dinamički, zajedno s kartom. Tako ih ne plaćaju
+   stranice koje karte nemaju. Stilovi ISPOD prilagođavaju popup našim tokenima
+   i moraju ostati ovdje, jer ih Tailwind ne dohvaća (popup živi izvan Reacta). */
+
+@layer base {
+  :root {
+    /* docs/09 §4: samo svijetla tema u Fazi 1. Prototip se pokazuje na sajmu,
+       na projektoru i na tuđim mobitelima — jedna tema znači jedan skup
+       provjerenih kontrasta. */
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+    /* ⚠️ NIKAD `zoom` na html — lomi getBoundingClientRect (naučeno u
+       zef-novcanik-prototip, CLAUDE.md §Naučene zamke). */
+  }
+
+  body {
+    @apply bg-cream text-ink font-sans;
+    font-feature-settings: "ss01", "cv11", "kern";
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  ::selection {
+    background-color: rgba(45, 106, 79, 0.16); /* forest/16 */
+    color: #1a1a1a;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight text-ink;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-cream;
+  }
+}
+
+@layer components {
+  .container-content {
+    @apply mx-auto w-full max-w-content px-5 sm:px-8 lg:px-12;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full bg-forest/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-forest-800;
+  }
+
+  .card-base {
+    @apply w-full rounded-lg border border-ink/8 bg-white/70 p-5 shadow-soft transition-all duration-300;
+  }
+}
+
+/* ── Popup na karti ─────────────────────────────────────────────────────────
+   Piše se ručno jer maplibre popup živi izvan Reacta i Tailwind ga ne dohvaća.
+   Boje su tokeni iz docs/09 §2; vrijednosti se drže usklađene s
+   tailwind.config.ts (cream #FBF8F3, ink #1A1A1A, inkMuted #6B6B6B,
+   forest #2D6A4F, sandDeep #F0E6D2).                                       */
+.maplibregl-popup.plant-popup .maplibregl-popup-content {
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(26, 26, 26, 0.06), 0 16px 40px rgba(26, 26, 26, 0.1);
+  background: #fbf8f3;
+  overflow: hidden;
+}
+
+.plant-popup .pm {
+  padding: 12px 14px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #3a3a3a;
+}
+
+.plant-popup .pm-demo {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #f0e6d2;
+  color: #6b6b6b;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.plant-popup .pm-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1a1a1a;
+}
+
+.plant-popup .pm-loc,
+.plant-popup .pm-grid {
+  color: #6b6b6b;
+  font-size: 12px;
+}
+
+.plant-popup .pm-stats {
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.plant-popup .pm-cta {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #2d6a4f;
+  color: #fbf8f3;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.plant-popup .pm-cta:hover {
+  background: #255741;
+}
+
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  font-size: 10px;
+}

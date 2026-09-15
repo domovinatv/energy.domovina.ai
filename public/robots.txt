@@ -1,0 +1,9 @@
+# Closed beta — docs/12 §3 i §6.
+#
+# Zatvorena beta ne smije završiti u tražilicama. Ovo ide od PRVOG deploya, ne
+# naknadno; `noindex` meta stoji zasebno u app/layout.tsx.
+#
+# Kad beta postane javna, ovdje se briše `Disallow: /`, a `robots` u metadata
+# prebacuje na index/follow. Do tada je zabrana na oba mjesta namjerna.
+User-agent: *
+Disallow: /
