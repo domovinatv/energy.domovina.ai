@@ -18,6 +18,11 @@
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import {
+  APPROVED_NEGATIONS,
+  FORBIDDEN_IDENTIFIER_RULES,
+  FORBIDDEN_RULES,
+} from "../lib/forbidden-words";
 
 const ROOT = process.cwd();
 
@@ -27,76 +32,13 @@ const SCAN_DIRS = ["app", "components", "lib", "scripts"];
 
 const SKIP_DIRS = new Set(["node_modules", ".next", "out", ".git"]);
 
-interface Rule {
-  readonly pattern: RegExp;
-  readonly why: string;
-}
-
 /**
- * Zabranjeni pojmovi iz CLAUDE.md §1 i docs/03 §3, u oba jezika.
+ * Datoteke koje se ne provjeravaju.
  *
- * Granice riječi (`\b`) drže lažne pozitive niskima: „return" u `return;` je
- * ključna riječ jezika, pa se kod provjerava samo u STRING literalima
- * (vidi `extractStrings`).
+ * Samo one koje zabranjene pojmove nose kao UZORKE — linter i popis iz kojeg
+ * linter čita. Svaka druga iznimka je rupa u kontroli usklađenosti, ne olakšica.
  */
-const RULES: readonly Rule[] = [
-  { pattern: /\bprinos/i, why: "obećanje prinosa → ECSPR/MiFID (docs/03 §3)" },
-  { pattern: /\bkamat/i, why: "kamata → zajam → ECSPR ili bankovna djelatnost" },
-  { pattern: /\bdividend/i, why: "dividenda → udio u dobiti → ECSPR/MiFID" },
-  { pattern: /\bpovrat na ulaganje/i, why: "povrat na ulaganje → ECSPR/MiFID" },
-  { pattern: /\budio u dobiti/i, why: "udio u dobiti → ECSPR/MiFID" },
-  { pattern: /\bsekundarno trži/i, why: "sekundarno tržište → model D, DLT Pilot" },
-  { pattern: /\bprodaj (svoj )?udio/i, why: "prenosivost udjela → model D" },
-  { pattern: /\byield\b/i, why: "yield → ECSPR/MiFID (docs/03 §3)" },
-  { pattern: /\broi\b/i, why: "ROI → ECSPR/MiFID" },
-  { pattern: /\bprofit share\b/i, why: "profit share → ECSPR/MiFID" },
-  { pattern: /\bshare of profit\b/i, why: "share of profit → ECSPR/MiFID" },
-  { pattern: /\binterest rate\b/i, why: "interest rate → zajam → ECSPR" },
-  { pattern: /\bsecondary market\b/i, why: "secondary market → model D" },
-  { pattern: /\bannual return\b/i, why: "annual return → ECSPR/MiFID" },
-  { pattern: /\breturn on investment\b/i, why: "return on investment → ECSPR/MiFID" },
-  {
-    pattern: /\bvraćamo ti\b/i,
-    why: "povratna uplata → primanje povratnih sredstava od javnosti (docs/14 §2.3)",
-  },
-];
-
-/**
- * Imena polja i komponenti — provjeravaju se u CIJELOM izvoru, ne samo u
- * stringovima, jer završe u API-ju (docs/05 §5).
- */
-const IDENTIFIER_RULES: readonly Rule[] = [
-  { pattern: /\b\w*[yY]ield\w*\s*[:=(]/, why: "ime polja/komponente s `yield`" },
-  { pattern: /\b\w*[dD]ividend\w*\s*[:=(]/, why: "ime polja/komponente s `dividend`" },
-  { pattern: /\b\w*[rR]oi\w*\s*[:=(]/, why: "ime polja/komponente s `roi`" },
-  { pattern: /\breturnOn\w*\s*[:=(]/, why: "ime polja/komponente s `returnOn`" },
-];
-
-/** Datoteke koje se ne provjeravaju — zasad samo sam ovaj linter. */
-const ALLOWLIST: readonly string[] = ["scripts/check-copy.ts"];
-
-/**
- * ODOBRENE NEGACIJE — jedine rečenice u kojima zabranjeni pojam smije stajati.
- *
- * docs/07 §2.3 traži da rečenica „Ne nudimo prinos ni udio u dobiti" bude
- * TRAJNO VIDLJIVA, ne u fusnoti. Odricanje mora imenovati ono čega se odriče,
- * pa se bez iznimke ne može napisati.
- *
- * Namjerno je to popis DOSLOVNIH rečenica, a ne uzorak „dopusti ako počinje s
- * ne". Uzorak bi propustio svako „ne nudimo prinos, ali…", a ova je rečenica
- * pravno nosiva — svako odstupanje od odobrene formulacije mora pasti na lintu
- * i proći kroz svjesnu odluku, kao i svaka druga izmjena pravnog teksta.
- *
- * Dodavanje retka ovdje je pravna odluka. Uz svaki ide dokument koji ga traži.
- */
-const APPROVED_NEGATIONS: readonly string[] = [
-  // docs/07 §2.3 — trajno vidljivo na stranici projekta
-  "Ne nudimo prinos ni udio u dobiti.",
-  "We do not offer a financial gain or a share of profit.",
-  // docs/03 §3 — objašnjenje modela A
-  "Doprinos financira izgradnju. Ne daje pravo na novac ni na udio u dobiti.",
-  "A contribution funds construction. It grants no claim to money and no share of profit.",
-];
+const ALLOWLIST: readonly string[] = ["scripts/check-copy.ts", "lib/forbidden-words.ts"];
 
 interface Finding {
   readonly file: string;
@@ -152,12 +94,12 @@ function checkFile(file: string): Finding[] {
     for (const approved of APPROVED_NEGATIONS) {
       strings = strings.split(approved).join(" ");
     }
-    for (const rule of RULES) {
+    for (const rule of FORBIDDEN_RULES) {
       if (rule.pattern.test(strings)) {
         findings.push({ file: rel, line: i + 1, text: line.trim(), why: rule.why });
       }
     }
-    for (const rule of IDENTIFIER_RULES) {
+    for (const rule of FORBIDDEN_IDENTIFIER_RULES) {
       if (rule.pattern.test(line)) {
         findings.push({ file: rel, line: i + 1, text: line.trim(), why: rule.why });
       }
