@@ -29,6 +29,12 @@ Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.** ([11
 | 13 | [konkurencija](./13-konkurencija.md) | **Pet klasa konkurencije**, dvije ugašene platforme i njihove pouke, K1–K8 izmjene | novi igrač ili nalaz |
 | 14 | [poslovni-model](./14-poslovni-model.md) | **Dva moda rada, zašto nismo ECSP, prihod od izvedbe, sukob interesa** | promjena uloge ili prihoda |
 
+### Dnevnici
+
+| Dokument | Što sadrži |
+|---|---|
+| [2026-09-15-istrazivacki-dnevnik](./2026-09-15-istrazivacki-dnevnik.md) | **Dug provjere** (V1–V8 — tvrdnje koje NISU potvrđene), slijepe ulice, odbačene alternative, lanac zaključivanja koji je lako izgubiti |
+
 ---
 
 ## Pravila koja održavaju bazu poštenom

@@ -163,6 +163,15 @@ kopiranjem natrag.
 
 ---
 
+## Dug provjere
+
+⚠️ Prije nego bilo koja brojka uđe u `lib/facts.ts` ili u javni copy, provjeri
+`docs/2026-09-15-istrazivacki-dnevnik.md` §3 — **V1–V8 su tvrdnje koje NISU
+potvrđene**. Brojka s oznakom ⚠️ u `docs/02` ili `docs/13` ne ide u UI dok se oznaka
+ne makne. Isti dokument nosi i slijepe ulice (§1) da se ne ponavljaju.
+
+---
+
 ## Otvoreno (blokira, vidi `docs/11` §Blokirano)
 
 - **B1** pravno mišljenje: je li članski ulog u energetsku zadrugu izvan ECSPR-a,
