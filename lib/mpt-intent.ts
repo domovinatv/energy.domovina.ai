@@ -1,17 +1,73 @@
 /**
- * Stvaranje MPT payment intenta iz preglednika — `POST /api/intents` na
- * pay.domovina.ai (`backend/src/intents/api.ts`). Ništa novo: isti poziv koji
- * koriste wallet.domovina.ai i pinka. Odgovor nosi `checkout_url`, brendiranu
- * stranicu raila s jedinstvenim EPC QR-om i statusom uživo.
+ * MPT payment intent iz preglednika — isti ugovor koji koriste rail checkout
+ * (`pay.domovina.ai/backend/src/checkout/page.ts`) i domovina.ai/c/…/support.
+ * Ništa novo: `POST /api/intents` stvori intent, `GET status_url` se čita svake
+ * 2 s (SSE `/stream` je na railu rezerviran i vraća 404).
  *
- * Preduvjeti na railu: `energy.domovina.ai` u `ALLOWED_ORIGINS` (CORS) i Safe na
- * payout whitelisti tenanta. Nova domena ovdje = nova stavka u CSP-u.
+ * Faze (`intents/stage.ts`): awaiting_payment → received_processing (Monerium je
+ * ZAPRIMIO SEPA — „uplata je stigla", i kad prva uplata čeka provjeru) → minted →
+ * forwarding → settled (EURe na Safeu elektrane); ili rejected / expired.
+ *
+ * Preduvjeti na railu: `energy.domovina.ai` u `ALLOWED_ORIGINS` i Safe registriran
+ * kao kampanja (whitelist). Nova domena ovdje = nova stavka u CSP-u.
  */
 import { RAIL_API_BASE, type Address } from "@/lib/beta-projects";
 
+export interface PaymentIntent {
+  sid: string;
+  amountEur: string;
+  memo: string;
+  iban: string;
+  beneficiaryName: string;
+  bic: string | null;
+  /** EPC tekst koji je rail sastavio — QR se crta iz njega, ne iz našeg koda. */
+  epcQrData: string;
+  statusUrl: string;
+  expiresAt: string;
+}
+
 export type IntentResult =
-  | { ok: true; checkoutUrl: string }
+  | { ok: true; intent: PaymentIntent }
   | { ok: false; reason: "not_whitelisted" | "invalid_amount" | "network" | "unknown" };
+
+export type IntentStage =
+  | "awaiting_payment"
+  | "received_processing"
+  | "minted"
+  | "forwarding"
+  | "settled"
+  | "rejected"
+  | "expired";
+
+export interface IntentStatus {
+  stage: IntentStage;
+  forwardTxHash: string | null;
+}
+
+/** Kao checkout: uplata je „stigla" čim je Monerium zaprimi, prije minta. */
+export function isReceived(stage: IntentStage): boolean {
+  return stage === "received_processing" || stage === "minted" || stage === "forwarding";
+}
+
+export function isTerminal(stage: IntentStage): boolean {
+  return stage === "settled" || stage === "rejected" || stage === "expired";
+}
+
+interface IntentJson {
+  sid?: string;
+  amount_eur?: string;
+  memo?: string;
+  iban?: string;
+  beneficiary_name?: string;
+  bic?: string | null;
+  epc_qr_data?: string;
+  status_url?: string;
+  expires_at?: string;
+  state?: string;
+  forward_tx_hash?: string | null;
+  status?: { stage?: IntentStage };
+  error?: string;
+}
 
 export async function createPaymentIntent(target: Address, amountEur: number): Promise<IntentResult> {
   let res: Response;
@@ -24,11 +80,34 @@ export async function createPaymentIntent(target: Address, amountEur: number): P
   } catch {
     return { ok: false, reason: "network" };
   }
-  const body = (await res.json().catch(() => ({}))) as { checkout_url?: string; error?: string };
-  if (res.ok && typeof body.checkout_url === "string") return { ok: true, checkoutUrl: body.checkout_url };
-  if (body.error === "target_not_whitelisted") return { ok: false, reason: "not_whitelisted" };
-  if (body.error === "invalid_amount_eur" || body.error === "amount_out_of_range") {
-    return { ok: false, reason: "invalid_amount" };
+  const b = (await res.json().catch(() => ({}))) as IntentJson;
+  if (res.ok && b.sid && b.epc_qr_data && b.status_url && b.memo && b.iban && b.beneficiary_name) {
+    return {
+      ok: true,
+      intent: {
+        sid: b.sid,
+        amountEur: b.amount_eur ?? amountEur.toFixed(2),
+        memo: b.memo,
+        iban: b.iban,
+        beneficiaryName: b.beneficiary_name,
+        bic: b.bic ?? null,
+        epcQrData: b.epc_qr_data,
+        statusUrl: b.status_url,
+        expiresAt: b.expires_at ?? "",
+      },
+    };
   }
+  if (b.error === "target_not_whitelisted") return { ok: false, reason: "not_whitelisted" };
+  if (b.error === "invalid_amount_eur" || b.error === "amount_out_of_range") return { ok: false, reason: "invalid_amount" };
   return { ok: false, reason: "unknown" };
+}
+
+export async function fetchIntentStatus(statusUrl: string, signal: AbortSignal): Promise<IntentStatus> {
+  const res = await fetch(statusUrl, { signal });
+  if (!res.ok) throw new Error(String(res.status));
+  const b = (await res.json()) as IntentJson;
+  // Isti zamjenski izbor kao checkout kad `status` izostane.
+  const stage: IntentStage =
+    b.status?.stage ?? (b.state === "paid" ? "settled" : b.state === "expired" ? "expired" : "awaiting_payment");
+  return { stage, forwardTxHash: b.forward_tx_hash ?? null };
 }

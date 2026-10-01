@@ -110,6 +110,13 @@ SEPA → forward na Safe. Svaka uplata je vidljiva na `mpt.domovina.ai/admin/int
 Statični opisi (`gnosis:<safe>`, `cmp:`) i vlastiti EPC generator izbačeni su iz
 koda: bez intenta nema obavijesti uplatitelju ni zapisa u adminu.
 
+**Checkout je ugrađen u `/beta/`** (2.10.2026., `components/beta/intent-panel.tsx`),
+ne preusmjerava se na mpt.domovina.ai — isti obrazac kao domovina.ai/c/…/support.
+Ponašanje preslikano iz rail checkouta (`backend/src/checkout/page.ts`): QR iz
+railova `epc_qr_data` (≥ 316 px na 414 px ekranu, tiha zona 4, ECC M), `GET
+status_url` svake 2 s (SSE `/stream` je na railu rezerviran → 404), „uplata je
+stigla" na `received_processing`, kraj na `settled` / `rejected` / `expired`.
+
 Preduvjeti na railu (pay.domovina.ai):
 1. ✅ `https://energy.domovina.ai` u `ALLOWED_ORIGINS` — pay.domovina.ai `a0507c6`,
    deploy `da5b8e9e` (2.10.2026.). Preflight provjeren; ostali originsi nepromijenjeni.

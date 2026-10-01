@@ -19,7 +19,8 @@ import {
   type BetaProject,
 } from "@/lib/beta-projects";
 import { fetchSafeActivity, type SafeActivity } from "@/lib/beta-chain";
-import { createPaymentIntent, type IntentResult } from "@/lib/mpt-intent";
+import { createPaymentIntent, type IntentResult, type PaymentIntent } from "@/lib/mpt-intent";
+import { IntentPanel } from "@/components/beta/intent-panel";
 
 const RECENT_COUNT = 5;
 /** Koliko često se lanac ponovno čita dok je kartica vidljiva. */
@@ -54,7 +55,7 @@ export function BetaPage() {
 function ProjectSection({ project }: { project: BetaProject }) {
   const { t } = useT();
   return (
-    <section id={project.slug} className="scroll-mt-6 rounded-md border border-ink/8 bg-white/60 p-5 sm:p-7">
+    <section id={project.slug} className="scroll-mt-6 rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-1">
         <div>
           <p className="inline-block rounded-full bg-forest/10 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-forest">
@@ -244,6 +245,7 @@ function PayWithIntent({ safe }: { safe: Address }) {
   const [custom, setCustom] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<IntentResult | null>(null);
+  const [intent, setIntent] = useState<PaymentIntent | null>(null);
   const amountEur = preset ?? parseAmountEur(custom);
 
   async function pay() {
@@ -251,18 +253,23 @@ function PayWithIntent({ safe }: { safe: Address }) {
     setBusy(true);
     setError(null);
     const result = await createPaymentIntent(safe, amountEur);
-    if (result.ok) {
-      window.location.assign(result.checkoutUrl);
-      return;
-    }
-    setError(result);
     setBusy(false);
+    if (result.ok) setIntent(result.intent);
+    else setError(result);
   }
 
   return (
-    <div className="rounded-sm bg-sand p-4 sm:p-5">
+    <div className="rounded-sm bg-sand p-3 sm:p-5">
       <h3 className="font-medium text-ink">{t("beta.payTitle")}</h3>
 
+      {intent !== null ? (
+        <IntentPanel
+          intent={intent}
+          onClose={() => setIntent(null)}
+          copyRow={(label, value, copy, mono) => <Row label={label} value={value} copy={copy} mono={mono} />}
+        />
+      ) : (
+      <>
       <fieldset className="mt-3">
         <legend className="text-xs uppercase tracking-wide text-inkMuted">{t("beta.amount")}</legend>
         <div className="mt-2 flex flex-wrap gap-2">
@@ -319,6 +326,8 @@ function PayWithIntent({ safe }: { safe: Address }) {
               ? t("beta.amountInvalid", { max: formatEur(MAX_AMOUNT_EUR * 100) })
               : t("beta.payErrorGeneric")}
         </p>
+      )}
+      </>
       )}
 
       <dl className="mt-4 text-sm">
