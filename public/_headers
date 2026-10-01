@@ -5,10 +5,11 @@
 # u ostalom: origin-pin, object-src 'none', frame-ancestors.
 # maplibre: stil, tileovi, sprite i glyphovi s tiles.openfreemap.org; worker je
 # vendoriran pod /maplibre/ (docs/2026-09-15-dnevnik-izvedbe.md), blob: za svaki slučaj.
+# /beta/ čita Gnosis Chain preko gnosisscan.io/api/v2 (lib/beta-chain.ts).
 # Nova vanjska domena u kodu = nova stavka ovdje, inače tiho pukne.
 # X-Robots-Tag: closed beta (docs/12 §3) — uz robots.txt i noindex meta.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://tiles.openfreemap.org; connect-src 'self' https://tiles.openfreemap.org; worker-src 'self' blob:; child-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://tiles.openfreemap.org; connect-src 'self' https://tiles.openfreemap.org https://gnosisscan.io; worker-src 'self' blob:; child-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()

@@ -814,6 +814,40 @@ export const hr = {
   "common.showMore": "Prikaži još",
   "common.copy": "Kopiraj",
   "common.copied": "Kopirano",
+  // ── Beta: pravi projekti (docs/15) ────────────────────────────────────────
+  "beta.bar": "Stvarni projekti. Uplate su pravi novac i javno se vide na Gnosis Chainu.",
+  "beta.barShort": "Stvarni projekti, pravi novac",
+  "beta.title": "Tri elektrane, financirane javno",
+  "beta.intro":
+    "Svaka elektrana ima vlastiti račun s više potpisa (Safe) na Gnosis Chainu. Uplata ide SEPA nalogom i završava na tom računu. Ova stranica novac ne prima ni ne drži, nego prikazuje ono što je na lancu.",
+  "beta.who":
+    "Elektrane financiraju vlasnik lokacija i ljudi koje osobno poznaje. Ovo nije javno prikupljanje.",
+  "beta.prototypeLink": "Kako će izgledati cijela platforma: prototip",
+  "beta.power": "Snaga",
+  "beta.connections": "Priključaka HEP-ODS: {count}",
+  "beta.node": "Na lokaciji radi Gnosis node",
+  "beta.goal": "Cilj",
+  "beta.goalPending": "Cilj se određuje prema ponudi izvođača",
+  "beta.received": "Uplaćeno ukupno",
+  "beta.balance": "Trenutno na računu",
+  "beta.loading": "Čitam Gnosis Chain…",
+  "beta.chainError": "Podaci s lanca trenutno nisu dostupni. Provjeri izravno na Gnosisscanu.",
+  "beta.recent": "Zadnje uplate",
+  "beta.noTransfers": "Još nema uplata.",
+  "beta.viewOnChain": "Svi prijenosi na Gnosisscanu",
+  "beta.pending": "U pripremi: račun ove elektrane još nije otvoren, pa uplate nisu moguće.",
+  "beta.payTitle": "Kako uplatiti",
+  "beta.payQr": "Skeniraj u aplikaciji banke. Iznos upisuješ sam.",
+  "beta.beneficiary": "Primatelj",
+  "beta.iban": "IBAN",
+  "beta.bic": "BIC",
+  "beta.reference": "Opis plaćanja",
+  "beta.referenceRail":
+    "Opis plaćanja upiši točno ovako. Primatelj na nalogu je operater raila; po opisu plaćanja rail uplatu automatski prosljeđuje na Safe ove elektrane, i taj prijenos je javno vidljiv.",
+  "beta.referenceDirect": "Ovaj IBAN pripada samo ovoj elektrani.",
+  "beta.safe": "Račun elektrane (Safe)",
+  "beta.notInvestment":
+    "Uplata nije ulaganje: ne donosi udio u elektrani ni pravo na novac natrag. {brand} ne drži ključeve nijednog Safea.",
 } as const;
 
 export type MessageKey = keyof typeof hr;

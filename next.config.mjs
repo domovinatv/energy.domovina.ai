@@ -8,7 +8,6 @@ const nextConfig = {
   // NE dodavati `export const dynamicParams = false` u rutama — ruši
   // prerenderirane rute na OpenNextu (opennextjs-cloudflare #611, docs/06 §5).
   typescript: { ignoreBuildErrors: false },
-  eslint: { ignoreDuringBuilds: false },
 };
 
 export default nextConfig;

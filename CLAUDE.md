@@ -234,7 +234,12 @@ ne makne. Isti dokument nosi i slijepe ulice (§1) da se ne ponavljaju.
 
 Tri **stvarne** elektrane na vlastitim lokacijama (Lukavec, Donja Lomnica, Rab),
 pravi Safe 2-od-3, novac samo od vlasnika i osobno poznatih — **ne javno
-prikupljanje**. Prvi zapisi s `demo: false`; u UI-ju samo mjesto, nikad ulica.
+prikupljanje**. U UI-ju samo mjesto, nikad ulica.
+
+Žive na **`/beta/`** (`app/beta/`, `lib/beta-projects.ts`), odvojeno od makete route
+groupom: `app/(prototip)/` nosi demo traku, `/beta/` ne. Projekt se aktivira
+upisom `safe` + `payment` u `lib/beta-projects.ts` (`docs/15` §6). Bez Safea nema
+upute za uplatu — invarijanta, ne stil.
 
 ## Otvoreno (blokira, vidi `docs/11` §Blokirano)
 

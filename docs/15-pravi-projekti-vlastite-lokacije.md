@@ -1,6 +1,6 @@
 # 15 — Pravi projekti na vlastitim lokacijama
 
-Odlučeno: **1.10.2026.** Status: **plan, ništa još nije izvedeno.**
+Odlučeno: **1.10.2026.** Status: **MVP stranica isporučena na `/beta/` (1.10.2026.); Safeovi se otvaraju.**
 
 > **Jedna rečenica:** tri stvarne elektrane na lokacijama koje su Matijine,
 > financirane **njegovim novcem i novcem osobno poznatih ljudi**, kroz potpuno isti
@@ -77,7 +77,41 @@ IBAN po projektu bio bi zaseban tenant s vlastitim Monerium računom — nije po
   izvođača. Ovdje je vlasnik lokacije ujedno i najveći uplatitelj, pa je njegov
   potpis prirodan; **izvođač ne smije biti potpisnik**.
 
-## 6. Otvoreno
+## 6. Beta MVP — `energy.domovina.ai/beta/` (1.10.2026.)
+
+**Odluka o URL-u:** isti Worker, ista domena, put `/beta/`. Prototip ostaje na
+`/` netaknut. Razlog: jedan build i jedan deploy, a odvajanje od makete radi
+**route group** — `app/(prototip)/layout.tsx` nosi demo traku, `app/beta/layout.tsx`
+nosi traku „Stvarni projekti". Root layout drži samo fontove i i18n. Poddomena je
+odbačena jer bi tražila drugi build ili Worker koji prepisuje putanje, a
+`*.energy.domovina.ai` nije pokriven univerzalnim certifikatom.
+
+**Nema baze, nema prijave, nema našeg backenda.** Sve što stranica zna stoji u
+`lib/beta-projects.ts` (statično) ili se čita s lanca (`lib/beta-chain.ts`,
+gnosisscan.io/api/v2). QR kod za uplatu (EPC069-12, isti raspored kao
+pay.domovina.ai `intents/epc.ts`) radi se pri buildu.
+
+### Kako se projekt aktivira
+
+U `lib/beta-projects.ts`, za lokaciju:
+
+1. `safe` — adresa Safea (nulta adresa i `null` = „u pripremi", bez upute za uplatu).
+2. `payment` — jedan od dva puta:
+   - `{ kind: "monerium", iban, beneficiaryName, bic }` — Safe povezan izravno na
+     monerium.com, vlastiti IBAN. **Odabrano za beta** (1.10.2026.).
+   - `{ kind: "rail", campaignId, iban, beneficiaryName, bic }` — kao donacije
+     podcastima; kampanja mora biti registrirana na pay.domovina.ai
+     (`POST /admin/api/tenants/:id/campaigns`).
+3. `goalCents` — kad stigne ponuda izvođača; do tada „—".
+4. `npm run deploy` = verify + `check:beta` (za `rail` pita rail i ruši deploy ako
+   IBAN, primatelj ili opis plaćanja ne odgovaraju) + `wrangler deploy`.
+
+⚠️ **Kod `rail` puta primatelj na nalogu je ITalk d.o.o.**, pa tvrdnja „novac ne
+prolazi kroz nas" tamo nije točna — rail ga prosljeđuje. Copy zato kaže samo da
+nitko od nas ne drži ključeve Safea, a uz rail upute stoji da je primatelj
+operater raila. Kod `monerium` puta primatelj je vlasnik Safea.
+
+## 7. Otvoreno
 
 - [ ] Potpisnici za svaki Safe (tko su druga dva, i ima li netko hardverski ključ)
 - [ ] Izvođač po lokaciji — kandidat **SolarDei** za barem jednu (sastanak 2.10.2026.)

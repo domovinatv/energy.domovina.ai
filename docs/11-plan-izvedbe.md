@@ -110,7 +110,8 @@ Stavke ispod su **poželjne, ne uvjet** — uvjet je kriterij dovršenosti na dn
 
 - [ ] tri Safea 2-od-3 (Lukavec, Donja Lomnica, Rab), ručno na app.safe.global
 - [ ] kampanje u `pinka_finance` + whitelist na pay.domovina.ai
-- [ ] prikaz na stranici: saldo i uplate čitani s lanca, `demo: false`, vlastita oznaka
+- [x] prikaz na stranici: **`/beta/`** (1.10.2026.) — saldo i uplate čitani s lanca,
+      QR za SEPA pri buildu, vlastita traka bez demo oznake ([15](./15-pravi-projekti-vlastite-lokacije.md) §6)
 - [ ] izvođač i faze isplate (kandidat SolarDei)
 
 Novac uplaćuje **samo vlasnik lokacije i osobno poznati** — nema javnog prikupljanja.

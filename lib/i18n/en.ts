@@ -776,4 +776,38 @@ export const en: Catalog = {
   "common.showMore": "Show more",
   "common.copy": "Copy",
   "common.copied": "Copied",
+  // ── Beta: real projects (docs/15) ─────────────────────────────────────────
+  "beta.bar": "Real projects. Payments are real money and are publicly visible on Gnosis Chain.",
+  "beta.barShort": "Real projects, real money",
+  "beta.title": "Three solar plants, funded in the open",
+  "beta.intro":
+    "Each plant has its own multi-signature account (Safe) on Gnosis Chain. You pay by SEPA transfer and the money lands on that account. This page never receives or holds money; it only shows what is on chain.",
+  "beta.who":
+    "The plants are funded by the owner of the sites and people he knows personally. This is not a public fundraiser.",
+  "beta.prototypeLink": "What the full platform will look like: prototype",
+  "beta.power": "Capacity",
+  "beta.connections": "Grid connections: {count}",
+  "beta.node": "A Gnosis node runs on this site",
+  "beta.goal": "Goal",
+  "beta.goalPending": "The goal will be set from the installer's quote",
+  "beta.received": "Received in total",
+  "beta.balance": "Currently on the account",
+  "beta.loading": "Reading Gnosis Chain…",
+  "beta.chainError": "Chain data is unavailable right now. Check Gnosisscan directly.",
+  "beta.recent": "Latest payments",
+  "beta.noTransfers": "No payments yet.",
+  "beta.viewOnChain": "All transfers on Gnosisscan",
+  "beta.pending": "In preparation: this plant's account is not open yet, so payments are not possible.",
+  "beta.payTitle": "How to pay",
+  "beta.payQr": "Scan it in your banking app. You enter the amount yourself.",
+  "beta.beneficiary": "Beneficiary",
+  "beta.iban": "IBAN",
+  "beta.bic": "BIC",
+  "beta.reference": "Payment reference",
+  "beta.referenceRail":
+    "Enter the reference exactly as shown. The beneficiary on the transfer is the rail operator; the rail forwards the payment to this plant's Safe automatically, and that transfer is publicly visible.",
+  "beta.referenceDirect": "This IBAN belongs to this plant only.",
+  "beta.safe": "Plant account (Safe)",
+  "beta.notInvestment":
+    "A payment is not an investment: it gives no stake in the plant and no claim to the money back. {brand} holds no keys to any Safe.",
 };

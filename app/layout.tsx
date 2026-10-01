@@ -2,9 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { BRAND } from "@/lib/brand";
 import { I18nProvider } from "@/lib/i18n";
-import { DemoBar } from "@/components/demo-bar";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 import "./globals.css";
 
 const inter = Inter({
@@ -55,19 +52,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="hr" className={`${inter.variable} ${fraunces.variable}`}>
       <body className="flex min-h-dvh flex-col">
         <I18nProvider>
-          <a
-            href="#main"
-            className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-sm focus:bg-forest focus:px-3 focus:py-2 focus:text-sm focus:text-cream"
-          >
-            Prijeđi na sadržaj
-          </a>
-          {/* Traka prototipa stoji IZNAD zaglavlja i ne može se zatvoriti. */}
-          <DemoBar />
-          <SiteHeader />
-          <main id="main" className="flex-1">
-            {children}
-          </main>
-          <SiteFooter />
+          {/* Okvir stranice (traka, zaglavlje, podnožje) je u layoutu grupe:
+              app/(prototip)/layout.tsx za maketu, app/beta/layout.tsx za prave
+              projekte (docs/15). Root layout drži samo ono što je zajedničko. */}
+          {children}
         </I18nProvider>
       </body>
     </html>
