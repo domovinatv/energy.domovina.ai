@@ -30,6 +30,8 @@ const RECENT_COUNT = 5;
 const REFRESH_MS = 20_000;
 /** Koliko često se provjerava zaprimljena uplata koja još nije na lancu. */
 const PENDING_CHECK_MS = 15_000;
+/** Ponovna čitanja lanca nakon forwarda, dok ga gnosisscan ne indeksira. */
+const SETTLE_RETRY_MS = [3_000, 8_000];
 
 export function BetaPage() {
   const { t } = useT();
@@ -272,6 +274,10 @@ function LiveActivity({
       );
     };
     load();
+    // Nakon railova forwarda gnosisscan prijenos indeksira s nekoliko sekundi
+    // zakašnjenja, pa prvo čitanje ga često još ne vidi. Dva brza ponovna čitanja
+    // umjesto čekanja sljedećih REFRESH_MS.
+    const burst = refreshKey > 0 ? SETTLE_RETRY_MS.map((ms) => window.setTimeout(load, ms)) : [];
     const timer = window.setInterval(() => {
       if (document.visibilityState === "visible") load();
     }, REFRESH_MS);
@@ -281,13 +287,20 @@ function LiveActivity({
     document.addEventListener("visibilitychange", onVisible);
     return () => {
       window.clearInterval(timer);
+      burst.forEach((id) => window.clearTimeout(id));
       document.removeEventListener("visibilitychange", onVisible);
       controller.abort();
     };
   }, [safe, refreshKey]);
 
-  const extraCents =
-    state.status === "ready" ? unconfirmedCents(pending, state.data.transfers.map((tr) => tr.hash)) : 0;
+  const chainHashes = state.status === "ready" ? state.data.transfers.map((tr) => tr.hash) : [];
+  const extraCents = state.status === "ready" ? unconfirmedCents(pending, chainHashes) : 0;
+  // Zaprimljene uplate koje lanac (ili gnosisscan indeks) još ne pokazuje — idu na
+  // vrh popisa odmah, da popis ne kasni za porukom „uplata je stigla".
+  const onChain = new Set(chainHashes.map((h) => h.toLowerCase()));
+  const unconfirmed = [...pending]
+    .filter((p) => p.txHash === null || !onChain.has(p.txHash.toLowerCase()))
+    .reverse();
   const receivedCents = state.status === "ready" ? state.data.receivedCents + extraCents : 0;
   const latest = pending.length > 0 ? pending[pending.length - 1] : undefined;
 
@@ -325,10 +338,32 @@ function LiveActivity({
             </p>
           )}
           <h3 className="mt-5 text-xs uppercase tracking-wide text-inkMuted">{t("beta.recent")}</h3>
-          {state.data.transfers.length === 0 ? (
+          {state.data.transfers.length === 0 && unconfirmed.length === 0 ? (
             <p className="mt-2 text-sm text-inkSoft">{t("beta.noTransfers")}</p>
           ) : (
             <ul className="mt-2 divide-y divide-ink/8 text-sm">
+              {unconfirmed.map((p) => (
+                <li key={p.sid} className="flex items-center justify-between gap-4 bg-forest/5 py-2">
+                  <span className="text-inkSoft">
+                    {formatDateShort(new Date(p.receivedAt).toISOString(), locale)}
+                    <span className="ml-2 text-xs text-forest">
+                      {p.txHash === null ? t("beta.rowReceived") : t("beta.rowIndexing")}
+                    </span>
+                  </span>
+                  {p.txHash === null ? (
+                    <span className="font-medium text-ink">{formatEurPrecise(p.cents)}</span>
+                  ) : (
+                    <a
+                      href={gnosisscanTxUrl(p.txHash)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-medium text-ink underline decoration-ink/20 underline-offset-2"
+                    >
+                      {formatEurPrecise(p.cents)}
+                    </a>
+                  )}
+                </li>
+              ))}
               {state.data.transfers.slice(0, RECENT_COUNT).map((tr) => (
                 <li key={tr.hash + tr.timestamp} className="flex items-center justify-between gap-4 py-2">
                   <span className="text-inkSoft">{formatDateShort(tr.timestamp, locale)}</span>

@@ -827,6 +827,8 @@ export const en: Catalog = {
   "beta.intentCancel": "Cancel",
   "beta.justArrived": "+{amount} just arrived",
   "beta.includesUnconfirmed": "Includes {amount} that Monerium has already received in euros (SEPA). It appears on Gnosisscan once the EURe is issued — for a first payment from a new account, only after a few hours.",
+  "beta.rowReceived": "received, awaiting EURe",
+  "beta.rowIndexing": "on Gnosis Chain",
   "beta.payButton": "Pay {amount}",
   "beta.payBusy": "Preparing the payment…",
   "beta.payHow":
