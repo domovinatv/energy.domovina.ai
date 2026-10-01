@@ -99,7 +99,24 @@ odbačena jer bi tražila drugi build ili Worker koji prepisuje putanje, a
 gnosisscan.io/api/v2). QR kod za uplatu (EPC069-12, isti raspored kao
 pay.domovina.ai `intents/epc.ts`) radi se pri buildu.
 
-### Kako se projekt aktivira
+### Uplata = MPT payment intent (odluka 2.10.2026.)
+
+Jedini način uplate na `/beta/` je **provjereni MPT tok** iz pay.domovina.ai, kojim
+se mjesecima procesuiraju uplate: odabir iznosa → `POST mpt.domovina.ai/api/intents`
+(`target_address` = Safe elektrane) → rail checkout (`/checkout/<sid>`) s jedinstvenim
+EPC QR-om (`mpt:<safe>?sid=<sid>`, iznos u QR-u) → potvrda čim Monerium zaprimi
+SEPA → forward na Safe. Svaka uplata je vidljiva na `mpt.domovina.ai/admin/intents`.
+
+Statični opisi (`gnosis:<safe>`, `cmp:`) i vlastiti EPC generator izbačeni su iz
+koda: bez intenta nema obavijesti uplatitelju ni zapisa u adminu.
+
+Preduvjeti na railu (pay.domovina.ai):
+1. `https://energy.domovina.ai` u `ALLOWED_ORIGINS` (`backend/wrangler.toml`) — bez
+   toga preglednik blokira `POST` (CORS preflight bez `Access-Control-Allow-Origin`).
+2. Tri Safea na payout whitelisti tenanta ITalk (`mpt.domovina.ai/admin/whitelist`);
+   inače intent vraća `target_not_whitelisted` i `/beta/` to javlja.
+
+
 
 U `lib/beta-projects.ts`, za lokaciju:
 

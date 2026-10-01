@@ -805,19 +805,15 @@ export const en: Catalog = {
     "The plant's account is open, but SEPA payment is not connected yet. Payment instructions will appear here.",
   "beta.signers":
     "A payout needs {threshold} of {count} signatures. All three signing keys are currently held by the same person, the site owner: this shows how the mechanism works, not independent control.",
-  "beta.payQr": "Scan it in your banking app: the amount {amount} and the reference fill in automatically.",
   "beta.amount": "Amount",
+  "beta.payButton": "Pay {amount}",
+  "beta.payBusy": "Preparing the payment…",
+  "beta.payHow":
+    "A payment page opens with a QR code for your bank. As soon as the payment arrives you see a confirmation there, usually within seconds.",
+  "beta.payErrorWhitelist": "Payments for this plant are not switched on yet. Please try again later.",
+  "beta.payErrorGeneric": "The payment cannot be prepared right now. Please try again in a minute.",
   "beta.amountCustom": "Other amount",
   "beta.amountInvalid": "Enter an amount in euros, e.g. 25 or 12.50 (at most {max}).",
-  "beta.beneficiary": "Beneficiary",
-  "beta.iban": "IBAN",
-  "beta.bic": "BIC",
-  "beta.reference": "Payment reference",
-  "beta.referenceRail":
-    "Enter the reference exactly as shown. The beneficiary on the transfer is the rail operator; the rail forwards the payment to this plant's Safe automatically, and that transfer is publicly visible.",
-  "beta.referenceDirect": "This IBAN belongs to this plant only.",
-  "beta.referenceMonerium":
-    "Enter the reference exactly as shown. The beneficiary is the Monerium account of ITalk d.o.o., the same for all three plants; Monerium uses the reference to convert the payment to EURe and send it directly to this plant's Safe.",
   "beta.safe": "Plant account (Safe)",
   "beta.notInvestment":
     "A payment is not an investment: it gives no stake in the plant and no claim to the money back. {brand} holds no keys to any Safe.",

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import QRCode from "qrcode";
 import { useT } from "@/lib/i18n";
 import { BRAND } from "@/lib/brand";
 import { formatDateShort, formatEur, formatEurPrecise, formatPercent, shortAddress } from "@/lib/format";
@@ -11,19 +10,16 @@ import {
   DEFAULT_AMOUNT_EUR,
   MAX_AMOUNT_EUR,
   PRESET_AMOUNTS_EUR,
-  buildEpcText,
-  formatIban,
   parseAmountEur,
   hasVerifiedSafe,
   gnosisscanAddressUrl,
   gnosisscanTxUrl,
   isPayable,
-  remittanceFor,
   type Address,
-  type BetaPayment,
   type BetaProject,
 } from "@/lib/beta-projects";
 import { fetchSafeActivity, type SafeActivity } from "@/lib/beta-chain";
+import { createPaymentIntent, type IntentResult } from "@/lib/mpt-intent";
 
 const RECENT_COUNT = 5;
 /** Koliko često se lanac ponovno čita dok je kartica vidljiva. */
@@ -92,7 +88,7 @@ function ProjectSection({ project }: { project: BetaProject }) {
             </p>
           </div>
           {isPayable(project) ? (
-            <PayInstructions payment={project.payment} remittance={remittanceFor(project)} safe={project.safe} />
+            <PayWithIntent safe={project.safe} />
           ) : (
             <div className="rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft">
               <p>{t("beta.payPending")}</p>
@@ -237,47 +233,31 @@ function LiveActivity({ safe, goalCents }: { safe: Address; goalCents: number | 
   );
 }
 
-function PayInstructions({
-  payment,
-  remittance,
-  safe,
-}: {
-  payment: BetaPayment;
-  remittance: string;
-  safe: Address;
-}) {
+/**
+ * Uplata preko MPT payment intenta (lib/beta-projects.ts, `MPT_INTENT`).
+ * Iznos se bira ovdje jer je OBAVEZAN u EPC QR-u — bez njega Revolut ne popuni
+ * opis plaćanja. QR, opis `mpt:<safe>?sid=` i potvrdu uživo daje rail checkout.
+ */
+function PayWithIntent({ safe }: { safe: Address }) {
   const { t } = useT();
   const [preset, setPreset] = useState<number | null>(DEFAULT_AMOUNT_EUR);
   const [custom, setCustom] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<IntentResult | null>(null);
   const amountEur = preset ?? parseAmountEur(custom);
-  const epc =
-    amountEur === null
-      ? null
-      : buildEpcText({
-          beneficiaryName: payment.beneficiaryName,
-          iban: payment.iban,
-          bic: payment.bic,
-          remittance,
-          amountEur,
-        });
 
-  // QR se crta za odabrani iznos. Ključ je sam EPC tekst, pa se nikad ne
-  // prikaže QR za iznos koji više nije odabran.
-  const [qr, setQr] = useState<{ epc: string; svg: string } | null>(null);
-  useEffect(() => {
-    if (epc === null) return;
-    let live = true;
-    // ⚠️ Revolut iOS NE čita gust EPC QR iscrtan sitno: 220 px bez tihe zone
-    // nije prolazio, 320 px + 4 modula tihe zone + ECC M jest (pay.domovina.ai
-    // memorija feedback_epc_format / pinka 71907a7).
-    QRCode.toString(epc, { type: "svg", errorCorrectionLevel: "M", margin: 4 }).then((svg) => {
-      if (live) setQr({ epc, svg });
-    });
-    return () => {
-      live = false;
-    };
-  }, [epc]);
-  const svg = qr !== null && qr.epc === epc ? qr.svg : null;
+  async function pay() {
+    if (amountEur === null || busy) return;
+    setBusy(true);
+    setError(null);
+    const result = await createPaymentIntent(safe, amountEur);
+    if (result.ok) {
+      window.location.assign(result.checkoutUrl);
+      return;
+    }
+    setError(result);
+    setBusy(false);
+  }
 
   return (
     <div className="rounded-sm bg-sand p-4 sm:p-5">
@@ -320,38 +300,30 @@ function PayInstructions({
         )}
       </fieldset>
 
-      <div className="mt-4 flex flex-col gap-5">
-        {epc !== null && (
-          <div>
-            {/* Do 320 px, a na uskom ekranu cijela širina; `crispEdges` sprječava sive rubove modula. */}
-            {svg !== null ? (
-              <div
-                className="aspect-square w-full max-w-[320px] bg-white [&_svg]:h-full [&_svg]:w-full [&_svg]:[shape-rendering:crispEdges]"
-                dangerouslySetInnerHTML={{ __html: svg }}
-              />
-            ) : (
-              <div className="aspect-square w-full max-w-[320px] bg-white" />
-            )}
-            <p className="mt-2 max-w-[320px] text-xs text-inkMuted">
-              {t("beta.payQr", { amount: formatEurPrecise(Math.round((amountEur ?? 0) * 100)) })}
-            </p>
-          </div>
-        )}
-        <dl className="min-w-0 space-y-2 text-sm">
-          <Row label={t("beta.beneficiary")} value={payment.beneficiaryName} />
-          <Row label={t("beta.iban")} value={formatIban(payment.iban)} copy={payment.iban.replace(/\s+/g, "")} />
-          {payment.bic !== null && <Row label={t("beta.bic")} value={payment.bic} />}
-          <Row label={t("beta.reference")} value={remittance} copy={remittance} mono />
-          <p className="text-xs text-inkMuted">
-            {payment.kind === "rail"
-              ? t("beta.referenceRail")
-              : payment.routing === "reference"
-                ? t("beta.referenceMonerium")
-                : t("beta.referenceDirect")}
-          </p>
-          <Row label={t("beta.safe")} value={shortAddress(safe)} copy={safe} mono />
-        </dl>
-      </div>
+      <button
+        type="button"
+        onClick={pay}
+        disabled={amountEur === null || busy}
+        className="mt-4 w-full rounded-sm bg-forest px-4 py-2.5 text-sm font-medium text-cream hover:bg-forest-700 disabled:opacity-50 sm:w-auto"
+      >
+        {busy
+          ? t("beta.payBusy")
+          : t("beta.payButton", { amount: formatEurPrecise(Math.round((amountEur ?? 0) * 100)) })}
+      </button>
+      <p className="mt-2 text-xs text-inkMuted">{t("beta.payHow")}</p>
+      {error !== null && !error.ok && (
+        <p className="mt-2 text-sm text-rust">
+          {error.reason === "not_whitelisted"
+            ? t("beta.payErrorWhitelist")
+            : error.reason === "invalid_amount"
+              ? t("beta.amountInvalid", { max: formatEur(MAX_AMOUNT_EUR * 100) })
+              : t("beta.payErrorGeneric")}
+        </p>
+      )}
+
+      <dl className="mt-4 text-sm">
+        <Row label={t("beta.safe")} value={shortAddress(safe)} copy={safe} mono />
+      </dl>
     </div>
   );
 }

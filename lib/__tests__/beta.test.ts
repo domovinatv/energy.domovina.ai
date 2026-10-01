@@ -1,11 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   BETA_PROJECTS,
-  buildEpcText,
-  formatIban,
   isPayable,
   isValidSafe,
-  remittanceFor,
   weiToCents,
   parseAmountEur,
   PRESET_AMOUNTS_EUR,
@@ -42,58 +39,27 @@ const SIGNERS = {
   threshold: 2,
 } as const satisfies { owners: `0x${string}`[]; threshold: number };
 
-const RAIL = { kind: "rail", campaignId: "lukavec-fne", iban: "EE70 7777 0001 6292 1128", beneficiaryName: "ITalk d.o.o.", bic: null } as const;
+const INTENT = { kind: "mpt-intent" } as const;
 
 describe("beta: tko smije primati uplate (docs/04 §3.3)", () => {
   it("projekt bez Safea nije naplativ", () => {
-    expect(isPayable(project({ payment: RAIL }))).toBe(false);
+    expect(isPayable(project({ payment: INTENT }))).toBe(false);
   });
   it("nulta adresa nije Safe — uplata bi bila spaljena", () => {
     expect(isValidSafe("0x0000000000000000000000000000000000000000")).toBe(false);
-    expect(isPayable(project({ safe: "0x0000000000000000000000000000000000000000", payment: RAIL }))).toBe(false);
+    expect(isPayable(project({ safe: "0x0000000000000000000000000000000000000000", payment: INTENT }))).toBe(false);
   });
   it("Safe bez načina uplate nije naplativ", () => {
     expect(isPayable(project({ safe: SAFE }))).toBe(false);
   });
   it("Safe bez upisanih potpisnika nije naplativ — nitko ga nije provjerio", () => {
-    expect(isPayable(project({ safe: SAFE, payment: RAIL }))).toBe(false);
+    expect(isPayable(project({ safe: SAFE, payment: INTENT }))).toBe(false);
   });
   it("prag veći od broja potpisnika nije naplativ", () => {
-    expect(isPayable(project({ safe: SAFE, payment: RAIL, signers: { owners: [SAFE], threshold: 2 } }))).toBe(false);
+    expect(isPayable(project({ safe: SAFE, payment: INTENT, signers: { owners: [SAFE], threshold: 2 } }))).toBe(false);
   });
   it("Safe + potpisnici + način uplate jest naplativ", () => {
-    expect(isPayable(project({ safe: SAFE, signers: SIGNERS, payment: RAIL }))).toBe(true);
-  });
-});
-
-describe("beta: opis plaćanja i EPC QR", () => {
-  it("rail opis je isti format kao pay.domovina.ai campaign-qr", () => {
-    const p = project({ safe: SAFE, signers: SIGNERS, payment: RAIL });
-    if (!isPayable(p)) throw new Error("očekivan naplativ projekt");
-    expect(remittanceFor(p)).toBe(`cmp:${SAFE.toLowerCase()}?id=lukavec-fne`);
-  });
-  it("Monerium usmjeravanje po opisu: gnosis:<safe>", () => {
-    const p = project({
-      safe: SAFE,
-      signers: SIGNERS,
-      payment: { kind: "monerium", routing: "reference", iban: "X", beneficiaryName: "X", bic: null },
-    });
-    if (!isPayable(p)) throw new Error("očekivan naplativ projekt");
-    expect(remittanceFor(p)).toBe(`gnosis:${SAFE}`);
-  });
-  it("EPC tekst ima deset redaka, IBAN bez razmaka, prazan iznos", () => {
-    const lines = buildEpcText({ beneficiaryName: "ITalk d.o.o.", iban: RAIL.iban, bic: null, remittance: "cmp:x" }).split("\n");
-    expect(lines).toHaveLength(10);
-    expect(lines[0]).toBe("BCD");
-    expect(lines[1]).toBe("001");
-    expect(lines[6]).toBe("EE707777000162921128");
-    expect(lines[7]).toBe("");
-  });
-  it("s BIC-om ide verzija 002", () => {
-    expect(buildEpcText({ beneficiaryName: "X", iban: "X", bic: "TRWIBEB1XXX", remittance: "r" }).split("\n")[1]).toBe("002");
-  });
-  it("IBAN se grupira po četiri znaka", () => {
-    expect(formatIban("EE707777000162921128")).toBe("EE70 7777 0001 6292 1128");
+    expect(isPayable(project({ safe: SAFE, signers: SIGNERS, payment: INTENT }))).toBe(true);
   });
 });
 
@@ -115,7 +81,7 @@ describe("beta: čitanje Safea s lanca", () => {
   });
 });
 
-describe("beta: iznos u QR-u je obavezan", () => {
+describe("beta: iznos intenta (obavezan u EPC QR-u)", () => {
   it("prihvaća zarez i točku, do dvije decimale", () => {
     expect(parseAmountEur("12,50")).toBe(12.5);
     expect(parseAmountEur("12.5")).toBe(12.5);
@@ -127,11 +93,6 @@ describe("beta: iznos u QR-u je obavezan", () => {
   it("zadani i ponuđeni iznosi su valjani", () => {
     expect(PRESET_AMOUNTS_EUR).toContain(DEFAULT_AMOUNT_EUR);
     for (const a of PRESET_AMOUNTS_EUR) expect(parseAmountEur(String(a))).toBe(a);
-  });
-  it("EPC s iznosom ima EUR iznos u 8. retku", () => {
-    const lines = buildEpcText({ beneficiaryName: "X", iban: "X", bic: "LHVBEE22", remittance: "r", amountEur: 20 }).split("\n");
-    expect(lines[7]).toBe("EUR20.00");
-    expect(lines).toHaveLength(10);
   });
 });
 
@@ -163,11 +124,6 @@ describe("beta: podaci o projektima", () => {
     for (const p of BETA_PROJECTS) {
       expect(p.address).toMatch(/\b\d{5}\b/);
       expect(p.address.endsWith(p.place)).toBe(true);
-    }
-  });
-  it("rail projekt ima ispravan id kampanje (pay.domovina.ai: 6–64 znaka)", () => {
-    for (const p of BETA_PROJECTS) {
-      if (p.payment?.kind === "rail") expect(p.payment.campaignId).toMatch(/^[A-Za-z0-9_-]{6,64}$/);
     }
   });
 });

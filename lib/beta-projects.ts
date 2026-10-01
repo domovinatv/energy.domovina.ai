@@ -11,7 +11,6 @@
  * Puna adresa lokacije prikazuje se javno — odluka vlasnika (docs/15 §2).
  */
 
-import { BRAND } from "@/lib/brand";
 
 /** EURe (Monerium, V2) na Gnosis Chainu — isti token kao pinka donacije. */
 export const EURE_ADDRESS = "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430";
@@ -34,20 +33,16 @@ const OWNER_SIGNERS: { owners: Address[]; threshold: number } = {
 };
 
 /**
- * Monerium račun ITalk d.o.o. (Business). Isti IBAN za sve tri elektrane:
- * opis plaćanja `gnosis:<safe>` Moneriumu kaže na koji povezani Safe mintati.
- * ⚠️ Isti IBAN koristi i pay.domovina.ai rail (s `cmp:`/`mpt:` opisima) — vidi
- * docs/15 §7 prije prve uplate treće osobe.
+ * Uplata ide PROVJERENIM MPT tokom (pay.domovina.ai): stranica stvori payment
+ * intent za odabrani iznos i otvori rail checkout s jedinstvenim EPC QR-om
+ * (`mpt:<safe>?sid=`, iznos u QR-u). Rail po `sid` javlja uplatitelju čim Monerium
+ * zaprimi SEPA uplatu — prije minta, pa i kad prva uplata s novog IBAN-a čeka
+ * provjeru — i zatim prosljeđuje EURe na Safe elektrane.
+ * Uvjet: Safe je na payout whitelisti tenanta (mpt.domovina.ai/admin/whitelist).
  */
-const ITALK_MONERIUM: BetaPayment = {
-  kind: "monerium",
-  routing: "reference",
-  iban: "EE707777000162921128",
-  beneficiaryName: "ITalk d.o.o.",
-  bic: "LHVBEE22",
-};
+const MPT_INTENT: BetaPayment = { kind: "mpt-intent" };
 
-/** Baza za `GET /api/intents/campaign-qr` — služi samo provjeri prije deploya. */
+/** MPT intent API (pay.domovina.ai backend): `POST` stvara intent, `GET /campaign-qr` služi provjeri. */
 export const RAIL_API_BASE = "https://mpt.domovina.ai/api/intents";
 
 export type Address = `0x${string}`;
@@ -56,33 +51,11 @@ const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 /**
- * Kako uplatitelj plaća. Oba puta završavaju istim: EURe na Safeu projekta.
- *
- * - `rail`: isti tok kao donacije podcastima (domovina.ai/c/…/doniraj). IBAN je
- *   zajednički IBAN tenanta na pay.domovina.ai, a opis plaćanja `cmp:<safe>?id=`
- *   govori railu kamo proslijediti. Kampanja MORA biti registrirana na railu,
- *   inače se svaka uplata odbije — to provjerava `scripts/check-beta.mts`.
- * - `monerium`: Safe je povezan s Monerium profilom vlasnika.
- *   - `routing: "reference"` — JEDAN IBAN profila za sve elektrane; opis plaćanja
- *     `gnosis:<safe>` govori Moneriumu na koji povezani Safe mintati
- *     (help.monerium.com/article/14-redirect-incoming-payments). Odabrano za betu.
- *   - `routing: "iban"` — IBAN je vezan baš za ovaj Safe; opis je slobodan.
+ * Kako uplatitelj plaća. Jedan put, provjeren u produkciji: MPT payment intent
+ * (vidi `MPT_INTENT`). Statični opisi plaćanja (`gnosis:<safe>`, `cmp:`) su
+ * namjerno izbačeni — bez intenta nema obavijesti uplatitelju (docs/15 §6).
  */
-export type BetaPayment =
-  | {
-      kind: "rail";
-      campaignId: string;
-      iban: string;
-      beneficiaryName: string;
-      bic: string | null;
-    }
-  | {
-      kind: "monerium";
-      routing: "reference" | "iban";
-      iban: string;
-      beneficiaryName: string;
-      bic: string | null;
-    };
+export type BetaPayment = { kind: "mpt-intent" };
 
 export interface BetaProject {
   slug: string;
@@ -123,7 +96,7 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     safe: "0x4f7f1950B2CB6713CcB47b869F30C0ebc01d0173",
     signers: OWNER_SIGNERS,
     goalCents: 1_120_000,
-    payment: ITALK_MONERIUM,
+    payment: MPT_INTENT,
   },
   {
     slug: "donja-lomnica",
@@ -136,7 +109,7 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     safe: "0x52eaB439F021111A5280fdCF682D1777428578fa",
     signers: OWNER_SIGNERS,
     goalCents: 1_550_000,
-    payment: ITALK_MONERIUM,
+    payment: MPT_INTENT,
   },
   {
     slug: "rab",
@@ -149,7 +122,7 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     safe: "0x7CA5E2Dcd81Aa54bC2f8ee16a1D313734D314F05",
     signers: OWNER_SIGNERS,
     goalCents: 650_000,
-    payment: ITALK_MONERIUM,
+    payment: MPT_INTENT,
   },
 ];
 
@@ -180,47 +153,6 @@ export function isPayable(
   );
 }
 
-/** Opis plaćanja koji ide u SEPA nalog i u EPC QR. */
-export function remittanceFor(project: BetaProject & { safe: Address; payment: BetaPayment }): string {
-  if (project.payment.kind === "rail") {
-    // Isti format kao pay.domovina.ai `GET /campaign-qr` (backend/src/intents/api.ts).
-    return `cmp:${project.safe.toLowerCase()}?id=${project.payment.campaignId}`;
-  }
-  if (project.payment.routing === "reference") {
-    // Format iz Monerium pomoći: `{chain}:{address}`.
-    return `gnosis:${project.safe}`;
-  }
-  return `${BRAND.name} ${project.place}`;
-}
-
-/**
- * EPC069-12 tekst za QR kod (SEPA Credit Transfer). Preslikano iz
- * pay.domovina.ai `backend/src/intents/epc.ts` — isti raspored od deset redaka,
- * pa bankovne aplikacije koje čitaju donacijski QR čitaju i ovaj.
- * Iznos prazan → uplatitelj ga upisuje sam.
- */
-export function buildEpcText(args: {
-  beneficiaryName: string;
-  iban: string;
-  bic: string | null;
-  remittance: string;
-  amountEur?: number | null;
-}): string {
-  const version = args.bic ? "002" : "001";
-  const amount = args.amountEur && args.amountEur > 0 ? `EUR${args.amountEur.toFixed(2)}` : "";
-  return [
-    "BCD",
-    version,
-    "1",
-    "SCT",
-    args.bic ?? "",
-    args.beneficiaryName,
-    args.iban.replace(/\s+/g, ""),
-    amount,
-    "OTHR",
-    args.remittance.slice(0, 140),
-  ].join("\n");
-}
 
 /**
  * Iznos u EPC QR-u je OBAVEZAN. Bez njega Revolut nakon skeniranja ne popuni
@@ -237,11 +169,6 @@ export function parseAmountEur(input: string): number | null {
   if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
   const n = Number(s);
   return n > 0 && n <= MAX_AMOUNT_EUR ? n : null;
-}
-
-/** IBAN u skupinama po četiri znaka, za čitanje naglas i prepisivanje. */
-export function formatIban(iban: string): string {
-  return iban.replace(/\s+/g, "").replace(/(.{4})/g, "$1 ").trim();
 }
 
 /**

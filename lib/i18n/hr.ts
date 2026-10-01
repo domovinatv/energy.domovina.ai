@@ -843,19 +843,15 @@ export const hr = {
     "Račun elektrane je otvoren, ali uplata SEPA nalogom još nije povezana. Uputa za uplatu pojavit će se ovdje.",
   "beta.signers":
     "Isplata traži {threshold} od {count} potpisa. Sva tri potpisna ključa zasad drži ista osoba, vlasnik lokacije: ovo pokazuje kako mehanizam radi, a ne neovisnu kontrolu.",
-  "beta.payQr": "Skeniraj u aplikaciji banke: iznos {amount} i opis plaćanja popune se sami.",
   "beta.amount": "Iznos",
+  "beta.payButton": "Plati {amount}",
+  "beta.payBusy": "Pripremam uplatu…",
+  "beta.payHow":
+    "Otvara se stranica za plaćanje s QR kodom za tvoju banku. Čim uplata stigne, ondje vidiš potvrdu, obično za nekoliko sekundi.",
+  "beta.payErrorWhitelist": "Uplate za ovu elektranu još nisu uključene. Pokušaj ponovno kasnije.",
+  "beta.payErrorGeneric": "Plaćanje se trenutno ne može pripremiti. Pokušaj ponovno za minutu.",
   "beta.amountCustom": "Drugi iznos",
   "beta.amountInvalid": "Upiši iznos u eurima, npr. 25 ili 12,50 (najviše {max}).",
-  "beta.beneficiary": "Primatelj",
-  "beta.iban": "IBAN",
-  "beta.bic": "BIC",
-  "beta.reference": "Opis plaćanja",
-  "beta.referenceRail":
-    "Opis plaćanja upiši točno ovako. Primatelj na nalogu je operater raila; po opisu plaćanja rail uplatu automatski prosljeđuje na Safe ove elektrane, i taj prijenos je javno vidljiv.",
-  "beta.referenceDirect": "Ovaj IBAN pripada samo ovoj elektrani.",
-  "beta.referenceMonerium":
-    "Opis plaćanja upiši točno ovako. Primatelj je Monerium račun tvrtke ITalk d.o.o. i isti je za sve tri elektrane; po opisu plaćanja Monerium uplatu pretvara u EURe i šalje izravno na Safe baš ove elektrane.",
   "beta.safe": "Račun elektrane (Safe)",
   "beta.notInvestment":
     "Uplata nije ulaganje: ne donosi udio u elektrani ni pravo na novac natrag. {brand} ne drži ključeve nijednog Safea.",

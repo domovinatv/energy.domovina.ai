@@ -7,23 +7,13 @@
  *    može ostati zarobljen), a vlasnici i prag moraju biti točno oni upisani u
  *    `lib/beta-projects.ts`. Kriva ili tipfelerom pokvarena adresa ne smije
  *    dobiti QR za uplatu.
- * 2. RAIL — za `kind: "rail"` pita pay.domovina.ai (`GET /campaign-qr`): rail
- *    tiho odbija uplate za neregistriranu kampanju.
- *
- * Monerium usmjeravanje (`gnosis:<safe>`) ovdje se ne može provjeriti bez
- * Monerium prijave: da je Safe povezan s profilom, potvrđuje test uplata od 1 €.
+ * Je li Safe na payout whitelisti raila ovdje se ne vidi (admin API); ako nije,
+ * `/beta/` pri stvaranju intenta prikaže poruku umjesto checkouta.
  */
-import { BETA_PROJECTS, RAIL_API_BASE, remittanceFor, isPayable, isValidSafe } from "../lib/beta-projects.ts";
+import { BETA_PROJECTS, isValidSafe } from "../lib/beta-projects.ts";
 import { readSafe } from "../lib/safe-rpc.ts";
 
-interface CampaignQr {
-  memo: string;
-  iban: string;
-  beneficiary_name: string;
-  bic: string | null;
-}
 
-const norm = (s: string) => s.replace(/\s+/g, "").toUpperCase();
 
 let failures = 0;
 const fail = (slug: string, problems: string[]) => {
@@ -67,24 +57,6 @@ for (const project of BETA_PROJECTS) {
   }
   console.log(`✓  ${project.slug}: Safe deployan, ${onChain.threshold}-od-${onChain.owners.length}, vlasnici odgovaraju`);
 
-  // ── 2. Rail registracija ──────────────────────────────────────────────────
-  if (!isPayable(project) || project.payment.kind !== "rail") continue;
-  const url = `${RAIL_API_BASE}/campaign-qr?target=${project.safe}&id=${encodeURIComponent(project.payment.campaignId)}`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    fail(project.slug, [`rail je odgovorio ${res.status} — ${await res.text()}`]);
-    continue;
-  }
-  const qr = (await res.json()) as CampaignQr;
-  const railProblems: string[] = [];
-  if (qr.memo !== remittanceFor(project)) railProblems.push(`opis: rail „${qr.memo}", stranica „${remittanceFor(project)}"`);
-  if (norm(qr.iban) !== norm(project.payment.iban)) railProblems.push(`IBAN: rail ${qr.iban}, stranica ${project.payment.iban}`);
-  if (qr.beneficiary_name !== project.payment.beneficiaryName) {
-    railProblems.push(`primatelj: rail „${qr.beneficiary_name}", stranica „${project.payment.beneficiaryName}"`);
-  }
-  if ((qr.bic ?? null) !== project.payment.bic) railProblems.push(`BIC: rail ${qr.bic}, stranica ${project.payment.bic}`);
-  if (railProblems.length > 0) fail(project.slug, railProblems);
-  else console.log(`✓  ${project.slug}: rail potvrđuje IBAN, primatelja i opis plaćanja`);
 }
 
 if (failures > 0) {
