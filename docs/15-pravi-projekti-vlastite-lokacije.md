@@ -156,6 +156,38 @@ pregledniku i nije na lancu, ali se ne smije pojaviti u javnom UI-ju.
 | **2. Rail bilježi izravni Monerium mint** (`pay.domovina.ai`): nalog čija je adresa registrirani Safe kampanje = doprinos, bez forwarda | sljedeće, PR u pay.domovina.ai | webhook već stiže; instant, bez gasa; zapis + obavijest; nestaje lažni `unroutable_prefix` alert | samo SEPA; kritičan kod za novac; ime uplatitelja ne smije na stranicu bez privole |
 | **3. Vlastiti node + listener** (`domovina-gnosis-node`) | kad node proradi | sve uplate iz bloka, bez trećih strana | node nije pokrenut; jedna mašina = treba rezervni RPC i backfill |
 
+**Put 1 nije dovoljan za UX uplate (Matija, 1.10.2026.).** Monerium prvu uplatu s
+novog IBAN-a zna držati na provjeri **do 8 sati** prije minta, a upravo kod prve
+uplate uplatitelj treba brz odgovor. Lanac to ne vidi dok mint ne prođe.
+Cilj je UX kao kartica na POS terminalu: „novac je stigao" za nekoliko sekundi.
+
+### Plan: payment intent s izravnim mintom (sljedeća sesija)
+
+Što već postoji u `pay.domovina.ai/backend`:
+- `POST /api/intents` (`intents/api.ts:40`) — javan; `target_address` + `amount_eur`
+  → `sid`, EPC podaci, `status_stream_url` (SSE).
+- `intents/stage.ts` — faza **`received_processing`** = Monerium je primio SEPA, EURe
+  još nije mintan. To je trenutak „novac je stigao", neovisno o 8-satnoj provjeri.
+- `monerium/sid.ts` — već predviđa memo `gnosis:0x<safe>?sid=<id>` (i rezervu
+  `gnosis:0x<safe> sid:<id>`), uz napomenu da se ne zna prihvaća li ga Monerium.
+
+**Korak 0 — pokus od 1 €** na ITalkov IBAN s opisom
+`gnosis:0x4f7f1950B2CB6713CcB47b869F30C0ebc01d0173?sid=test1`. Pitanja:
+(a) je li EURe mintan na Lukavec Safe ili na rail Safe `0x449a…`;
+(b) nosi li webhook `?sid=test1`. Ako (a) ne prođe, ponoviti s rezervnim oblikom.
+
+**Ako oba DA:**
+1. pay.domovina.ai — intent s izravnim mintom: memo `gnosis:<safe>?sid=`,
+   `forward_expected = false`; nalog čija je adresa mintanja = `target_address`
+   zatvara se kao `settled` umjesto `park` (nestaje i `unroutable_prefix` alert).
+   `ALLOWED_ORIGINS` += `https://energy.domovina.ai`; tri Safea u whitelist tenanta.
+2. energy `/beta/` — „Uplati" → iznos → `POST /api/intents` → EPC QR s iznosom i
+   memoom → SSE: „Novac je stigao" na `received_processing`, „EURe na Safeu" na
+   mint. CSP `connect-src` += `https://mpt.domovina.ai`.
+
+**Ako NE:** intent ide postojećim `mpt:` putem (radi danas, isti instant
+feedback), uz trošak forwarda i hold-and-forward rizik iz ToS analize (§16/§17).
+
 **Ne** preusmjeravati na `cmp:` samo radi detekcije: gas za forward i vraća se
 hold-and-forward korak koji je rizičniji dio raila po Monerium ToS §17.
 
