@@ -129,6 +129,7 @@ operater raila. Kod `monerium` puta primatelj je vlasnik Safea.
 |---|---|---|---|
 | Lukavec | `0x4f7f1950B2CB6713CcB47b869F30C0ebc01d0173` | 2-od-3 | 1.10.2026. |
 | Donja Lomnica | `0x52eaB439F021111A5280fdCF682D1777428578fa` | 2-od-3 | 1.10.2026. |
+| Rab | `0x7CA5E2Dcd81Aa54bC2f8ee16a1D313734D314F05` | 2-od-3 | 1.10.2026. |
 
 Potpisnici (isti na svim Safeovima, tri MetaMaska u tri Chrome profila):
 `0x4924…1944` ms-dom-energy-signer (stepanic.matija@gmail.com) ·
