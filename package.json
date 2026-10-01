@@ -18,7 +18,7 @@
     "test": "vitest run",
     "verify": "npm run lint && npm run lint:copy && npm run typecheck && npm run test && npm run build",
     "deploy": "npm run verify && npm run check:beta && wrangler deploy",
-    "check:beta": "tsx scripts/check-beta-rail.mts"
+    "check:beta": "tsx scripts/check-beta.mts"
   },
   "dependencies": {
     "@xyflow/react": "^12.11.6",

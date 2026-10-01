@@ -96,6 +96,13 @@ pay.domovina.ai `intents/epc.ts`) radi se pri buildu.
 U `lib/beta-projects.ts`, za lokaciju:
 
 1. `safe` — adresa Safea (nulta adresa i `null` = „u pripremi", bez upute za uplatu).
+   Safe se radi na **app.safe.global** (Gnosis Chain, 2-od-3, vlasnici su tri
+   MetaMaska), **ne** offline derivacijom iz pay.domovina.ai: nedeployan Safe se
+   ne može uvesti u safe.global ni povezati s Moneriumom, a novac na nedeployanoj
+   adresi je točno zamka iz postmortema 0001 (pay.domovina.ai).
+   `signers` — `{ owners, threshold }` kakve očekujemo; bez toga projekt nije
+   naplativ. `npm run deploy` (`scripts/check-beta.mts`) čita lanac i ruši deploy
+   ako Safe nije deployan ili se vlasnici/prag ne slažu.
 2. `payment` — jedan od dva puta:
    - `{ kind: "monerium", routing: "reference", iban, beneficiaryName, bic }` —
      **odabrano za betu** (1.10.2026.): JEDAN IBAN Matijinog osobnog Monerium
@@ -108,8 +115,8 @@ U `lib/beta-projects.ts`, za lokaciju:
      podcastima; kampanja mora biti registrirana na pay.domovina.ai
      (`POST /admin/api/tenants/:id/campaigns`).
 3. `goalCents` — kad stigne ponuda izvođača; do tada „—".
-4. `npm run deploy` = verify + `check:beta` (za `rail` pita rail i ruši deploy ako
-   IBAN, primatelj ili opis plaćanja ne odgovaraju) + `wrangler deploy`.
+4. `npm run deploy` = verify + `check:beta` (Safe na lancu; za `rail` i registracija
+   na railu — IBAN, primatelj, opis plaćanja) + `wrangler deploy`.
 
 ⚠️ **Kod `rail` puta primatelj na nalogu je ITalk d.o.o.**, pa tvrdnja „novac ne
 prolazi kroz nas" tamo nije točna — rail ga prosljeđuje. Copy zato kaže samo da

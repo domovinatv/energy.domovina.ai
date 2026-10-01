@@ -9,6 +9,7 @@ import {
   weiToCents,
   type BetaProject,
 } from "@/lib/beta-projects";
+import { decodeAddressArray, decodeUint } from "@/lib/safe-rpc";
 
 const SAFE = "0x6693a7D19486Dc45e9F90Fd2D515d972bBA2d65e" as const;
 
@@ -21,11 +22,21 @@ function project(overrides: Partial<BetaProject>): BetaProject {
     connections: 1,
     gnosisNode: false,
     safe: null,
+    signers: null,
     goalCents: null,
     payment: null,
     ...overrides,
   };
 }
+
+const SIGNERS = {
+  owners: [
+    "0x1111111111111111111111111111111111111111",
+    "0x2222222222222222222222222222222222222222",
+    "0x3333333333333333333333333333333333333333",
+  ],
+  threshold: 2,
+} as const satisfies { owners: `0x${string}`[]; threshold: number };
 
 const RAIL = { kind: "rail", campaignId: "lukavec-fne", iban: "EE70 7777 0001 6292 1128", beneficiaryName: "ITalk d.o.o.", bic: null } as const;
 
@@ -40,20 +51,27 @@ describe("beta: tko smije primati uplate (docs/04 §3.3)", () => {
   it("Safe bez načina uplate nije naplativ", () => {
     expect(isPayable(project({ safe: SAFE }))).toBe(false);
   });
-  it("Safe + način uplate jest naplativ", () => {
-    expect(isPayable(project({ safe: SAFE, payment: RAIL }))).toBe(true);
+  it("Safe bez upisanih potpisnika nije naplativ — nitko ga nije provjerio", () => {
+    expect(isPayable(project({ safe: SAFE, payment: RAIL }))).toBe(false);
+  });
+  it("prag veći od broja potpisnika nije naplativ", () => {
+    expect(isPayable(project({ safe: SAFE, payment: RAIL, signers: { owners: [SAFE], threshold: 2 } }))).toBe(false);
+  });
+  it("Safe + potpisnici + način uplate jest naplativ", () => {
+    expect(isPayable(project({ safe: SAFE, signers: SIGNERS, payment: RAIL }))).toBe(true);
   });
 });
 
 describe("beta: opis plaćanja i EPC QR", () => {
   it("rail opis je isti format kao pay.domovina.ai campaign-qr", () => {
-    const p = project({ safe: SAFE, payment: RAIL });
+    const p = project({ safe: SAFE, signers: SIGNERS, payment: RAIL });
     if (!isPayable(p)) throw new Error("očekivan naplativ projekt");
     expect(remittanceFor(p)).toBe(`cmp:${SAFE.toLowerCase()}?id=lukavec-fne`);
   });
   it("Monerium usmjeravanje po opisu: gnosis:<safe>", () => {
     const p = project({
       safe: SAFE,
+      signers: SIGNERS,
       payment: { kind: "monerium", routing: "reference", iban: "X", beneficiaryName: "X", bic: null },
     });
     if (!isPayable(p)) throw new Error("očekivan naplativ projekt");
@@ -72,6 +90,24 @@ describe("beta: opis plaćanja i EPC QR", () => {
   });
   it("IBAN se grupira po četiri znaka", () => {
     expect(formatIban("EE707777000162921128")).toBe("EE70 7777 0001 6292 1128");
+  });
+});
+
+describe("beta: čitanje Safea s lanca", () => {
+  it("dekodira address[] iz getOwners()", () => {
+    const hex =
+      "0x" +
+      "0000000000000000000000000000000000000000000000000000000000000020" +
+      "0000000000000000000000000000000000000000000000000000000000000002" +
+      "000000000000000000000000AbCdEf0000000000000000000000000000000001" +
+      "0000000000000000000000002222222222222222222222222222222222222222";
+    expect(decodeAddressArray(hex)).toEqual([
+      "0xabcdef0000000000000000000000000000000001",
+      "0x2222222222222222222222222222222222222222",
+    ]);
+  });
+  it("dekodira uint iz getThreshold()", () => {
+    expect(decodeUint("0x0000000000000000000000000000000000000000000000000000000000000002")).toBe(2);
   });
 });
 

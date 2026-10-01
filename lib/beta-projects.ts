@@ -34,7 +34,7 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
  * - `rail`: isti tok kao donacije podcastima (domovina.ai/c/…/doniraj). IBAN je
  *   zajednički IBAN tenanta na pay.domovina.ai, a opis plaćanja `cmp:<safe>?id=`
  *   govori railu kamo proslijediti. Kampanja MORA biti registrirana na railu,
- *   inače se svaka uplata odbije — to provjerava `scripts/check-beta-rail.mts`.
+ *   inače se svaka uplata odbije — to provjerava `scripts/check-beta.mts`.
  * - `monerium`: Safe je povezan s Monerium profilom vlasnika.
  *   - `routing: "reference"` — JEDAN IBAN profila za sve elektrane; opis plaćanja
  *     `gnosis:<safe>` govori Moneriumu na koji povezani Safe mintati
@@ -70,6 +70,12 @@ export interface BetaProject {
   gnosisNode: boolean;
   /** Safe projekta; `null` dok nije otvoren. */
   safe: Address | null;
+  /**
+   * Očekivani potpisnici i prag. `npm run deploy` ih uspoređuje s lancem i ruši
+   * deploy ako Safe nije deployan ili se ne slaže (`scripts/check-beta.mts`).
+   * Bez ovoga projekt nije naplativ — adresa koju nitko nije provjerio ne prima novac.
+   */
+  signers: { owners: Address[]; threshold: number } | null;
   /** Cilj u centima; `null` dok nema ponude izvođača. */
   goalCents: number | null;
   /** `null` dok Safe nije povezan s načinom uplate. */
@@ -85,6 +91,7 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     connections: 1,
     gnosisNode: true,
     safe: null,
+    signers: null,
     goalCents: null,
     payment: null,
   },
@@ -96,6 +103,7 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     connections: 2,
     gnosisNode: true,
     safe: null,
+    signers: null,
     goalCents: null,
     payment: null,
   },
@@ -107,6 +115,7 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     connections: 1,
     gnosisNode: true,
     safe: null,
+    signers: null,
     goalCents: null,
     payment: null,
   },
@@ -123,7 +132,13 @@ export function isValidSafe(address: string | null): address is Address {
 export function isPayable(
   project: BetaProject,
 ): project is BetaProject & { safe: Address; payment: BetaPayment } {
-  return isValidSafe(project.safe) && project.payment !== null;
+  return (
+    isValidSafe(project.safe) &&
+    project.payment !== null &&
+    project.signers !== null &&
+    project.signers.threshold >= 1 &&
+    project.signers.threshold <= project.signers.owners.length
+  );
 }
 
 /** Opis plaćanja koji ide u SEPA nalog i u EPC QR. */
