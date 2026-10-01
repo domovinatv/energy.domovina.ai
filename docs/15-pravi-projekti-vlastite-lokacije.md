@@ -111,10 +111,13 @@ Statični opisi (`gnosis:<safe>`, `cmp:`) i vlastiti EPC generator izbačeni su 
 koda: bez intenta nema obavijesti uplatitelju ni zapisa u adminu.
 
 Preduvjeti na railu (pay.domovina.ai):
-1. `https://energy.domovina.ai` u `ALLOWED_ORIGINS` (`backend/wrangler.toml`) — bez
-   toga preglednik blokira `POST` (CORS preflight bez `Access-Control-Allow-Origin`).
-2. Tri Safea na payout whitelisti tenanta ITalk (`mpt.domovina.ai/admin/whitelist`);
-   inače intent vraća `target_not_whitelisted` i `/beta/` to javlja.
+1. ✅ `https://energy.domovina.ai` u `ALLOWED_ORIGINS` — pay.domovina.ai `a0507c6`,
+   deploy `da5b8e9e` (2.10.2026.). Preflight provjeren; ostali originsi nepromijenjeni.
+2. ⏳ Tri kampanje u adminu: tab **Whitelist** → „Kampanje (cmp: QR)" →
+   `dom-energy-lukavec` / `dom-energy-lomnica` / `dom-energy-rab` sa Safeovima.
+   Registracija kampanje ujedno stavlja Safe na whitelist (`tenants/admin.ts:147`).
+   Do tada intent vraća 403 `target_not_whitelisted` i `/beta/` to javlja —
+   provjereno na produkciji 2.10.2026.
 
 
 
