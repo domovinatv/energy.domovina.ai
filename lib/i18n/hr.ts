@@ -823,6 +823,8 @@ export const hr = {
   "beta.who":
     "Elektrane financiraju vlasnik lokacija i ljudi koje osobno poznaje. Ovo nije javno prikupljanje.",
   "beta.prototypeLink": "Kako će izgledati cijela platforma: prototip",
+  "beta.campaign": "Kampanja",
+  "beta.progress": "Prikupljeno {received} od {goal} ({percent})",
   "beta.power": "Snaga",
   "beta.connections": "Priključaka HEP-ODS: {count}",
   "beta.node": "Na lokaciji radi Gnosis node",

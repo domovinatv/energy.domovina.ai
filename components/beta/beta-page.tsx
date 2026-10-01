@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { BRAND } from "@/lib/brand";
-import { formatDateShort, formatEur, formatEurPrecise, shortAddress } from "@/lib/format";
+import { formatDateShort, formatEur, formatEurPrecise, formatPercent, shortAddress } from "@/lib/format";
 import {
   BETA_PROJECTS,
   formatIban,
@@ -53,8 +53,14 @@ function ProjectSection({ project, qrSvg }: { project: BetaProject; qrSvg: strin
   const { t } = useT();
   return (
     <section id={project.slug} className="scroll-mt-6 rounded-md border border-ink/8 bg-white/60 p-5 sm:p-7">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-        <h2 className="font-display text-2xl font-semibold text-ink">{project.place}</h2>
+      <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-1">
+        <div>
+          <p className="inline-block rounded-full bg-forest/10 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-forest">
+            {t("beta.campaign")}
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold text-ink">{project.place}</h2>
+          <p className="mt-1 text-sm text-inkSoft">{project.address}</p>
+        </div>
         <p className="text-sm text-inkMuted">{project.county}</p>
       </div>
 
@@ -93,6 +99,36 @@ function ProjectSection({ project, qrSvg }: { project: BetaProject; qrSvg: strin
         <p className="mt-6 rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft">{t("beta.pending")}</p>
       )}
     </section>
+  );
+}
+
+function GoalProgress({ receivedCents, goalCents }: { receivedCents: number; goalCents: number }) {
+  const { t } = useT();
+  const fraction = receivedCents / goalCents;
+  return (
+    <div className="mt-4">
+      <div
+        className="h-3 overflow-hidden rounded-full bg-sandDeep"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={goalCents / 100}
+        aria-valuenow={receivedCents / 100}
+        aria-label={t("beta.goal")}
+      >
+        {/* Barem tanka crta čim stigne prva uplata, da se pomak vidi i kod malih iznosa. */}
+        <div
+          className="h-full rounded-full bg-forest"
+          style={{ width: receivedCents > 0 ? `max(0.5rem, ${Math.min(100, fraction * 100)}%)` : "0%" }}
+        />
+      </div>
+      <p className="mt-2 text-sm text-inkSoft">
+        {t("beta.progress", {
+          received: formatEurPrecise(receivedCents),
+          goal: formatEur(goalCents),
+          percent: formatPercent(fraction, fraction > 0 && fraction < 0.01 ? 1 : 0),
+        })}
+      </p>
+    </div>
   );
 }
 
@@ -159,12 +195,7 @@ function LiveActivity({ safe, goalCents }: { safe: Address; goalCents: number | 
             <Fact label={t("beta.balance")} value={formatEurPrecise(state.data.balanceCents)} />
           </dl>
           {goalCents !== null && goalCents > 0 && (
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-sandDeep" aria-hidden="true">
-              <div
-                className="h-full bg-forest"
-                style={{ width: `${Math.min(100, (state.data.receivedCents / goalCents) * 100)}%` }}
-              />
-            </div>
+            <GoalProgress receivedCents={state.data.receivedCents} goalCents={goalCents} />
           )}
           <h3 className="mt-5 text-xs uppercase tracking-wide text-inkMuted">{t("beta.recent")}</h3>
           {state.data.transfers.length === 0 ? (

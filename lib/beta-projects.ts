@@ -8,7 +8,7 @@
  * Novac ne prolazi kroz ovu stranicu. Uplatitelj šalje SEPA nalog izravno
  * (Monerium mintuje EURe na Safe projekta), a stranica samo čita Gnosis Chain.
  *
- * ⚠️ Javno se prikazuje samo MJESTO. Puna adresa lokacije stoji u docs/15, ne ovdje.
+ * Puna adresa lokacije prikazuje se javno — odluka vlasnika (docs/15 §2).
  */
 
 import { BRAND } from "@/lib/brand";
@@ -86,8 +86,10 @@ export type BetaPayment =
 
 export interface BetaProject {
   slug: string;
-  /** Samo mjesto — nikad ulica ni kućni broj. */
+  /** Mjesto — naslov kartice. */
   place: string;
+  /** Puna adresa lokacije; vlasnik ju je odlučio objaviti (1.10.2026., docs/15 §2). */
+  address: string;
   county: string;
   /** Ukupna snaga u kW. */
   powerKw: number;
@@ -103,7 +105,7 @@ export interface BetaProject {
    * Bez ovoga projekt nije naplativ — adresa koju nitko nije provjerio ne prima novac.
    */
   signers: { owners: Address[]; threshold: number } | null;
-  /** Cilj u centima; `null` dok nema ponude izvođača. */
+  /** Cilj kampanje u centima (procjena vlasnika, 1.10.2026.); `null` = nije postavljen. */
   goalCents: number | null;
   /** `null` dok Safe nije povezan s načinom uplate. */
   payment: BetaPayment | null;
@@ -113,37 +115,40 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
   {
     slug: "lukavec",
     place: "Lukavec",
+    address: "Ciglenice 38A, 10412 Lukavec",
     county: "Zagrebačka županija",
     powerKw: 16,
     connections: 1,
     gnosisNode: true,
     safe: "0x4f7f1950B2CB6713CcB47b869F30C0ebc01d0173",
     signers: OWNER_SIGNERS,
-    goalCents: null,
+    goalCents: 1_120_000,
     payment: ITALK_MONERIUM,
   },
   {
     slug: "donja-lomnica",
     place: "Donja Lomnica",
+    address: "Školska 5, 10412 Donja Lomnica",
     county: "Zagrebačka županija",
     powerKw: 20,
     connections: 2,
     gnosisNode: true,
     safe: "0x52eaB439F021111A5280fdCF682D1777428578fa",
     signers: OWNER_SIGNERS,
-    goalCents: null,
+    goalCents: 1_550_000,
     payment: ITALK_MONERIUM,
   },
   {
     slug: "rab",
     place: "Rab",
+    address: "Barbat 697, 51280 Rab",
     county: "Primorsko-goranska županija",
     powerKw: 8,
     connections: 1,
     gnosisNode: true,
     safe: "0x7CA5E2Dcd81Aa54bC2f8ee16a1D313734D314F05",
     signers: OWNER_SIGNERS,
-    goalCents: null,
+    goalCents: 650_000,
     payment: ITALK_MONERIUM,
   },
 ];

@@ -785,6 +785,8 @@ export const en: Catalog = {
   "beta.who":
     "The plants are funded by the owner of the sites and people he knows personally. This is not a public fundraiser.",
   "beta.prototypeLink": "What the full platform will look like: prototype",
+  "beta.campaign": "Campaign",
+  "beta.progress": "Raised {received} of {goal} ({percent})",
   "beta.power": "Capacity",
   "beta.connections": "Grid connections: {count}",
   "beta.node": "A Gnosis node runs on this site",

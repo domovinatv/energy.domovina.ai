@@ -17,6 +17,7 @@ function project(overrides: Partial<BetaProject>): BetaProject {
   return {
     slug: "test",
     place: "Test",
+    address: "Test 1, 10000 Test",
     county: "Test",
     powerKw: 1,
     connections: 1,
@@ -132,8 +133,14 @@ describe("beta: podaci o projektima", () => {
     expect(bySlug["donja-lomnica"]?.connections).toBe(2);
     expect(bySlug.rab?.powerKw).toBe(8);
   });
-  it("nijedan projekt ne nosi ulicu u javnom imenu mjesta", () => {
-    for (const p of BETA_PROJECTS) expect(p.place).not.toMatch(/\d/);
+  it("ciljevi kampanja: 11.200 €, 15.500 €, 6.500 €", () => {
+    expect(BETA_PROJECTS.map((p) => p.goalCents)).toEqual([1_120_000, 1_550_000, 650_000]);
+  });
+  it("adresa sadrži poštanski broj i mjesto kartice", () => {
+    for (const p of BETA_PROJECTS) {
+      expect(p.address).toMatch(/\b\d{5}\b/);
+      expect(p.address.endsWith(p.place)).toBe(true);
+    }
   });
   it("rail projekt ima ispravan id kampanje (pay.domovina.ai: 6–64 znaka)", () => {
     for (const p of BETA_PROJECTS) {

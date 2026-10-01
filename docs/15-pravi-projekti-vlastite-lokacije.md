@@ -29,9 +29,17 @@ projekta daju:
 | L2 | Donja Lomnica (Školska 5) | 10412 | Gnosis node |
 | L3 | Rab (Barbat 697) | 51280 | Gnosis node |
 
-⚠️ Ulica i kućni broj su adrese privatne osobe. U javnom UI-ju stoji **samo mjesto**,
-a točka na karti se zaokružuje na razinu naselja. Puna adresa ostaje u ovom
-(privatnom) repou.
+**Puna adresa se prikazuje javno na `/beta/`** — odluka vlasnika 1.10.2026.
+(ranije je pravilo bilo „samo mjesto"). Ime Safea u safe.global i dalje ne treba
+dijeliti.
+
+| Lokacija | Snaga | Cilj kampanje |
+|---|---|---|
+| Lukavec | 16 kW | 11.200 € |
+| Donja Lomnica | 2 × 10 kW | 15.500 € |
+| Rab | 8 kW | 6.500 € |
+
+Ciljevi su procjena vlasnika (1.10.2026.), ne ponuda izvođača.
 
 ## 3. Odluka: tko uplaćuje
 
