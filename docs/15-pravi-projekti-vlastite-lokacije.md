@@ -239,6 +239,22 @@ s čistim opisom prije nego link ode ikome**; ako EURe završi na `mpt-main-rail
 **Ne** preusmjeravati na `cmp:` samo radi detekcije: gas za forward i vraća se
 hold-and-forward korak koji je rizičniji dio raila po Monerium ToS §17.
 
+### Plan: push umjesto pollinga (odluka 2.10.2026., nije izvedeno)
+
+Danas: intent se čita svake 2 s, lanac (gnosisscan) svakih 20 s + 3 s i 8 s nakon
+forwarda. Za betu nije opterećenje (~6 upita / 20 s po posjetitelju, samo vidljiva
+kartica) — push je dobitak u brzini i osjećaju.
+
+| Korak | Gdje | Što daje |
+|---|---|---|
+| **1. SSE za intente** — `/api/intents/:sid/stream` je na railu već rezerviran (danas 404) | pay.domovina.ai | „euro je stigao" u trenutku Monerium webhooka, bez čitanja svake 2 s. Najmanje posla, najveći učinak |
+| **2. Node listener → Worker → kanal po Safeu** — `eth_subscribe` na EURe Transfer prema Safeovima; potpisani eventi Cloudflare Workeru; Durable Object drži WebSocket/SSE kanal po Safeu | domovina-gnosis-node (+ Worker) | popis i saldo osvježeni u bloku (~5 s), bez čekanja gnosisscan indeksa |
+| **3. Polling ostaje kao rezerva**, rjeđe (npr. 60 s) | energy.domovina.ai | node je jedna mašina — nestanak struje/mreže ne smije zaustaviti prikaz |
+
+Node **ne vidi** trenutak „euro je stigao" (to je Monerium webhook, ne lanac), pa
+korak 1 ne zamjenjuje korak 2 ni obrnuto. Preglednik se nikad ne spaja izravno
+na node (MacBook iza tunela, RPC Worker nije napisan).
+
 ## 7. Otvoreno
 
 - [ ] ⚠️ **Monerium Business ToS §16 vrijedi i ovdje.** Interna analiza
