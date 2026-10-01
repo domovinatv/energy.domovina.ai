@@ -246,12 +246,20 @@ function PayInstructions({
   return (
     <div className="rounded-sm bg-sand p-4 sm:p-5">
       <h3 className="font-medium text-ink">{t("beta.payTitle")}</h3>
-      <div className="mt-3 flex flex-col gap-5 sm:flex-row">
+      <div className="mt-3 flex flex-col gap-5">
         {qrSvg !== null && (
-          <div className="shrink-0">
-            {/* SVG generira biblioteka `qrcode` pri buildu iz našeg EPC teksta. */}
-            <div className="h-44 w-44 bg-white p-1" dangerouslySetInnerHTML={{ __html: qrSvg }} />
-            <p className="mt-2 max-w-44 text-xs text-inkMuted">{t("beta.payQr")}</p>
+          <div>
+            {/* SVG generira biblioteka `qrcode` pri buildu iz našeg EPC teksta.
+                ⚠️ Revolut iOS NE čita gust EPC QR iscrtan sitno: 220 px bez
+                tihe zone nije prolazio, 320 px + 4 modula tihe zone + ECC M jest
+                (pay.domovina.ai memorija feedback_epc_format / pinka 71907a7).
+                Zato do 320 px, a na uskom ekranu cijela širina — nikad manje od
+                onoga što stane. `crispEdges` sprječava sive rubove modula. */}
+            <div
+              className="aspect-square w-full max-w-[320px] bg-white [&_svg]:h-full [&_svg]:w-full [&_svg]:[shape-rendering:crispEdges]"
+              dangerouslySetInnerHTML={{ __html: qrSvg }}
+            />
+            <p className="mt-2 max-w-[320px] text-xs text-inkMuted">{t("beta.payQr")}</p>
           </div>
         )}
         <dl className="min-w-0 space-y-2 text-sm">

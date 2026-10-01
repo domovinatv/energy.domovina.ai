@@ -24,10 +24,12 @@ export default async function Page() {
       bic: project.payment.bic,
       remittance: remittanceFor(project),
     });
+    // ECC M (ne H — gušća mreža, sitniji moduli) i tiha zona od 4 modula kako
+    // EPC069-12 / ISO 18004 traže; uz prikaz ≥ 320 px to čita i Revolut iOS.
     qrBySlug[project.slug] = await QRCode.toString(epc, {
       type: "svg",
       errorCorrectionLevel: "M",
-      margin: 1,
+      margin: 4,
     });
   }
   return <BetaPage qrBySlug={qrBySlug} />;
