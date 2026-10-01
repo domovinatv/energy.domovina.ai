@@ -860,6 +860,8 @@ export const hr = {
   "beta.intentTx": "Prijenos na Safe na Gnosisscanu",
   "beta.intentNew": "Nova uplata",
   "beta.intentCancel": "Odustani",
+  "beta.justArrived": "+{amount} upravo stiglo",
+  "beta.includesUnconfirmed": "Uključuje {amount} koje je Monerium zaprimio. Na Gnosis Chainu se pojavi čim se EURe izda i proslijedi na Safe elektrane.",
   "beta.payButton": "Plati {amount}",
   "beta.payBusy": "Pripremam uplatu…",
   "beta.payHow":

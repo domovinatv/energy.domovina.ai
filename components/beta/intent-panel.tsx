@@ -17,16 +17,20 @@ import {
   type IntentStatus,
   type PaymentIntent,
 } from "@/lib/mpt-intent";
+import type { PendingPayment } from "@/lib/pending-payments";
 
 const POLL_MS = 2_000;
 
 export function IntentPanel({
   intent,
   onClose,
+  onPayment,
   copyRow,
 }: {
   intent: PaymentIntent;
   onClose: () => void;
+  /** Javlja zaprimljenu uplatu (i kasnije hash forwarda) — pribroji se odmah. */
+  onPayment: (p: PendingPayment) => void;
   copyRow: (label: string, value: string, copy?: string, mono?: boolean) => React.ReactNode;
 }) {
   const { t } = useT();
@@ -53,6 +57,13 @@ export function IntentPanel({
       fetchIntentStatus(intent.statusUrl, controller.signal).then(
         (s) => {
           setStatus(s);
+          if (isReceived(s.stage) || s.stage === "settled") {
+            onPayment({
+              sid: intent.sid,
+              cents: Math.round(Number(intent.amountEur) * 100),
+              txHash: s.stage === "settled" ? s.forwardTxHash : null,
+            });
+          }
           if (!isTerminal(s.stage)) timer = window.setTimeout(poll, POLL_MS);
         },
         () => {
@@ -66,6 +77,8 @@ export function IntentPanel({
       controller.abort();
       window.clearTimeout(timer);
     };
+    // `onPayment` i `intent.sid` su stabilni za isti intent; poll se veže uz status_url.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intent.statusUrl]);
 
   const stage = status.stage;

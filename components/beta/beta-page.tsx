@@ -21,6 +21,7 @@ import {
 import { fetchSafeActivity, type SafeActivity } from "@/lib/beta-chain";
 import { createPaymentIntent, type IntentResult, type PaymentIntent } from "@/lib/mpt-intent";
 import { IntentPanel } from "@/components/beta/intent-panel";
+import { unconfirmedCents, upsertPending, type PendingPayment } from "@/lib/pending-payments";
 
 const RECENT_COUNT = 5;
 /** Koliko često se lanac ponovno čita dok je kartica vidljiva. */
@@ -54,6 +55,14 @@ export function BetaPage() {
 
 function ProjectSection({ project }: { project: BetaProject }) {
   const { t } = useT();
+  // Uplate koje je rail javio kao zaprimljene — pribrajaju se odmah (lib/pending-payments).
+  const [pending, setPending] = useState<PendingPayment[]>([]);
+  // Povećanje odmah ponovno pročita lanac (npr. kad rail javi forward).
+  const [refreshKey, setRefreshKey] = useState(0);
+  const onPayment = (p: PendingPayment) => {
+    setPending((list) => upsertPending(list, p));
+    if (p.txHash !== null) setRefreshKey((k) => k + 1);
+  };
   return (
     <section id={project.slug} className="scroll-mt-6 rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-1">
@@ -80,7 +89,12 @@ function ProjectSection({ project }: { project: BetaProject }) {
       {hasVerifiedSafe(project) ? (
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div>
-            <LiveActivity safe={project.safe} goalCents={project.goalCents} />
+            <LiveActivity
+              safe={project.safe}
+              goalCents={project.goalCents}
+              pending={pending}
+              refreshKey={refreshKey}
+            />
             <p className="mt-4 text-xs text-inkMuted">
               {t("beta.signers", {
                 threshold: project.signers.threshold,
@@ -89,7 +103,7 @@ function ProjectSection({ project }: { project: BetaProject }) {
             </p>
           </div>
           {isPayable(project) ? (
-            <PayWithIntent safe={project.safe} />
+            <PayWithIntent safe={project.safe} onPayment={onPayment} />
           ) : (
             <div className="rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft">
               <p>{t("beta.payPending")}</p>
@@ -120,7 +134,7 @@ function GoalProgress({ receivedCents, goalCents }: { receivedCents: number; goa
       >
         {/* Barem tanka crta čim stigne prva uplata, da se pomak vidi i kod malih iznosa. */}
         <div
-          className="h-full rounded-full bg-forest"
+          className="h-full rounded-full bg-forest transition-[width] duration-1000 ease-out motion-reduce:transition-none"
           style={{ width: receivedCents > 0 ? `max(0.5rem, ${Math.min(100, fraction * 100)}%)` : "0%" }}
         />
       </div>
@@ -133,6 +147,31 @@ function GoalProgress({ receivedCents, goalCents }: { receivedCents: number; goa
       </p>
     </div>
   );
+}
+
+/** Iznos koji se „odbroji" do nove vrijednosti — uplatitelj vidi da se njegov novac pribrojio. */
+function AnimatedEur({ cents }: { cents: number }) {
+  const [shown, setShown] = useState(cents);
+  useEffect(() => {
+    const from = shown;
+    if (from === cents) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const start = performance.now();
+    const duration = reduce ? 0 : 900;
+    let frame = 0;
+    const step = (now: number) => {
+      const p = duration === 0 ? 1 : Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setShown(Math.round(from + (cents - from) * eased));
+      if (p < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+    // `shown` namjerno nije ovisnost: animacija kreće od trenutno prikazanog
+    // iznosa samo kad se promijeni cilj.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cents]);
+  return <>{formatEurPrecise(shown)}</>;
 }
 
 function Fact({ label, value }: { label: string; value: string }) {
@@ -149,7 +188,17 @@ type LoadState =
   | { status: "error" }
   | { status: "ready"; data: SafeActivity };
 
-function LiveActivity({ safe, goalCents }: { safe: Address; goalCents: number | null }) {
+function LiveActivity({
+  safe,
+  goalCents,
+  pending,
+  refreshKey,
+}: {
+  safe: Address;
+  goalCents: number | null;
+  pending: readonly PendingPayment[];
+  refreshKey: number;
+}) {
   const { t, locale } = useT();
   const [state, setState] = useState<LoadState>({ status: "loading" });
 
@@ -182,7 +231,12 @@ function LiveActivity({ safe, goalCents }: { safe: Address; goalCents: number | 
       document.removeEventListener("visibilitychange", onVisible);
       controller.abort();
     };
-  }, [safe]);
+  }, [safe, refreshKey]);
+
+  const extraCents =
+    state.status === "ready" ? unconfirmedCents(pending, state.data.transfers.map((tr) => tr.hash)) : 0;
+  const receivedCents = state.status === "ready" ? state.data.receivedCents + extraCents : 0;
+  const latest = pending.length > 0 ? pending[pending.length - 1] : undefined;
 
   return (
     <div>
@@ -191,14 +245,31 @@ function LiveActivity({ safe, goalCents }: { safe: Address; goalCents: number | 
       {state.status === "ready" && (
         <>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-3">
-            <Fact
-              label={t("beta.received")}
-              value={`${state.data.truncated ? "≥ " : ""}${formatEurPrecise(state.data.receivedCents)}`}
-            />
+            <div>
+              <dt className="text-xs uppercase tracking-wide text-inkMuted">{t("beta.received")}</dt>
+              <dd className="mt-0.5 font-display text-xl font-semibold text-ink">
+                {state.data.truncated ? "≥ " : ""}
+                <AnimatedEur cents={receivedCents} />
+              </dd>
+            </div>
             <Fact label={t("beta.balance")} value={formatEurPrecise(state.data.balanceCents)} />
           </dl>
           {goalCents !== null && goalCents > 0 && (
-            <GoalProgress receivedCents={state.data.receivedCents} goalCents={goalCents} />
+            <GoalProgress receivedCents={receivedCents} goalCents={goalCents} />
+          )}
+          {latest !== undefined && (
+            // key = sid: svaka nova uplata ponovno pokrene animaciju oznake.
+            <p
+              key={latest.sid}
+              className="mt-3 inline-block animate-beta-arrived rounded-full bg-forest px-3 py-1 text-sm font-medium text-cream"
+            >
+              {t("beta.justArrived", { amount: formatEurPrecise(latest.cents) })}
+            </p>
+          )}
+          {extraCents > 0 && (
+            <p className="mt-2 text-xs text-inkMuted">
+              {t("beta.includesUnconfirmed", { amount: formatEurPrecise(extraCents) })}
+            </p>
           )}
           <h3 className="mt-5 text-xs uppercase tracking-wide text-inkMuted">{t("beta.recent")}</h3>
           {state.data.transfers.length === 0 ? (
@@ -239,7 +310,7 @@ function LiveActivity({ safe, goalCents }: { safe: Address; goalCents: number | 
  * Iznos se bira ovdje jer je OBAVEZAN u EPC QR-u — bez njega Revolut ne popuni
  * opis plaćanja. QR, opis `mpt:<safe>?sid=` i potvrdu uživo daje rail checkout.
  */
-function PayWithIntent({ safe }: { safe: Address }) {
+function PayWithIntent({ safe, onPayment }: { safe: Address; onPayment: (p: PendingPayment) => void }) {
   const { t } = useT();
   const [preset, setPreset] = useState<number | null>(DEFAULT_AMOUNT_EUR);
   const [custom, setCustom] = useState("");
@@ -266,6 +337,7 @@ function PayWithIntent({ safe }: { safe: Address }) {
         <IntentPanel
           intent={intent}
           onClose={() => setIntent(null)}
+          onPayment={onPayment}
           copyRow={(label, value, copy, mono) => <Row label={label} value={value} copy={copy} mono={mono} />}
         />
       ) : (

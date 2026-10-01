@@ -822,6 +822,8 @@ export const en: Catalog = {
   "beta.intentTx": "Transfer to the Safe on Gnosisscan",
   "beta.intentNew": "New payment",
   "beta.intentCancel": "Cancel",
+  "beta.justArrived": "+{amount} just arrived",
+  "beta.includesUnconfirmed": "Includes {amount} that Monerium has received. It appears on Gnosis Chain once the EURe is issued and forwarded to the plant's Safe.",
   "beta.payButton": "Pay {amount}",
   "beta.payBusy": "Preparing the payment…",
   "beta.payHow":

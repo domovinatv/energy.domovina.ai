@@ -111,12 +111,23 @@ const config: Config = {
         lift: "0 4px 12px rgba(26,26,26,0.06), 0 16px 40px rgba(26,26,26,0.10)",
       },
       keyframes: {
+        "beta-arrived": {
+          "0%": { opacity: "0", transform: "translateY(6px) scale(0.96)" },
+          "6%": { opacity: "1", transform: "translateY(0) scale(1.04)" },
+          "10%": { transform: "scale(1)" },
+          "80%": { opacity: "1" },
+          "100%": { opacity: "0" },
+        },
         "fade-in": {
           from: { opacity: "0", transform: "translateY(8px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
       },
-      animation: { "fade-in": "fade-in 0.4s ease-out" },
+      animation: {
+        "fade-in": "fade-in 0.4s ease-out",
+        // /beta/: oznaka „+X upravo stiglo" — iskoči, zadrži se, pa nestane.
+        "beta-arrived": "beta-arrived 8s ease-out forwards",
+      },
     },
   },
   plugins: [],
