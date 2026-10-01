@@ -230,6 +230,12 @@ ne makne. Isti dokument nosi i slijepe ulice (§1) da se ne ponavljaju.
 
 ---
 
+## Pravi projekti (`docs/15`)
+
+Tri **stvarne** elektrane na vlastitim lokacijama (Lukavec, Donja Lomnica, Rab),
+pravi Safe 2-od-3, novac samo od vlasnika i osobno poznatih — **ne javno
+prikupljanje**. Prvi zapisi s `demo: false`; u UI-ju samo mjesto, nikad ulica.
+
 ## Otvoreno (blokira, vidi `docs/11` §Blokirano)
 
 - **B1** pravno mišljenje: je li članski ulog u energetsku zadrugu izvan ECSPR-a,

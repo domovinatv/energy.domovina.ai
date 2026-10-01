@@ -106,6 +106,15 @@ Stavke ispod su **poželjne, ne uvjet** — uvjet je kriterij dovršenosti na dn
       neindeksiranim linkom (B14), `_headers` s CSP-om ([12](./12-ime-domena-okruzenja.md) §7)
 - [ ] QR na materijalima (`?izvor=gef2026`)
 
+### 1f · Tri prava projekta na vlastitim lokacijama — plan ([15](./15-pravi-projekti-vlastite-lokacije.md))
+
+- [ ] tri Safea 2-od-3 (Lukavec, Donja Lomnica, Rab), ručno na app.safe.global
+- [ ] kampanje u `pinka_finance` + whitelist na pay.domovina.ai
+- [ ] prikaz na stranici: saldo i uplate čitani s lanca, `demo: false`, vlastita oznaka
+- [ ] izvođač i faze isplate (kandidat SolarDei)
+
+Novac uplaćuje **samo vlasnik lokacije i osobno poznati** — nema javnog prikupljanja.
+
 ### Namjerno IZVAN Faze 1
 
 Backend · pravi Safe · pravi eID · pravi novac · sloj na gis.domovina.ai ·

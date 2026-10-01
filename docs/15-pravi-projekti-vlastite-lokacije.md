@@ -1,0 +1,90 @@
+# 15 — Pravi projekti na vlastitim lokacijama
+
+Odlučeno: **1.10.2026.** Status: **plan, ništa još nije izvedeno.**
+
+> **Jedna rečenica:** tri stvarne elektrane na lokacijama koje su Matijine,
+> financirane **njegovim novcem i novcem osobno poznatih ljudi**, kroz potpuno isti
+> javni tok kao `/c/domovina-tv/doniraj` (SEPA → Monerium → EURe → Safe → izvođač po
+> fazama). Nema javnog prikupljanja.
+
+---
+
+## 1. Zašto
+
+Prototip ([11](./11-plan-izvedbe.md) Faza 1) prikazuje tok novca na izmišljenim
+podacima. To je dovoljno za objasniti model, ali ne i za dokazati ga. Tri prava
+projekta daju:
+
+- stvarne uplate, stvaran Safe multisig i stvarne isplate po situacijama, provjerive
+  na Gnosisscanu bez prijave;
+- referencu za izvođača ([14](./14-poslovni-model.md) §5.1 primijenjen u praksi);
+- vezu s infrastrukturom: na sve tri lokacije radi **Gnosis node**, na istom lancu
+  na kojem se kreću EURe i ugovori koje projekt koristi.
+
+## 2. Lokacije
+
+| # | Mjesto | Poštanski broj | Napomena |
+|---|---|---|---|
+| L1 | Lukavec (Ciglenice 38A) | 10412 | Gnosis node |
+| L2 | Donja Lomnica (Školska 5) | 10412 | Gnosis node |
+| L3 | Rab (Barbat 697) | 51280 | Gnosis node |
+
+⚠️ Ulica i kućni broj su adrese privatne osobe. U javnom UI-ju stoji **samo mjesto**,
+a točka na karti se zaokružuje na razinu naselja. Puna adresa ostaje u ovom
+(privatnom) repou.
+
+## 3. Odluka: tko uplaćuje
+
+| Opcija | Odluka | Razlog |
+|---|---|---|
+| **Vlasnik lokacije + osobno poznati** | ✅ **odabrano** | nema javne ponude ni javnog prikupljanja; izvedivo odmah |
+| Javnost, kao donacija | ❌ ne sada | elektrana je imovina fizičke osobe: to nije nijedan od tri čista slučaja iz [14](./14-poslovni-model.md) §2.2 (predujam, zadružni udjel, dar ustanovi). Traži pravno i porezno mišljenje |
+
+Ako se javnost ikad uključi, to ide **novom odlukom** u ovom dokumentu, ne
+proširenjem postojeće kampanje.
+
+## 4. Tehnički put (iz pregleda postojećeg raila, 1.10.2026.)
+
+Sve postoji; novi kod treba samo za prikaz na energy.domovina.ai.
+
+| Korak | Kako | Izvor |
+|---|---|---|
+| 1. Safe po lokaciji | ručno na app.safe.global, **2-od-3**, Gnosis Chain. `Domovina.createAccount` (SDK 0.10) zna samo 1-od-2, a proizvoljni owneri/prag su tek nacrt | `pay.domovina.ai/wallet/public/sdk.js`, `docs/plans/advanced-safe-initialization.md` |
+| 2. Kampanja | red u `pinka_finance.campaigns` (`slug`, `title`, `goal_cents`, `destination_address` = Safe) | `domovina-api/supabase/migrations/20260530120100_pinka_finance_schema.sql` |
+| 3. Whitelist | `POST /admin/api/tenants/:id/campaigns` na pay.domovina.ai; bez toga intent vraća `target_not_whitelisted` | `pay.domovina.ai/backend/src/tenants/admin.ts` |
+| 4. Uplata | SEPA na zajednički Monerium IBAN tenanta s memom `mpt:<safe>`, ili EURe izravno na Safe (EIP-681 QR) | `domovina-api/docs/pinka-donation-rails.md` |
+| 5. Prikaz | na energy.domovina.ai iz preglednika: saldo `balanceOf` na EURe `0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430` (chain 100), dolazne uplate iz Transfer logova `to = safe`, bez prijelaza s rail Safea `0x449aBCEf…` | `domovina.ai/lib/pinka_sdk/src/util/pinka_onchain.dart`, `pay.domovina.ai/wallet/src/lib/activity.ts` |
+| 6. Isplata | izvođaču po situaciji, prijedlog transakcije u Safeu, dva potpisa | [14](./14-poslovni-model.md) §5.1 |
+
+**Nema IBAN-a po Safeu.** Svi koriste IBAN tenanta, usmjeravanje radi memo. Vlastiti
+IBAN po projektu bio bi zaseban tenant s vlastitim Monerium računom — nije potreban.
+
+## 5. Što to traži od ovog repoa
+
+- **`demo: false` zapisi.** Pravilo 3 iz `CLAUDE.md` vrijedi za mock; tri prava
+  projekta su prvi zapisi koji **nisu** demo. UI ih mora razlikovati: vlastita
+  oznaka („Stvaran projekt — financira ga vlasnik lokacije") i stvarni Gnosisscan
+  link, a demo traka na vrhu ne smije sugerirati da je i ovo izmišljeno.
+- **CSP:** `connect-src` += `https://rpc.gnosischain.com` u `public/_headers`
+  ([12](./12-ime-domena-okruzenja.md) §7). Ako se čita zid podrške iz Pinke, još i
+  Supabase domena.
+- **Razdvajanje okruženja.** [12](./12-ime-domena-okruzenja.md) §2.2 kaže da je pravi
+  novac na pravom Safeu okidač za razdvajanje. Ovdje se novac ne prikuplja kroz naš
+  kod (rail je pay.domovina.ai, a mi samo čitamo lanac), pa razdvajanje **nije
+  nužno** dok stranica samo prikazuje. Postaje nužno čim stranica počne pokretati
+  uplate.
+- **Sukob interesa.** Pravilo „naš potpisnik nikad nije većina" štiti uplatitelje od
+  izvođača. Ovdje je vlasnik lokacije ujedno i najveći uplatitelj, pa je njegov
+  potpis prirodan; **izvođač ne smije biti potpisnik**.
+
+## 6. Otvoreno
+
+- [ ] Potpisnici za svaki Safe (tko su druga dva, i ima li netko hardverski ključ)
+- [ ] Izvođač po lokaciji — kandidat **SolarDei** za barem jednu (sastanak 2.10.2026.)
+- [ ] Snaga i okvirni iznos po lokaciji (`goal_cents`) — iz ponude izvođača
+- [ ] Faze isplate i postotci — dogovor s izvođačem
+- [ ] Priključak HEP-ODS po lokaciji i rok
+- [ ] Porezni tretman uplata osobno poznatih ljudi (dar fizičkoj osobi) — provjeriti
+      prije prve tuđe uplate
+- [ ] Hoće li se projekti vidjeti i na domovina.ai kao kampanje, ili samo na
+      energy.domovina.ai
