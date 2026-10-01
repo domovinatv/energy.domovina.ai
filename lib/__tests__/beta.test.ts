@@ -7,6 +7,9 @@ import {
   isValidSafe,
   remittanceFor,
   weiToCents,
+  parseAmountEur,
+  PRESET_AMOUNTS_EUR,
+  DEFAULT_AMOUNT_EUR,
   type BetaProject,
 } from "@/lib/beta-projects";
 import { decodeAddressArray, decodeUint } from "@/lib/safe-rpc";
@@ -109,6 +112,26 @@ describe("beta: čitanje Safea s lanca", () => {
   });
   it("dekodira uint iz getThreshold()", () => {
     expect(decodeUint("0x0000000000000000000000000000000000000000000000000000000000000002")).toBe(2);
+  });
+});
+
+describe("beta: iznos u QR-u je obavezan", () => {
+  it("prihvaća zarez i točku, do dvije decimale", () => {
+    expect(parseAmountEur("12,50")).toBe(12.5);
+    expect(parseAmountEur("12.5")).toBe(12.5);
+    expect(parseAmountEur(" 100 ")).toBe(100);
+  });
+  it("odbija prazno, nulu, tri decimale, slova i iznos preko maksimuma", () => {
+    for (const bad of ["", "0", "0,00", "1,005", "abc", "-5", "15000,01"]) expect(parseAmountEur(bad)).toBeNull();
+  });
+  it("zadani i ponuđeni iznosi su valjani", () => {
+    expect(PRESET_AMOUNTS_EUR).toContain(DEFAULT_AMOUNT_EUR);
+    for (const a of PRESET_AMOUNTS_EUR) expect(parseAmountEur(String(a))).toBe(a);
+  });
+  it("EPC s iznosom ima EUR iznos u 8. retku", () => {
+    const lines = buildEpcText({ beneficiaryName: "X", iban: "X", bic: "LHVBEE22", remittance: "r", amountEur: 20 }).split("\n");
+    expect(lines[7]).toBe("EUR20.00");
+    expect(lines).toHaveLength(10);
   });
 });
 

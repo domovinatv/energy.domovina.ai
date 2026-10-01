@@ -222,6 +222,23 @@ export function buildEpcText(args: {
   ].join("\n");
 }
 
+/**
+ * Iznos u EPC QR-u je OBAVEZAN. Bez njega Revolut nakon skeniranja ne popuni
+ * pouzdano ni iznos ni opis plaćanja (Matija, 1.10.2026.) — a opis plaćanja je
+ * ono po čemu Monerium uplatu šalje na pravi Safe.
+ */
+export const PRESET_AMOUNTS_EUR = [10, 20, 50, 100] as const;
+export const DEFAULT_AMOUNT_EUR = 20;
+export const MAX_AMOUNT_EUR = 15_000;
+
+/** „12,50" ili „12.50" → 12.5; prazno, nula, više od dvije decimale ili preko maksimuma → null. */
+export function parseAmountEur(input: string): number | null {
+  const s = input.trim().replace(/\s+/g, "").replace(",", ".");
+  if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
+  const n = Number(s);
+  return n > 0 && n <= MAX_AMOUNT_EUR ? n : null;
+}
+
 /** IBAN u skupinama po četiri znaka, za čitanje naglas i prepisivanje. */
 export function formatIban(iban: string): string {
   return iban.replace(/\s+/g, "").replace(/(.{4})/g, "$1 ").trim();

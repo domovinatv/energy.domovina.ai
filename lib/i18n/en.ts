@@ -805,7 +805,10 @@ export const en: Catalog = {
     "The plant's account is open, but SEPA payment is not connected yet. Payment instructions will appear here.",
   "beta.signers":
     "A payout needs {threshold} of {count} signatures. All three signing keys are currently held by the same person, the site owner: this shows how the mechanism works, not independent control.",
-  "beta.payQr": "Scan it in your banking app. You enter the amount yourself.",
+  "beta.payQr": "Scan it in your banking app: the amount {amount} and the reference fill in automatically.",
+  "beta.amount": "Amount",
+  "beta.amountCustom": "Other amount",
+  "beta.amountInvalid": "Enter an amount in euros, e.g. 25 or 12.50 (at most {max}).",
   "beta.beneficiary": "Beneficiary",
   "beta.iban": "IBAN",
   "beta.bic": "BIC",

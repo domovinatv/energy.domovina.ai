@@ -170,6 +170,11 @@ Iz **ovog repoa** (`docs/2026-09-15-dnevnik-izvedbe.md`):
   `["+", <interpolate on zoom>, 5]` ruši sloj.
 - **Provjera u pregledniku:** skrivena kartica pauzira `requestAnimationFrame`,
   pa canvas ne crta. To **ne dokazuje** da je kod ispravan — odgodi zaključak.
+- **EPC QR za Revolut:** iznos je **obavezan** (bez njega Revolut ne popuni opis
+  plaćanja, a po opisu Monerium usmjerava uplatu), strogi raspored od 10 redaka
+  (`buildEpcText`, isti kao rail `intents/epc.ts`), iscrtan **≥ 320 px s tihom
+  zonom od 4 modula** i ECC M. Sitan QR (176–220 px) Revolut iOS ne čita, iako ga
+  drugi čitači čitaju (`docs/15` §6, pay.domovina.ai `feedback_epc_format`).
 - **Deploy je `npm run deploy`** (verify + `wrangler deploy`), ne push. Nova vanjska
   domena u kodu ide i u CSP u `public/_headers`, inače je preglednik tiho blokira
   (`docs/12` §7).

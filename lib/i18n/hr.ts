@@ -843,7 +843,10 @@ export const hr = {
     "Račun elektrane je otvoren, ali uplata SEPA nalogom još nije povezana. Uputa za uplatu pojavit će se ovdje.",
   "beta.signers":
     "Isplata traži {threshold} od {count} potpisa. Sva tri potpisna ključa zasad drži ista osoba, vlasnik lokacije: ovo pokazuje kako mehanizam radi, a ne neovisnu kontrolu.",
-  "beta.payQr": "Skeniraj u aplikaciji banke. Iznos upisuješ sam.",
+  "beta.payQr": "Skeniraj u aplikaciji banke: iznos {amount} i opis plaćanja popune se sami.",
+  "beta.amount": "Iznos",
+  "beta.amountCustom": "Drugi iznos",
+  "beta.amountInvalid": "Upiši iznos u eurima, npr. 25 ili 12,50 (najviše {max}).",
   "beta.beneficiary": "Primatelj",
   "beta.iban": "IBAN",
   "beta.bic": "BIC",

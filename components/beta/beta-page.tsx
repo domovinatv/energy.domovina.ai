@@ -2,12 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 import { useT } from "@/lib/i18n";
 import { BRAND } from "@/lib/brand";
 import { formatDateShort, formatEur, formatEurPrecise, formatPercent, shortAddress } from "@/lib/format";
 import {
   BETA_PROJECTS,
+  DEFAULT_AMOUNT_EUR,
+  MAX_AMOUNT_EUR,
+  PRESET_AMOUNTS_EUR,
+  buildEpcText,
   formatIban,
+  parseAmountEur,
   hasVerifiedSafe,
   gnosisscanAddressUrl,
   gnosisscanTxUrl,
@@ -23,7 +29,7 @@ const RECENT_COUNT = 5;
 /** Koliko često se lanac ponovno čita dok je kartica vidljiva. */
 const REFRESH_MS = 20_000;
 
-export function BetaPage({ qrBySlug }: { qrBySlug: Readonly<Record<string, string>> }) {
+export function BetaPage() {
   const { t } = useT();
   return (
     <div className="container-content py-10 sm:py-14">
@@ -33,7 +39,7 @@ export function BetaPage({ qrBySlug }: { qrBySlug: Readonly<Record<string, strin
 
       <div className="mt-10 grid gap-6">
         {BETA_PROJECTS.map((project) => (
-          <ProjectSection key={project.slug} project={project} qrSvg={qrBySlug[project.slug] ?? null} />
+          <ProjectSection key={project.slug} project={project} />
         ))}
       </div>
 
@@ -49,7 +55,7 @@ export function BetaPage({ qrBySlug }: { qrBySlug: Readonly<Record<string, strin
   );
 }
 
-function ProjectSection({ project, qrSvg }: { project: BetaProject; qrSvg: string | null }) {
+function ProjectSection({ project }: { project: BetaProject }) {
   const { t } = useT();
   return (
     <section id={project.slug} className="scroll-mt-6 rounded-md border border-ink/8 bg-white/60 p-5 sm:p-7">
@@ -86,7 +92,7 @@ function ProjectSection({ project, qrSvg }: { project: BetaProject; qrSvg: strin
             </p>
           </div>
           {isPayable(project) ? (
-            <PayInstructions payment={project.payment} remittance={remittanceFor(project)} safe={project.safe} qrSvg={qrSvg} />
+            <PayInstructions payment={project.payment} remittance={remittanceFor(project)} safe={project.safe} />
           ) : (
             <div className="rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft">
               <p>{t("beta.payPending")}</p>
@@ -235,31 +241,100 @@ function PayInstructions({
   payment,
   remittance,
   safe,
-  qrSvg,
 }: {
   payment: BetaPayment;
   remittance: string;
   safe: Address;
-  qrSvg: string | null;
 }) {
   const { t } = useT();
+  const [preset, setPreset] = useState<number | null>(DEFAULT_AMOUNT_EUR);
+  const [custom, setCustom] = useState("");
+  const amountEur = preset ?? parseAmountEur(custom);
+  const epc =
+    amountEur === null
+      ? null
+      : buildEpcText({
+          beneficiaryName: payment.beneficiaryName,
+          iban: payment.iban,
+          bic: payment.bic,
+          remittance,
+          amountEur,
+        });
+
+  // QR se crta za odabrani iznos. Ključ je sam EPC tekst, pa se nikad ne
+  // prikaže QR za iznos koji više nije odabran.
+  const [qr, setQr] = useState<{ epc: string; svg: string } | null>(null);
+  useEffect(() => {
+    if (epc === null) return;
+    let live = true;
+    // ⚠️ Revolut iOS NE čita gust EPC QR iscrtan sitno: 220 px bez tihe zone
+    // nije prolazio, 320 px + 4 modula tihe zone + ECC M jest (pay.domovina.ai
+    // memorija feedback_epc_format / pinka 71907a7).
+    QRCode.toString(epc, { type: "svg", errorCorrectionLevel: "M", margin: 4 }).then((svg) => {
+      if (live) setQr({ epc, svg });
+    });
+    return () => {
+      live = false;
+    };
+  }, [epc]);
+  const svg = qr !== null && qr.epc === epc ? qr.svg : null;
+
   return (
     <div className="rounded-sm bg-sand p-4 sm:p-5">
       <h3 className="font-medium text-ink">{t("beta.payTitle")}</h3>
-      <div className="mt-3 flex flex-col gap-5">
-        {qrSvg !== null && (
+
+      <fieldset className="mt-3">
+        <legend className="text-xs uppercase tracking-wide text-inkMuted">{t("beta.amount")}</legend>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {PRESET_AMOUNTS_EUR.map((value) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={preset === value}
+              onClick={() => {
+                setPreset(value);
+                setCustom("");
+              }}
+              className={`rounded-sm border px-3 py-1.5 text-sm font-medium ${
+                preset === value ? "border-forest bg-forest text-cream" : "border-ink/15 bg-white text-ink"
+              }`}
+            >
+              {formatEur(value * 100)}
+            </button>
+          ))}
+          <input
+            type="text"
+            inputMode="decimal"
+            placeholder={t("beta.amountCustom")}
+            aria-label={t("beta.amountCustom")}
+            value={custom}
+            onChange={(e) => {
+              setCustom(e.target.value);
+              setPreset(null);
+            }}
+            className="w-32 rounded-sm border border-ink/15 bg-white px-3 py-1.5 text-sm text-ink"
+          />
+        </div>
+        {preset === null && amountEur === null && custom.trim() !== "" && (
+          <p className="mt-2 text-xs text-rust">{t("beta.amountInvalid", { max: formatEur(MAX_AMOUNT_EUR * 100) })}</p>
+        )}
+      </fieldset>
+
+      <div className="mt-4 flex flex-col gap-5">
+        {epc !== null && (
           <div>
-            {/* SVG generira biblioteka `qrcode` pri buildu iz našeg EPC teksta.
-                ⚠️ Revolut iOS NE čita gust EPC QR iscrtan sitno: 220 px bez
-                tihe zone nije prolazio, 320 px + 4 modula tihe zone + ECC M jest
-                (pay.domovina.ai memorija feedback_epc_format / pinka 71907a7).
-                Zato do 320 px, a na uskom ekranu cijela širina — nikad manje od
-                onoga što stane. `crispEdges` sprječava sive rubove modula. */}
-            <div
-              className="aspect-square w-full max-w-[320px] bg-white [&_svg]:h-full [&_svg]:w-full [&_svg]:[shape-rendering:crispEdges]"
-              dangerouslySetInnerHTML={{ __html: qrSvg }}
-            />
-            <p className="mt-2 max-w-[320px] text-xs text-inkMuted">{t("beta.payQr")}</p>
+            {/* Do 320 px, a na uskom ekranu cijela širina; `crispEdges` sprječava sive rubove modula. */}
+            {svg !== null ? (
+              <div
+                className="aspect-square w-full max-w-[320px] bg-white [&_svg]:h-full [&_svg]:w-full [&_svg]:[shape-rendering:crispEdges]"
+                dangerouslySetInnerHTML={{ __html: svg }}
+              />
+            ) : (
+              <div className="aspect-square w-full max-w-[320px] bg-white" />
+            )}
+            <p className="mt-2 max-w-[320px] text-xs text-inkMuted">
+              {t("beta.payQr", { amount: formatEurPrecise(Math.round((amountEur ?? 0) * 100)) })}
+            </p>
           </div>
         )}
         <dl className="min-w-0 space-y-2 text-sm">
