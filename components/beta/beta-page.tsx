@@ -20,6 +20,8 @@ import {
 import { fetchSafeActivity, type SafeActivity } from "@/lib/beta-chain";
 
 const RECENT_COUNT = 5;
+/** Koliko često se lanac ponovno čita dok je kartica vidljiva. */
+const REFRESH_MS = 20_000;
 
 export function BetaPage({ qrBySlug }: { qrBySlug: Readonly<Record<string, string>> }) {
   const { t } = useT();
@@ -112,15 +114,35 @@ function LiveActivity({ safe, goalCents }: { safe: Address; goalCents: number | 
   const { t, locale } = useT();
   const [state, setState] = useState<LoadState>({ status: "loading" });
 
+  // Uplata se pojavi bez ručnog osvježavanja: dok je kartica vidljiva, lanac se
+  // ponovno čita svakih REFRESH_MS. Skrivena kartica ne troši upite, a povratak
+  // na nju odmah osvježi. Greška pri osvježavanju ne briše već prikazane podatke.
   useEffect(() => {
-    const controller = new AbortController();
-    fetchSafeActivity(safe, controller.signal).then(
-      (data) => setState({ status: "ready", data }),
-      () => {
-        if (!controller.signal.aborted) setState({ status: "error" });
-      },
-    );
-    return () => controller.abort();
+    let controller = new AbortController();
+    const load = () => {
+      controller.abort();
+      controller = new AbortController();
+      const { signal } = controller;
+      fetchSafeActivity(safe, signal).then(
+        (data) => setState({ status: "ready", data }),
+        () => {
+          if (!signal.aborted) setState((prev) => (prev.status === "ready" ? prev : { status: "error" }));
+        },
+      );
+    };
+    load();
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") load();
+    }, REFRESH_MS);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") load();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      controller.abort();
+    };
   }, [safe]);
 
   return (

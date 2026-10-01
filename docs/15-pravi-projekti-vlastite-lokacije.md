@@ -140,6 +140,17 @@ Potpisnici (isti na svim Safeovima, tri MetaMaska u tri Chrome profila):
 ⚠️ Ime Safea u safe.global sadrži ulicu (`…-cig38a`). To ime je lokalno u
 pregledniku i nije na lancu, ali se ne smije pojaviti u javnom UI-ju.
 
+### Detekcija uplate — tri puta (odluka 1.10.2026.)
+
+| Put | Stanje | Za | Protiv |
+|---|---|---|---|
+| **1. Stranica čita lanac** svakih 20 s dok je kartica vidljiva | ✅ **isporučeno** | vidi sve uplate; isti izvor kao Gnosisscan; samo ovaj repo | radi samo dok netko gleda; ovisi o gnosisscan API-ju |
+| **2. Rail bilježi izravni Monerium mint** (`pay.domovina.ai`): nalog čija je adresa registrirani Safe kampanje = doprinos, bez forwarda | sljedeće, PR u pay.domovina.ai | webhook već stiže; instant, bez gasa; zapis + obavijest; nestaje lažni `unroutable_prefix` alert | samo SEPA; kritičan kod za novac; ime uplatitelja ne smije na stranicu bez privole |
+| **3. Vlastiti node + listener** (`domovina-gnosis-node`) | kad node proradi | sve uplate iz bloka, bez trećih strana | node nije pokrenut; jedna mašina = treba rezervni RPC i backfill |
+
+**Ne** preusmjeravati na `cmp:` samo radi detekcije: gas za forward i vraća se
+hold-and-forward korak koji je rizičniji dio raila po Monerium ToS §17.
+
 ## 7. Otvoreno
 
 - [ ] ⚠️ **Monerium Business ToS §16 vrijedi i ovdje.** Interna analiza
