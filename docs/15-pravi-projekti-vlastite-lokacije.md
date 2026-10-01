@@ -171,22 +171,27 @@ Cilj je UX kao kartica na POS terminalu: „novac je stigao" za nekoliko sekundi
 - `monerium/sid.ts` — već predviđa memo `gnosis:0x<safe>?sid=<id>` (i rezervu
   `gnosis:0x<safe> sid:<id>`), uz napomenu da se ne zna prihvaća li ga Monerium.
 
-**Korak 0 — pokus od 1 €** na ITalkov IBAN s opisom
-`gnosis:0x4f7f1950B2CB6713CcB47b869F30C0ebc01d0173?sid=test1`. Pitanja:
-(a) je li EURe mintan na Lukavec Safe ili na rail Safe `0x449a…`;
-(b) nosi li webhook `?sid=test1`. Ako (a) ne prođe, ponoviti s rezervnim oblikom.
+**Korak 0 je već odgovoren — `gnosis:<safe>?sid=` NE radi.** Pokus 21.5.2026.
+(pay.domovina.ai, sesija 9d6bbc54 05:25–05:27, commit `5da275d`): memo
+`gnosis:0x6693…d65e?sid.dz4hhkkqsp` → Monerium radi **exact match** na cijeli opis,
+pa je EURe mintan na **zadani** wallet profila, ne na adresu iz opisa. Zato
+postoji `mpt-main-rail` (`0x449a…`) i `mpt:<safe>?sid=` s forwardom.
 
-**Ako oba DA:**
-1. pay.domovina.ai — intent s izravnim mintom: memo `gnosis:<safe>?sid=`,
-   `forward_expected = false`; nalog čija je adresa mintanja = `target_address`
-   zatvara se kao `settled` umjesto `park` (nestaje i `unroutable_prefix` alert).
-   `ALLOWED_ORIGINS` += `https://energy.domovina.ai`; tri Safea u whitelist tenanta.
-2. energy `/beta/` — „Uplati" → iznos → `POST /api/intents` → EPC QR s iznosom i
-   memoom → SSE: „Novac je stigao" na `received_processing`, „EURe na Safeu" na
-   mint. CSP `connect-src` += `https://mpt.domovina.ai`.
+**Nije dokazano ni u jednom smjeru:** radi li **čisti** `gnosis:<safe>` (bez
+nastavka) za povezani Safe koji nije zadani wallet. Za: Monerium UI to nudi,
+`pay.domovina.ai/docs/monerium-private.md:232,429`. Protiv: Matijino sjećanje
+(„ne radi za druge wallete"). `/beta/` koristi upravo taj oblik — **test od 1 €
+s čistim opisom prije nego link ode ikome**; ako EURe završi na `mpt-main-rail`,
+`/beta/` daje krivu uputu i prelazi na `mpt:`.
 
-**Ako NE:** intent ide postojećim `mpt:` putem (radi danas, isti instant
-feedback), uz trošak forwarda i hold-and-forward rizik iz ToS analize (§16/§17).
+| | A. Intent preko raila (`mpt:`) | B. Izravni mint + uparivanje po iznosu |
+|---|---|---|
+| Opis plaćanja | `mpt:<safe>?sid=` | čisti `gnosis:<safe>` |
+| Instant „novac je stigao" | da, radi danas | da, ako `pending` webhook nosi adresu i iznos (payload 21.5. ih nosi) |
+| Uparivanje | točno, po `sid` | (Safe, točan iznos) u TTL-u; jedinstvenost centima (10,03 €) |
+| Gas / forward | da | ne |
+| ToS rizik | §16 + §17 (hold-and-forward) | §16 (primatelj ITalk) |
+| Ovisi o | ničemu novom | tome da čisti `gnosis:` radi |
 
 **Ne** preusmjeravati na `cmp:` samo radi detekcije: gas za forward i vraća se
 hold-and-forward korak koji je rizičniji dio raila po Monerium ToS §17.
