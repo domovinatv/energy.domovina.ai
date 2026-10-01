@@ -35,8 +35,11 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
  *   zajednički IBAN tenanta na pay.domovina.ai, a opis plaćanja `cmp:<safe>?id=`
  *   govori railu kamo proslijediti. Kampanja MORA biti registrirana na railu,
  *   inače se svaka uplata odbije — to provjerava `scripts/check-beta-rail.mts`.
- * - `monerium`: Safe je izravno povezan s Monerium računom i ima vlastiti IBAN.
- *   Opis plaćanja je slobodan tekst.
+ * - `monerium`: Safe je povezan s Monerium profilom vlasnika.
+ *   - `routing: "reference"` — JEDAN IBAN profila za sve elektrane; opis plaćanja
+ *     `gnosis:<safe>` govori Moneriumu na koji povezani Safe mintati
+ *     (help.monerium.com/article/14-redirect-incoming-payments). Odabrano za betu.
+ *   - `routing: "iban"` — IBAN je vezan baš za ovaj Safe; opis je slobodan.
  */
 export type BetaPayment =
   | {
@@ -48,6 +51,7 @@ export type BetaPayment =
     }
   | {
       kind: "monerium";
+      routing: "reference" | "iban";
       iban: string;
       beneficiaryName: string;
       bic: string | null;
@@ -127,6 +131,10 @@ export function remittanceFor(project: BetaProject & { safe: Address; payment: B
   if (project.payment.kind === "rail") {
     // Isti format kao pay.domovina.ai `GET /campaign-qr` (backend/src/intents/api.ts).
     return `cmp:${project.safe.toLowerCase()}?id=${project.payment.campaignId}`;
+  }
+  if (project.payment.routing === "reference") {
+    // Format iz Monerium pomoći: `{chain}:{address}`.
+    return `gnosis:${project.safe}`;
   }
   return `${BRAND.name} ${project.place}`;
 }

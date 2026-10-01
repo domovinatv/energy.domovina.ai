@@ -51,6 +51,14 @@ describe("beta: opis plaćanja i EPC QR", () => {
     if (!isPayable(p)) throw new Error("očekivan naplativ projekt");
     expect(remittanceFor(p)).toBe(`cmp:${SAFE.toLowerCase()}?id=lukavec-fne`);
   });
+  it("Monerium usmjeravanje po opisu: gnosis:<safe>", () => {
+    const p = project({
+      safe: SAFE,
+      payment: { kind: "monerium", routing: "reference", iban: "X", beneficiaryName: "X", bic: null },
+    });
+    if (!isPayable(p)) throw new Error("očekivan naplativ projekt");
+    expect(remittanceFor(p)).toBe(`gnosis:${SAFE}`);
+  });
   it("EPC tekst ima deset redaka, IBAN bez razmaka, prazan iznos", () => {
     const lines = buildEpcText({ beneficiaryName: "ITalk d.o.o.", iban: RAIL.iban, bic: null, remittance: "cmp:x" }).split("\n");
     expect(lines).toHaveLength(10);

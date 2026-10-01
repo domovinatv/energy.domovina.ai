@@ -190,7 +190,11 @@ function PayInstructions({
           {payment.bic !== null && <Row label={t("beta.bic")} value={payment.bic} />}
           <Row label={t("beta.reference")} value={remittance} copy={remittance} mono />
           <p className="text-xs text-inkMuted">
-            {payment.kind === "rail" ? t("beta.referenceRail") : t("beta.referenceDirect")}
+            {payment.kind === "rail"
+              ? t("beta.referenceRail")
+              : payment.routing === "reference"
+                ? t("beta.referenceMonerium")
+                : t("beta.referenceDirect")}
           </p>
           <Row label={t("beta.safe")} value={shortAddress(safe)} copy={safe} mono />
         </dl>

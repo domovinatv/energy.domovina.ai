@@ -807,6 +807,8 @@ export const en: Catalog = {
   "beta.referenceRail":
     "Enter the reference exactly as shown. The beneficiary on the transfer is the rail operator; the rail forwards the payment to this plant's Safe automatically, and that transfer is publicly visible.",
   "beta.referenceDirect": "This IBAN belongs to this plant only.",
+  "beta.referenceMonerium":
+    "Enter the reference exactly as shown. The same IBAN serves all three plants; Monerium uses the reference to send the payment to this plant's Safe.",
   "beta.safe": "Plant account (Safe)",
   "beta.notInvestment":
     "A payment is not an investment: it gives no stake in the plant and no claim to the money back. {brand} holds no keys to any Safe.",

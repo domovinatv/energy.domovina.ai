@@ -845,6 +845,8 @@ export const hr = {
   "beta.referenceRail":
     "Opis plaćanja upiši točno ovako. Primatelj na nalogu je operater raila; po opisu plaćanja rail uplatu automatski prosljeđuje na Safe ove elektrane, i taj prijenos je javno vidljiv.",
   "beta.referenceDirect": "Ovaj IBAN pripada samo ovoj elektrani.",
+  "beta.referenceMonerium":
+    "Opis plaćanja upiši točno ovako. Isti IBAN služi za sve tri elektrane, a po opisu plaćanja Monerium uplatu šalje na Safe baš ove elektrane.",
   "beta.safe": "Račun elektrane (Safe)",
   "beta.notInvestment":
     "Uplata nije ulaganje: ne donosi udio u elektrani ni pravo na novac natrag. {brand} ne drži ključeve nijednog Safea.",

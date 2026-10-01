@@ -97,8 +97,13 @@ U `lib/beta-projects.ts`, za lokaciju:
 
 1. `safe` — adresa Safea (nulta adresa i `null` = „u pripremi", bez upute za uplatu).
 2. `payment` — jedan od dva puta:
-   - `{ kind: "monerium", iban, beneficiaryName, bic }` — Safe povezan izravno na
-     monerium.com, vlastiti IBAN. **Odabrano za beta** (1.10.2026.).
+   - `{ kind: "monerium", routing: "reference", iban, beneficiaryName, bic }` —
+     **odabrano za betu** (1.10.2026.): JEDAN IBAN Matijinog osobnog Monerium
+     profila za sve tri elektrane. Opis plaćanja `gnosis:<safe>` Monerium koristi
+     za usmjeravanje na taj Safe (help.monerium.com/article/14-redirect-incoming-payments).
+     Uvjet: svaki Safe mora biti **povezan s profilom**. Uplata bez točnog opisa
+     završi na adresi na koju je IBAN vezan.
+   - `{ kind: "monerium", routing: "iban", … }` — IBAN vezan baš za taj Safe.
    - `{ kind: "rail", campaignId, iban, beneficiaryName, bic }` — kao donacije
      podcastima; kampanja mora biti registrirana na pay.domovina.ai
      (`POST /admin/api/tenants/:id/campaigns`).
