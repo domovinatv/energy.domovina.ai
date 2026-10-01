@@ -105,8 +105,9 @@ U `lib/beta-projects.ts`, za lokaciju:
    ako Safe nije deployan ili se vlasnici/prag ne slažu.
 2. `payment` — jedan od dva puta:
    - `{ kind: "monerium", routing: "reference", iban, beneficiaryName, bic }` —
-     **odabrano za betu** (1.10.2026.): JEDAN IBAN Matijinog osobnog Monerium
-     profila za sve tri elektrane. Opis plaćanja `gnosis:<safe>` Monerium koristi
+     **odabrano za betu** (1.10.2026.): JEDAN IBAN za sve tri elektrane. U praksi
+     je to **Business profil ITalk d.o.o.** (`EE70 7777 0001 6292 1128`, BIC
+     `LHVBEE22`) — isti IBAN koji koristi pay.domovina.ai rail. Opis plaćanja `gnosis:<safe>` Monerium koristi
      za usmjeravanje na taj Safe (help.monerium.com/article/14-redirect-incoming-payments).
      Uvjet: svaki Safe mora biti **povezan s profilom**. Uplata bez točnog opisa
      završi na adresi na koju je IBAN vezan.
@@ -140,6 +141,21 @@ Potpisnici (isti na svim Safeovima, tri MetaMaska u tri Chrome profila):
 pregledniku i nije na lancu, ali se ne smije pojaviti u javnom UI-ju.
 
 ## 7. Otvoreno
+
+- [ ] ⚠️ **Monerium Business ToS §16 vrijedi i ovdje.** Interna analiza
+      (`pay.domovina.ai/docs/compliance/INTERNO-monerium-tos-analiza.md`): uplate
+      **trećih** na ITalk-ov IBAN zabranjene su bez odobrenja ili statusa
+      distributera. Monerium ovdje sam usmjerava (nema našeg forwarda), ali
+      primatelj je i dalje ITalk. Uplate s ITalk-ova vlastitog računa su čiste;
+      uplate Matije osobno ili poznatih — isti otvoreni rizik kao rail, dok
+      Monerium ne odgovori na email iz te analize.
+- [ ] ⚠️ **Čije su elektrane?** EURe na Safeovima povezanima s ITalk-ovim
+      profilom su e-novac ITalka, a lokacije su Matijine. Ili su elektrane
+      imovina ITalka (izvedba na tuđem krovu), ili Safeovi trebaju biti na
+      osobnom Monerium profilu. Pitanje za knjigovođu prije prve veće uplate.
+- [ ] Rail (`pay.domovina.ai`) vidi i ove Monerium naloge: `gnosis:` opis mu je
+      `unroutable_prefix` → `park` + alert. Novac nije u rail Safeu pa nema što
+      parkirati, ali alert je šum. Provjeriti na test uplati od 1 €.
 
 - [ ] Potpisnici za svaki Safe (tko su druga dva, i ima li netko hardverski ključ)
 - [ ] Izvođač po lokaciji — kandidat **SolarDei** za barem jednu (sastanak 2.10.2026.)

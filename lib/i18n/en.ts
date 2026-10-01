@@ -812,7 +812,7 @@ export const en: Catalog = {
     "Enter the reference exactly as shown. The beneficiary on the transfer is the rail operator; the rail forwards the payment to this plant's Safe automatically, and that transfer is publicly visible.",
   "beta.referenceDirect": "This IBAN belongs to this plant only.",
   "beta.referenceMonerium":
-    "Enter the reference exactly as shown. The same IBAN serves all three plants; Monerium uses the reference to send the payment to this plant's Safe.",
+    "Enter the reference exactly as shown. The beneficiary is the Monerium account of ITalk d.o.o., the same for all three plants; Monerium uses the reference to convert the payment to EURe and send it directly to this plant's Safe.",
   "beta.safe": "Plant account (Safe)",
   "beta.notInvestment":
     "A payment is not an investment: it gives no stake in the plant and no claim to the money back. {brand} holds no keys to any Safe.",

@@ -850,7 +850,7 @@ export const hr = {
     "Opis plaćanja upiši točno ovako. Primatelj na nalogu je operater raila; po opisu plaćanja rail uplatu automatski prosljeđuje na Safe ove elektrane, i taj prijenos je javno vidljiv.",
   "beta.referenceDirect": "Ovaj IBAN pripada samo ovoj elektrani.",
   "beta.referenceMonerium":
-    "Opis plaćanja upiši točno ovako. Isti IBAN služi za sve tri elektrane, a po opisu plaćanja Monerium uplatu šalje na Safe baš ove elektrane.",
+    "Opis plaćanja upiši točno ovako. Primatelj je Monerium račun tvrtke ITalk d.o.o. i isti je za sve tri elektrane; po opisu plaćanja Monerium uplatu pretvara u EURe i šalje izravno na Safe baš ove elektrane.",
   "beta.safe": "Račun elektrane (Safe)",
   "beta.notInvestment":
     "Uplata nije ulaganje: ne donosi udio u elektrani ni pravo na novac natrag. {brand} ne drži ključeve nijednog Safea.",

@@ -33,6 +33,20 @@ const OWNER_SIGNERS: { owners: Address[]; threshold: number } = {
   threshold: 2,
 };
 
+/**
+ * Monerium račun ITalk d.o.o. (Business). Isti IBAN za sve tri elektrane:
+ * opis plaćanja `gnosis:<safe>` Moneriumu kaže na koji povezani Safe mintati.
+ * ⚠️ Isti IBAN koristi i pay.domovina.ai rail (s `cmp:`/`mpt:` opisima) — vidi
+ * docs/15 §7 prije prve uplate treće osobe.
+ */
+const ITALK_MONERIUM: BetaPayment = {
+  kind: "monerium",
+  routing: "reference",
+  iban: "EE707777000162921128",
+  beneficiaryName: "ITalk d.o.o.",
+  bic: "LHVBEE22",
+};
+
 /** Baza za `GET /api/intents/campaign-qr` — služi samo provjeri prije deploya. */
 export const RAIL_API_BASE = "https://mpt.domovina.ai/api/intents";
 
@@ -106,7 +120,7 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     safe: "0x4f7f1950B2CB6713CcB47b869F30C0ebc01d0173",
     signers: OWNER_SIGNERS,
     goalCents: null,
-    payment: null,
+    payment: ITALK_MONERIUM,
   },
   {
     slug: "donja-lomnica",
@@ -118,7 +132,7 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     safe: "0x52eaB439F021111A5280fdCF682D1777428578fa",
     signers: OWNER_SIGNERS,
     goalCents: null,
-    payment: null,
+    payment: ITALK_MONERIUM,
   },
   {
     slug: "rab",
@@ -130,7 +144,7 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     safe: "0x7CA5E2Dcd81Aa54bC2f8ee16a1D313734D314F05",
     signers: OWNER_SIGNERS,
     goalCents: null,
-    payment: null,
+    payment: ITALK_MONERIUM,
   },
 ];
 
