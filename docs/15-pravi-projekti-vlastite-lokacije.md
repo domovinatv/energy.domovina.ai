@@ -123,6 +123,20 @@ prolazi kroz nas" tamo nije točna — rail ga prosljeđuje. Copy zato kaže sam
 nitko od nas ne drži ključeve Safea, a uz rail upute stoji da je primatelj
 operater raila. Kod `monerium` puta primatelj je vlasnik Safea.
 
+### Otvoreni Safeovi
+
+| Lokacija | Safe (Gnosis Chain) | Prag | Otvoren |
+|---|---|---|---|
+| Lukavec | `0x4f7f1950B2CB6713CcB47b869F30C0ebc01d0173` | 2-od-3 | 1.10.2026. |
+
+Potpisnici (isti na svim Safeovima, tri MetaMaska u tri Chrome profila):
+`0x4924…1944` ms-dom-energy-signer (stepanic.matija@gmail.com) ·
+`0xF3c4…6FB8` ds-dom-energy-signer (domovinasync@gmail.com) ·
+`0xC238…A24B` md-dom-energy-signer (mojadomovinatvojazemlja@gmail.com).
+
+⚠️ Ime Safea u safe.global sadrži ulicu (`…-cig38a`). To ime je lokalno u
+pregledniku i nije na lancu, ali se ne smije pojaviti u javnom UI-ju.
+
 ## 7. Otvoreno
 
 - [ ] Potpisnici za svaki Safe (tko su druga dva, i ima li netko hardverski ključ)

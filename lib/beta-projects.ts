@@ -20,6 +20,19 @@ export const GNOSIS_CHAIN_ID = 100;
 /** Rail Safe na pay.domovina.ai: prima mint od Moneriuma i prosljeđuje ga dalje. */
 export const RAIL_SAFE_ADDRESS = "0x449aBCEf4e29a7Dd8d98dB451AF2c463561BAf2e";
 
+/**
+ * Potpisnici svih triju Safeova — tri MetaMaska iste osobe (docs/15 §6).
+ * 2-od-3 ovdje dokazuje mehanizam, ne neovisnu kontrolu; stranica to kaže.
+ */
+const OWNER_SIGNERS: { owners: Address[]; threshold: number } = {
+  owners: [
+    "0x4924f440A12ac82F6e06B058a33d7fd8182f1944", // ms-dom-energy-signer
+    "0xF3c4d416Fa863F0801605629097ffF07f1d46FB8", // ds-dom-energy-signer
+    "0xC2386b03441C6104F8d40E52e74306EAE830A24B", // md-dom-energy-signer
+  ],
+  threshold: 2,
+};
+
 /** Baza za `GET /api/intents/campaign-qr` — služi samo provjeri prije deploya. */
 export const RAIL_API_BASE = "https://mpt.domovina.ai/api/intents";
 
@@ -90,8 +103,8 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     powerKw: 16,
     connections: 1,
     gnosisNode: true,
-    safe: null,
-    signers: null,
+    safe: "0x4f7f1950B2CB6713CcB47b869F30C0ebc01d0173",
+    signers: OWNER_SIGNERS,
     goalCents: null,
     payment: null,
   },
@@ -120,6 +133,13 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     payment: null,
   },
 ];
+
+/** Safe postoji i zna se tko ga potpisuje — stanje s lanca smije se prikazati. */
+export function hasVerifiedSafe(
+  project: BetaProject,
+): project is BetaProject & { safe: Address; signers: { owners: Address[]; threshold: number } } {
+  return isValidSafe(project.safe) && project.signers !== null;
+}
 
 export function isValidSafe(address: string | null): address is Address {
   return address !== null && ADDRESS_RE.test(address) && address.toLowerCase() !== ZERO_ADDRESS;

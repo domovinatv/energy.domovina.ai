@@ -8,6 +8,7 @@ import { formatDateShort, formatEur, formatEurPrecise, shortAddress } from "@/li
 import {
   BETA_PROJECTS,
   formatIban,
+  hasVerifiedSafe,
   gnosisscanAddressUrl,
   gnosisscanTxUrl,
   isPayable,
@@ -65,10 +66,26 @@ function ProjectSection({ project, qrSvg }: { project: BetaProject; qrSvg: strin
       </dl>
       {project.goalCents === null && <p className="mt-2 text-xs text-inkMuted">{t("beta.goalPending")}</p>}
 
-      {isPayable(project) ? (
+      {hasVerifiedSafe(project) ? (
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <LiveActivity safe={project.safe} goalCents={project.goalCents} />
-          <PayInstructions payment={project.payment} remittance={remittanceFor(project)} safe={project.safe} qrSvg={qrSvg} />
+          <div>
+            <LiveActivity safe={project.safe} goalCents={project.goalCents} />
+            <p className="mt-4 text-xs text-inkMuted">
+              {t("beta.signers", {
+                threshold: project.signers.threshold,
+                count: project.signers.owners.length,
+              })}
+            </p>
+          </div>
+          {isPayable(project) ? (
+            <PayInstructions payment={project.payment} remittance={remittanceFor(project)} safe={project.safe} qrSvg={qrSvg} />
+          ) : (
+            <div className="rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft">
+              <p>{t("beta.payPending")}</p>
+              <p className="mt-2 text-xs text-inkMuted">{t("beta.safe")}</p>
+              <p className="break-all font-mono text-xs text-ink">{project.safe}</p>
+            </div>
+          )}
         </div>
       ) : (
         <p className="mt-6 rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft">{t("beta.pending")}</p>

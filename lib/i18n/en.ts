@@ -799,6 +799,10 @@ export const en: Catalog = {
   "beta.viewOnChain": "All transfers on Gnosisscan",
   "beta.pending": "In preparation: this plant's account is not open yet, so payments are not possible.",
   "beta.payTitle": "How to pay",
+  "beta.payPending":
+    "The plant's account is open, but SEPA payment is not connected yet. Payment instructions will appear here.",
+  "beta.signers":
+    "A payout needs {threshold} of {count} signatures. All three signing keys are currently held by the same person, the site owner: this shows how the mechanism works, not independent control.",
   "beta.payQr": "Scan it in your banking app. You enter the amount yourself.",
   "beta.beneficiary": "Beneficiary",
   "beta.iban": "IBAN",

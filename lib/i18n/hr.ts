@@ -837,6 +837,10 @@ export const hr = {
   "beta.viewOnChain": "Svi prijenosi na Gnosisscanu",
   "beta.pending": "U pripremi: račun ove elektrane još nije otvoren, pa uplate nisu moguće.",
   "beta.payTitle": "Kako uplatiti",
+  "beta.payPending":
+    "Račun elektrane je otvoren, ali uplata SEPA nalogom još nije povezana. Uputa za uplatu pojavit će se ovdje.",
+  "beta.signers":
+    "Isplata traži {threshold} od {count} potpisa. Sva tri potpisna ključa zasad drži ista osoba, vlasnik lokacije: ovo pokazuje kako mehanizam radi, a ne neovisnu kontrolu.",
   "beta.payQr": "Skeniraj u aplikaciji banke. Iznos upisuješ sam.",
   "beta.beneficiary": "Primatelj",
   "beta.iban": "IBAN",
