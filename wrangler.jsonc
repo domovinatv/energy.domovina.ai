@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Samo statički asseti, bez Worker koda: `next build` (output: "export")
+  // puni `out/`, a Cloudflare ga poslužuje na energy.domovina.ai.
+  // Jedno okruženje (docs/12 §2): ovaj deploy JE produkcija.
+  "name": "energy-domovina-ai",
+  "account_id": "7dc7167b7e2e00923bfa7cd697df14e4",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": false,
+  "preview_urls": false,
+
+  "assets": {
+    "directory": "./out",
+    // trailingSlash: true u next.config.mjs → /karta/ je out/karta/index.html.
+    "html_handling": "auto-trailing-slash",
+    // Statički export nema SPA fallback; nepoznata ruta dobiva out/404.html.
+    "not_found_handling": "404-page"
+  },
+
+  "routes": [
+    { "pattern": "energy.domovina.ai", "custom_domain": true }
+  ],
+
+  "observability": { "enabled": true }
+}

@@ -170,6 +170,9 @@ Iz **ovog repoa** (`docs/2026-09-15-dnevnik-izvedbe.md`):
   `["+", <interpolate on zoom>, 5]` ruši sloj.
 - **Provjera u pregledniku:** skrivena kartica pauzira `requestAnimationFrame`,
   pa canvas ne crta. To **ne dokazuje** da je kod ispravan — odgodi zaključak.
+- **Deploy je `npm run deploy`** (verify + `wrangler deploy`), ne push. Nova vanjska
+  domena u kodu ide i u CSP u `public/_headers`, inače je preglednik tiho blokira
+  (`docs/12` §7).
 - **ESLint ostaje na 9** dok `eslint-config-next` ne osvježi `eslint-plugin-react`
   (na 10 puca s `contextOrFilename.getFilename is not a function`).
 
@@ -232,7 +235,7 @@ ne makne. Isti dokument nosi i slijepe ulice (§1) da se ne ponavljaju.
 - **B1** pravno mišljenje: je li članski ulog u energetsku zadrugu izvan ECSPR-a,
   i gdje je granica samoizdavanja vs posredovanja (`docs/03` §9.8)
 - **B12** kontakt sa ZEZ-om — **prije GEF-a**
-- **B14** kako se tehnički zatvara beta
+- **B14** kako se tehnički zatvara beta — zasad neindeksiran link (1.10.), konačno prije GEF-a
 - **B15** pravni oblik nositelja u Modu 1 — ITalk d.o.o. ili zadruga kao ZEZ?
 - **B16** registracija djelatnosti izvođenja + ovlašteni inženjer
 - **B17** kapacitet izvedbe — obećanja bez kapaciteta proizvode Rippleov Trustpilot

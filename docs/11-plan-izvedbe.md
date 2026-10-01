@@ -101,8 +101,9 @@ Stavke ispod su **poželjne, ne uvjet** — uvjet je kriterij dovršenosti na dn
       deep-linkovi posljedica izbora da URL bude izvor istine, a ne dodatan posao
 - [ ] **offline build** — service worker, demo radi bez mreže
 - [ ] **kiosk povratak** na početni ekran nakon neaktivnosti
-- [ ] deploy na Cloudflare (`energy.domovina.ai`) — **blokirano na B4/B14**;
-      `robots.txt` + `noindex` su već u repou ([12](./12-ime-domena-okruzenja.md) §6)
+- [x] deploy na Cloudflare (`energy.domovina.ai`) — **1.10.2026.**: Worker samo sa
+      statičkim assetima (`wrangler.jsonc`), `npm run deploy`; beta zasad samo
+      neindeksiranim linkom (B14), `_headers` s CSP-om ([12](./12-ime-domena-okruzenja.md) §7)
 - [ ] QR na materijalima (`?izvor=gef2026`)
 
 ### Namjerno IZVAN Faze 1
@@ -153,8 +154,8 @@ Ne može se riješiti u ovom repou. Vlasnik = tko to mora pokrenuti.
 | B1 | **Pravno mišljenje** na pitanja [03](./03-pravni-okvir.md) §9 — prvenstveno §9.1 (je li članski ulog izvan ECSPR-a) | odvjetnik | skaliranje modela B |
 | ~~B2~~ | ~~Odluka o domeni~~ — **riješeno 15.9.2026.**: live na `energy.domovina.ai` ([12](./12-ime-domena-okruzenja.md)) | — | — |
 | ~~B3~~ | ~~Ime proizvoda~~ — **riješeno**: `domovina.energy` | — | — |
-| B14 | **Kako se tehnički zatvara beta** (CF Access / lozinka / neindeksirani link) | Matija | dijeljenje linka na sajmu ([12](./12-ime-domena-okruzenja.md) §6) |
-| B4 | Cloudflare projekt + DNS za `energy.domovina.ai` (zona `domovina.ai`); provjeriti je li `domovina.energy` registriran na ITalk | Matija | deploy |
+| B14 | **Kako se tehnički zatvara beta** — **privremeno riješeno 1.10.2026.**: neindeksiran link. Konačno (CF Access / lozinka) prije GEF-a | Matija | dijeljenje linka na sajmu ([12](./12-ime-domena-okruzenja.md) §6) |
+| ~~B4~~ | ~~Cloudflare projekt + DNS~~ — **riješeno 1.10.2026.**: Worker `energy-domovina-ai`, custom domain na zoni `domovina.ai` (račun D.O.M.). Ostaje: je li `domovina.energy` registriran na ITalk | — | — |
 | B5 | Certilia `ALLOWED_ORIGINS` | Coolify na certilia-serveru | Faza 2 |
 | B6 | Primjena DB migracije | `domovina-api` tim | Faza 2 |
 | B7 | `Domovina.createAccount` (SDK 0.10) u walletu | `pay.domovina.ai` | pravi Safe po projektu |

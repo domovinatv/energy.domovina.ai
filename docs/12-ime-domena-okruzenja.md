@@ -79,7 +79,7 @@ Ne po kalendaru, nego kad nastupi prvi od ovih uvjeta:
 | | |
 |---|---|
 | Tko ulazi | pozvani — ZEZ, potencijalni nositelji projekata, ljudi s GEF-a |
-| Kako | ⚠️ **otvoreno** — vidi §6 |
+| Kako | **zasad neindeksiran link** (1.10.2026.) — konačno otvoreno, vidi §6 |
 | Što vide | puni prototip s `demo` podacima |
 | Indeksiranje | **`robots.txt` zabranjuje**, `noindex` meta |
 
@@ -146,9 +146,41 @@ etiketu kasnije (`docs/10` §5).
 - [ ] **Kako se tehnički zatvara beta?** Kandidati: Cloudflare Access (najčišće,
       postoji u obitelji), zajednička lozinka na Workeru, ili samo neindeksirana
       adresa koja se dijeli linkom. Odluka utječe na to može li se link dijeliti na
-      sajmu.
+      sajmu. **Privremeno (1.10.2026.): neindeksiran link** — dovoljno dok su svi
+      podaci `demo: true`; Access ili lozinka se dodaju bez novog builda aplikacije.
 - [ ] Je li `domovina.energy` **registriran i na ITalk d.o.o.**, i u kojoj CF zoni.
 - [ ] Žig — DZIV/EUIPO pretraga prije javnog lansiranja (niži prioritet nego kod
       izmišljenog imena, ali ne nula).
-- [ ] `robots.txt` + `noindex` od prvog deploya, da closed beta ne završi u
+- [x] `robots.txt` + `noindex` od prvog deploya, da closed beta ne završi u
       tražilicama.
+
+---
+
+## 7. Deploy — kako stvarno radi (od 1.10.2026.)
+
+| | |
+|---|---|
+| Što | Cloudflare **Worker samo sa statičkim assetima** — nema Worker koda |
+| Ime | `energy-domovina-ai`, račun D.O.M. (`wrangler.jsonc`) |
+| Domena | `energy.domovina.ai` kao **custom domain** — DNS zapis i certifikat radi Cloudflare |
+| Izvor | `out/` iz `next build` (`output: "export"`) |
+| Naredba | **`npm run deploy`** = `npm run verify` + `wrangler deploy` |
+| 404 | `not_found_handling: "404-page"` → `out/404.html` |
+| Zaglavlja | `public/_headers` — CSP, `X-Robots-Tag: noindex`, `immutable` za `/_next/static/` |
+| Repo | privatni `github.com/domovinatv/energy.domovina.ai` |
+| Rollback | `wrangler rollback` ili prethodna verzija u CF nadzornoj ploči |
+
+⚠️ **Push u `main` zasad NE objavljuje sam.** Pravilo „svaki push je objava" (§2.1)
+vrijedi kao disciplina, ali objava je ručni `npm run deploy`. Automatika traži
+spajanje repoa u **Workers Builds** (CF nadzorna ploča) ili GitHub Action s
+`CLOUDFLARE_API_TOKEN` tajnom — otvoreno.
+
+⚠️ **CSP je popis vanjskih domena.** Nova vanjska domena u kodu (tileovi, API,
+font) mora ući u `public/_headers`, inače preglednik tiho blokira zahtjev — karta
+ostane prazna kao kod maplibre workera (dnevnik §1).
+
+⚠️ **Prvi deploy nove poddomene: lokalni resolver pamti „ne postoji".** Ako je
+netko ime tražio prije deploya, macOS (ovdje Tailscale DNS) drži NXDOMAIN do
+negativnog TTL-a zone (SOA minimum 1800 s). Deploy je tada ispravan, a preglednik
+javlja grešku. Provjera mimo predmemorije: `dig +short energy.domovina.ai @1.1.1.1`
+i `curl --resolve energy.domovina.ai:443:<ip> …`.
