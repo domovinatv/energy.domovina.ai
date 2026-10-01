@@ -631,3 +631,43 @@ U `next dev`, Brave, prozor 1745–1920 px; usko u `iframeu` od 414 px (§10.3).
   iz 1c
 - **EN katalog radi na cijelom landingu**, uključujući labele i imena scenarija
   iz machinea; nijedna hrvatska rečenica ne propušta
+
+---
+
+## 12. Deploy i beta s pravim novcem (1.–2.10.2026.) — zamke i provjere
+
+Odluke i plan su u [15](./15-pravi-projekti-vlastite-lokacije.md) i
+[12](./12-ime-domena-okruzenja.md) §7. Ovdje je samo ono što bi sljedeći prolaz
+morao ponovno otkriti.
+
+### 12.1 Zamke
+
+| Zamka | Simptom | Rješenje |
+|---|---|---|
+| Lokalni DNS pamti NXDOMAIN nakon prvog deploya poddomene | curl s `--resolve` i `dig @1.1.1.1` rade, Brave javlja grešku ~30 min | čekati negativni TTL ili `sudo killall -HUP mDNSResponder`; deploy nije kriv |
+| Cloudflare predmemorira 404 | `/icon.svg` 404 i nakon deploya | Next linka ikonu s `?hash`, pa pravi zahtjev prolazi; ne zaključivati iz golog URL-a |
+| `tsx` skripta s top-level `await` u CJS paketu | `Transform failed` pri `npm run deploy` | skripta kao `.mts`, import s `.ts` ekstenzijom |
+| QR sužen ugniježđenim paddingom | 266 px na 414 px ekranu iako je `max-w-[320px]` | mjeriti širinu svih predaka; na mobitelu bez vlastitog okvira panela → 316 px |
+| Webhook prije indeksa | „uplata je stigla", a popis uplata prazan još ~20 s | zaprimljena uplata ide u popis odmah; nakon `settled` čitanje lanca za 3 i 8 s |
+| Pun disk | `ENOSPC` usred deploya, bez traga u buildu | `rm -rf .next` (regenerira se); disk Maca je bio na 621 MB |
+| Statični `gnosis:<safe>?sid=` | mint na zadani wallet, ne na Safe | Monerium exact match — vidi [15](./15-pravi-projekti-vlastite-lokacije.md) §6 |
+
+### 12.2 Kako je provjereno (tehnike koje vrijedi ponoviti)
+
+- **Headless Chrome s instaliranim kanalom** (`channel="chrome"` u Playwrightu) —
+  bez preuzimanja preglednika; `--host-resolver-rules=MAP <host> <ip>` zaobilazi
+  lokalni DNS.
+- **Dekodiranje QR-a u pregledniku:** screenshot elementa → `BarcodeDetector`
+  (Chrome na macOS-u) → točan EPC tekst koji banka čita. Potvrđuje sadržaj, ne
+  potvrđuje Revolut iOS — taj test radi čovjek.
+- **Podmetanje odgovora raila** (`context.route("**/api/intents/*")`) za faze
+  `received_processing` / `settled` / `rejected` — cijeli UI tok bez prave uplate.
+- **Provjera Safea s lanca** (`lib/safe-rpc.ts`, `check:beta`) ispitana i na
+  negativnim slučajevima: krivi vlasnik, krivi prag, nedeployana adresa.
+
+### 12.3 Neprovjereno
+
+- Statični QR kampanje (`cmp:`) — nijedna stvarna uplata.
+- Faza `review_expected` na stvarnoj prvoj uplati s novog IBAN-a.
+- Revolut iOS na QR-u s `/beta/` (izvan rail checkouta) — Matija je platio, ali
+  nije zapisano kojim putem je skenirao.
