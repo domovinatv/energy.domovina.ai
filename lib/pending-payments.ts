@@ -12,6 +12,10 @@
 export interface PendingPayment {
   sid: string;
   cents: number;
+  /** Railov `status_url` — po njemu se uplata prati i nakon osvježavanja stranice. */
+  statusUrl: string;
+  /** Kad je rail javio da je Monerium zaprimio uplatu (ms). */
+  receivedAt: number;
   /** Hash railovog forwarda na Safe; poznat tek u fazi `settled`. */
   txHash: string | null;
 }
@@ -30,6 +34,6 @@ export function unconfirmedCents(
 export function upsertPending(list: readonly PendingPayment[], next: PendingPayment): PendingPayment[] {
   const i = list.findIndex((p) => p.sid === next.sid);
   if (i === -1) return [...list, next];
-  const merged = { ...list[i]!, txHash: next.txHash ?? list[i]!.txHash };
+  const merged = { ...list[i]!, txHash: next.txHash ?? list[i]!.txHash, receivedAt: list[i]!.receivedAt };
   return [...list.slice(0, i), merged, ...list.slice(i + 1)];
 }

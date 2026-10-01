@@ -814,7 +814,10 @@ export const en: Catalog = {
   "beta.intentScan": "Scan it in your banking app: the amount {amount} and the reference fill in automatically.",
   "beta.intentAwaiting": "Waiting for a payment of {amount}. This page notices on its own when it arrives.",
   "beta.intentReceived": "Payment of {amount} received",
-  "beta.intentReceivedSub": "Monerium has received the payment and is issuing EURe. A first payment from a new account may wait for a check, but the money has been received.",
+  "beta.intentReceivedSub":
+    "The euros have arrived: Monerium has received your SEPA payment and it is already counted towards the campaign. It becomes verifiable on Gnosisscan once Monerium issues the EURe and it is forwarded to the plant's Safe.",
+  "beta.intentReviewNote":
+    "This is probably the first payment from your account. Monerium checks such payments before issuing EURe, which can take from a few minutes to a few hours. The money has been received in the meantime; you can close this page.",
   "beta.intentMintingSub": "EURe has been issued and is being forwarded to the plant's Safe.",
   "beta.intentSettledSub": "The money is on the plant's Safe, publicly visible on Gnosis Chain.",
   "beta.intentRejected": "The payment was rejected. The money goes back to the account it came from.",
@@ -823,7 +826,7 @@ export const en: Catalog = {
   "beta.intentNew": "New payment",
   "beta.intentCancel": "Cancel",
   "beta.justArrived": "+{amount} just arrived",
-  "beta.includesUnconfirmed": "Includes {amount} that Monerium has received. It appears on Gnosis Chain once the EURe is issued and forwarded to the plant's Safe.",
+  "beta.includesUnconfirmed": "Includes {amount} that Monerium has already received in euros (SEPA). It appears on Gnosisscan once the EURe is issued — for a first payment from a new account, only after a few hours.",
   "beta.payButton": "Pay {amount}",
   "beta.payBusy": "Preparing the payment…",
   "beta.payHow":

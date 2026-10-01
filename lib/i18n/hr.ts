@@ -852,7 +852,10 @@ export const hr = {
   "beta.intentScan": "Skeniraj u aplikaciji banke: iznos {amount} i opis plaćanja popune se sami.",
   "beta.intentAwaiting": "Čekam uplatu od {amount}. Ova stranica sama prepozna kad stigne.",
   "beta.intentReceived": "Uplata od {amount} je stigla",
-  "beta.intentReceivedSub": "Monerium je zaprimio uplatu i izdaje EURe. Prva uplata s nekog računa može čekati provjeru, ali novac je zaprimljen.",
+  "beta.intentReceivedSub":
+    "Euro je stigao: Monerium je zaprimio tvoju SEPA uplatu i ona je već pribrojena kampanji. Na Gnosisscanu postaje provjerljiva kad Monerium izda EURe i on se proslijedi na Safe elektrane.",
+  "beta.intentReviewNote":
+    "Ovo je vjerojatno prva uplata s tvog računa. Monerium takve uplate provjerava prije izdavanja EURe, što može trajati od nekoliko minuta do nekoliko sati. Novac je u međuvremenu zaprimljen; slobodno zatvori stranicu.",
   "beta.intentMintingSub": "EURe je izdan i prosljeđuje se na Safe elektrane.",
   "beta.intentSettledSub": "Novac je na Safeu elektrane, javno vidljiv na Gnosis Chainu.",
   "beta.intentRejected": "Uplata je odbijena. Novac se vraća na račun s kojeg je poslan.",
@@ -861,7 +864,7 @@ export const hr = {
   "beta.intentNew": "Nova uplata",
   "beta.intentCancel": "Odustani",
   "beta.justArrived": "+{amount} upravo stiglo",
-  "beta.includesUnconfirmed": "Uključuje {amount} koje je Monerium zaprimio. Na Gnosis Chainu se pojavi čim se EURe izda i proslijedi na Safe elektrane.",
+  "beta.includesUnconfirmed": "Uključuje {amount} koje je Monerium već zaprimio u eurima (SEPA). Na Gnosisscanu se pojavi kad se izda EURe — kod prve uplate s novog računa tek nakon nekoliko sati.",
   "beta.payButton": "Plati {amount}",
   "beta.payBusy": "Pripremam uplatu…",
   "beta.payHow":

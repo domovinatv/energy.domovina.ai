@@ -21,11 +21,15 @@ import {
 import { fetchSafeActivity, type SafeActivity } from "@/lib/beta-chain";
 import { createPaymentIntent, type IntentResult, type PaymentIntent } from "@/lib/mpt-intent";
 import { IntentPanel } from "@/components/beta/intent-panel";
-import { unconfirmedCents, upsertPending, type PendingPayment } from "@/lib/pending-payments";
+import { unconfirmedCents, type PendingPayment } from "@/lib/pending-payments";
+import { removePending, savePending, usePending } from "@/lib/pending-store";
+import { fetchIntentStatus } from "@/lib/mpt-intent";
 
 const RECENT_COUNT = 5;
 /** Koliko često se lanac ponovno čita dok je kartica vidljiva. */
 const REFRESH_MS = 20_000;
+/** Koliko često se provjerava zaprimljena uplata koja još nije na lancu. */
+const PENDING_CHECK_MS = 15_000;
 
 export function BetaPage() {
   const { t } = useT();
@@ -55,12 +59,14 @@ export function BetaPage() {
 
 function ProjectSection({ project }: { project: BetaProject }) {
   const { t } = useT();
-  // Uplate koje je rail javio kao zaprimljene — pribrajaju se odmah (lib/pending-payments).
-  const [pending, setPending] = useState<PendingPayment[]>([]);
-  // Povećanje odmah ponovno pročita lanac (npr. kad rail javi forward).
+  // Uplate koje je Monerium ZAPRIMIO (SEPA), a lanac ih još ne pokazuje — pribrajaju
+  // se odmah i preživljavaju osvježavanje stranice (lib/pending-store).
+  const pending = usePending(project.safe ?? "");
+  // Povećanje odmah ponovno pročita lanac (kad rail javi forward).
   const [refreshKey, setRefreshKey] = useState(0);
   const onPayment = (p: PendingPayment) => {
-    setPending((list) => upsertPending(list, p));
+    if (project.safe === null) return;
+    savePending(project.safe, p);
     if (p.txHash !== null) setRefreshKey((k) => k + 1);
   };
   return (
@@ -88,6 +94,7 @@ function ProjectSection({ project }: { project: BetaProject }) {
 
       {hasVerifiedSafe(project) ? (
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <PendingWatcher safe={project.safe} pending={pending} onSettled={() => setRefreshKey((k) => k + 1)} />
           <div>
             <LiveActivity
               safe={project.safe}
@@ -147,6 +154,52 @@ function GoalProgress({ receivedCents, goalCents }: { receivedCents: number; goa
       </p>
     </div>
   );
+}
+
+/**
+ * Prati zaprimljene uplate iz localStoragea dok rail ne javi forward na Safe —
+ * i kad je panel za plaćanje zatvoren ili je stranica osvježena. Bez hasha
+ * forwarda ne bi se znalo kad uplata stigne na lanac, pa bi se zbrojila dvaput.
+ */
+function PendingWatcher({
+  safe,
+  pending,
+  onSettled,
+}: {
+  safe: Address;
+  pending: readonly PendingPayment[];
+  onSettled: () => void;
+}) {
+  const open = pending.filter((p) => p.txHash === null);
+  const key = open.map((p) => p.sid).join(",");
+  useEffect(() => {
+    if (open.length === 0) return;
+    const controller = new AbortController();
+    const check = () => {
+      for (const p of open) {
+        fetchIntentStatus(p.statusUrl, controller.signal).then(
+          (s) => {
+            if (s.stage === "settled" && s.forwardTxHash !== null) {
+              savePending(safe, { ...p, txHash: s.forwardTxHash });
+              onSettled();
+            } else if (s.stage === "rejected" || s.stage === "expired") {
+              removePending(safe, p.sid);
+            }
+          },
+          () => undefined,
+        );
+      }
+    };
+    check();
+    const timer = window.setInterval(check, PENDING_CHECK_MS);
+    return () => {
+      controller.abort();
+      window.clearInterval(timer);
+    };
+    // Ponovno se veže samo kad se promijeni skup otvorenih uplata.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safe, key]);
+  return null;
 }
 
 /** Iznos koji se „odbroji" do nove vrijednosti — uplatitelj vidi da se njegov novac pribrojio. */

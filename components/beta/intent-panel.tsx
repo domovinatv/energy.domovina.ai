@@ -35,7 +35,11 @@ export function IntentPanel({
 }) {
   const { t } = useT();
   const [svg, setSvg] = useState<string | null>(null);
-  const [status, setStatus] = useState<IntentStatus>({ stage: "awaiting_payment", forwardTxHash: null });
+  const [status, setStatus] = useState<IntentStatus>({
+    stage: "awaiting_payment",
+    forwardTxHash: null,
+    reviewExpected: null,
+  });
 
   // ⚠️ Revolut iOS NE čita gust EPC QR iscrtan sitno: ≥ 320 px, tiha zona 4
   // modula, ECC M (pay.domovina.ai memorija feedback_epc_format). EPC tekst je
@@ -61,6 +65,8 @@ export function IntentPanel({
             onPayment({
               sid: intent.sid,
               cents: Math.round(Number(intent.amountEur) * 100),
+              statusUrl: intent.statusUrl,
+              receivedAt: Date.now(),
               txHash: s.stage === "settled" ? s.forwardTxHash : null,
             });
           }
@@ -87,7 +93,7 @@ export function IntentPanel({
   return (
     // Na mobitelu bez vlastitog okvira i paddinga: svaki piksel ide QR-u (≥ 320 px na 414 px ekranu).
     <div className="mt-4 sm:rounded-sm sm:border sm:border-ink/10 sm:bg-white sm:p-5">
-      <StageBanner stage={stage} amount={amount} />
+      <StageBanner stage={stage} amount={amount} reviewExpected={status.reviewExpected} />
 
       {stage === "awaiting_payment" && (
         <>
@@ -133,7 +139,15 @@ export function IntentPanel({
   );
 }
 
-function StageBanner({ stage, amount }: { stage: IntentStatus["stage"]; amount: string }) {
+function StageBanner({
+  stage,
+  amount,
+  reviewExpected,
+}: {
+  stage: IntentStatus["stage"];
+  amount: string;
+  reviewExpected: boolean | null;
+}) {
   const { t } = useT();
   if (stage === "awaiting_payment") {
     return <p className="text-sm font-medium text-ink">{t("beta.intentAwaiting", { amount })}</p>;
@@ -150,6 +164,9 @@ function StageBanner({ stage, amount }: { stage: IntentStatus["stage"]; amount: 
     <div className="rounded-sm bg-forest/10 px-4 py-3">
       <p className="font-display text-lg font-semibold text-forest">{t("beta.intentReceived", { amount })}</p>
       <p className="mt-1 text-sm text-inkSoft">{sub}</p>
+      {stage === "received_processing" && reviewExpected === true && (
+        <p className="mt-2 text-sm text-inkSoft">{t("beta.intentReviewNote")}</p>
+      )}
     </div>
   );
 }

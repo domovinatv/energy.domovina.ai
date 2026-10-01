@@ -117,6 +117,21 @@ railova `epc_qr_data` (≥ 316 px na 414 px ekranu, tiha zona 4, ECC M), `GET
 status_url` svake 2 s (SSE `/stream` je na railu rezerviran → 404), „uplata je
 stigla" na `received_processing`, kraj na `settled` / `rejected` / `expired`.
 
+**Euro stiže odmah, EURe kasni (2.10.2026.).** SEPA je trenutna, ali prvu uplatu
+s novog IBAN-a Monerium zna držati na provjeri satima prije minta. Zato se uplata
+pribraja kampanji na `received_processing`, ne na lancu:
+- iznos se odmah doda „Uplaćeno ukupno" i traci (animacija, „+X upravo stiglo");
+- uz rail `status.review_expected` stoji napomena da provjera prve uplate može
+  trajati od minuta do sati — bez riječi „AML" (pravilo iskrenosti iz rail `stage.ts`);
+- zaprimljena uplata je u `localStorage` (`lib/pending-store.ts`) i preživljava
+  osvježavanje; `PendingWatcher` prati intent dok rail ne javi hash forwarda, a
+  `rejected`/`expired` je briše. Kad se forward pojavi na lancu, više se ne broji.
+
+⚠️ Ovo vidi **samo uplatitelj** u svom pregledniku. Da bi zaprimljene, a još
+nemintane uplate vidjeli svi posjetitelji, rail treba **javni zbroj po Safeu**
+(npr. `GET /api/intents/summary?target=` — iznos i broj, bez osobnih podataka).
+To je izmjena u pay.domovina.ai.
+
 Preduvjeti na railu (pay.domovina.ai):
 1. ✅ `https://energy.domovina.ai` u `ALLOWED_ORIGINS` — pay.domovina.ai `a0507c6`,
    deploy `da5b8e9e` (2.10.2026.). Preflight provjeren; ostali originsi nepromijenjeni.

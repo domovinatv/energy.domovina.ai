@@ -42,6 +42,12 @@ export type IntentStage =
 export interface IntentStatus {
   stage: IntentStage;
   forwardTxHash: string | null;
+  /**
+   * Railova procjena (`status.review_expected`): vjerojatno prva uplata s tog
+   * IBAN-a, koju Monerium provjerava prije minta (od minute do ~8 h). Procjena
+   * iz povijesti naloga, ne Moneriumova odluka — tekst to ne smije zvati „AML".
+   */
+  reviewExpected: boolean | null;
 }
 
 /** Kao checkout: uplata je „stigla" čim je Monerium zaprimi, prije minta. */
@@ -65,7 +71,7 @@ interface IntentJson {
   expires_at?: string;
   state?: string;
   forward_tx_hash?: string | null;
-  status?: { stage?: IntentStage };
+  status?: { stage?: IntentStage; review_expected?: boolean | null };
   error?: string;
 }
 
@@ -109,5 +115,5 @@ export async function fetchIntentStatus(statusUrl: string, signal: AbortSignal):
   // Isti zamjenski izbor kao checkout kad `status` izostane.
   const stage: IntentStage =
     b.status?.stage ?? (b.state === "paid" ? "settled" : b.state === "expired" ? "expired" : "awaiting_payment");
-  return { stage, forwardTxHash: b.forward_tx_hash ?? null };
+  return { stage, forwardTxHash: b.forward_tx_hash ?? null, reviewExpected: b.status?.review_expected ?? null };
 }
