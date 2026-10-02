@@ -37,6 +37,12 @@ Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.** ([11
 | [2026-09-15-istrazivacki-dnevnik](./2026-09-15-istrazivacki-dnevnik.md) | **Dug provjere** (V1–V8 — tvrdnje koje NISU potvrđene), slijepe ulice, odbačene alternative, lanac zaključivanja koji je lako izgubiti |
 | [2026-09-15-dnevnik-izvedbe](./2026-09-15-dnevnik-izvedbe.md) | Parnjak za **kod**: odluke o stacku i što je odbačeno, ⚠️ **maplibre worker pod Turbopackom** (tihi kvar), ispravci koje su izvukli testovi invarijanti, što je ostalo nemjereno |
 
+### Refactor
+
+| Dokument | Što sadrži |
+|---|---|
+| [refactor/00-pregled](./refactor/00-pregled.md) | **Analiza koda (2.10.2026., Fable 5.1)**: 30 stavki za refactor u 6 valova, redoslijed, pravila izvedbe, i nalazi koji čekaju odluku čovjeka (proturječan copy na `/beta/`). Detalji po područjima: [01 lib](./refactor/01-lib-jedno-mjesto-istine.md) · [02 komponente](./refactor/02-komponente.md) · [03 i18n](./refactor/03-i18n.md) · [04 beta](./refactor/04-beta-tok-novca.md) · [05 alati, testovi, docs](./refactor/05-alati-testovi-docs.md) |
+
 ---
 
 ## Pravila koja održavaju bazu poštenom

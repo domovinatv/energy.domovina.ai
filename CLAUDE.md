@@ -45,6 +45,10 @@ i `docs/08` §2 još govore o `/` kao karti — vrijedi `docs/06` §1 i dnevnik 
 **`docs/` je jedini izvor istine.** Kod se piše iz dokumenata, ne obrnuto.
 Indeks: [`docs/00-indeks.md`](./docs/00-indeks.md).
 
+**Refactor:** prije bilo kakvog čišćenja ili preslagivanja koda pročitaj
+[`docs/refactor/00-pregled.md`](./docs/refactor/00-pregled.md) — stavke, redoslijed valova i što se
+**ne dira**. Nalazi u njegovom §5 čekaju odluku čovjeka, ne izvode se.
+
 Prije rada pročitaj **00 (indeks), 01 (vizija) i 03 (pravni okvir)** + dokument
 relevantan za task. Za brojke uvijek **02**, za tok novca uvijek **04**, za
 konkurenciju i njezine pouke **13**.
