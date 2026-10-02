@@ -233,7 +233,7 @@ s čistim opisom prije nego link ode ikome**; ako EURe završi na `mpt-main-rail
 | Instant „novac je stigao" | da, radi danas | da, ako `pending` webhook nosi adresu i iznos (payload 21.5. ih nosi) |
 | Uparivanje | točno, po `sid` | (Safe, točan iznos) u TTL-u; jedinstvenost centima (10,03 €) |
 | Gas / forward | da | ne |
-| ToS rizik | §16 + §17 (hold-and-forward) | §16 (primatelj ITalk) |
+| ToS rizik | nema dok su Safeovi na ITalk profilu (§7); za tuđe Safeove §16 + §17 | isto |
 | Ovisi o | ničemu novom | tome da čisti `gnosis:` radi |
 
 **Ne** preusmjeravati na `cmp:` samo radi detekcije: gas za forward i vraća se
@@ -257,17 +257,31 @@ na node (MacBook iza tunela, RPC Worker nije napisan).
 
 ## 7. Otvoreno
 
-- [ ] ⚠️ **Monerium Business ToS §16 vrijedi i ovdje.** Interna analiza
-      (`pay.domovina.ai/docs/compliance/INTERNO-monerium-tos-analiza.md`): uplate
-      **trećih** na ITalk-ov IBAN zabranjene su bez odobrenja ili statusa
-      distributera. Monerium ovdje sam usmjerava (nema našeg forwarda), ali
-      primatelj je i dalje ITalk. Uplate s ITalk-ova vlastitog računa su čiste;
-      uplate Matije osobno ili poznatih — isti otvoreni rizik kao rail, dok
-      Monerium ne odgovori na email iz te analize.
+- [x] **Monerium Business ToS §16 — za `/beta/` nije prepreka** (Matija,
+      2.10.2026., provjereno na monerium.app). §16 zabranjuje primiti uplatu
+      kupca i e-novac **proslijediti tom istom kupcu** (front/reseller, vidi
+      `pay.domovina.ai/docs/compliance/INTERNO-monerium-tos-analiza.md`). Ovdje
+      ITalk prima uplate za **vlastite** elektrane, a novac ostaje na adresama
+      **istog** ITalk profila: `mpt-main-rail` (`0x449a…Af2e`, jedina s IBAN-om)
+      i sva tri Safea (`dom-energy-stepanic-lukavec-cig38a`, `…-lomnica-sko5`,
+      `…-rab-bar697`) navedeni su pod Wallets na profilu ITalk d.o.o. Forward
+      rail → Safe je prijenos između vlastitih adresa, ne isplata trećem.
+      Isplata radi: 2.10. 00:51 redeem −2 € sa Safea Donja Lomnica na HR IBAN,
+      Completed. Tvrdnja vrijedi dok su Safeovi ITalkovi; za Mod 2 (tuđi
+      Safe/profil) i za rail donacija podcastima §16 ostaje otvoren.
+      Mail Moneriumu s linkom na `/beta/` (nastavak niti od 28.9., partners@ +
+      cc support@ i hello@italk.hr) — skica u Gmailu 2.10.2026., čeka slanje.
+- [ ] **Monerium računi (2.10.2026.):** e-mail za prijavu na Business profil
+      ITalk d.o.o. promijenjen je u `hello@italk.hr`. Matija otvara **zaseban
+      osobni** profil na `stepanic.matija@gmail.com`. Ako se Safeovi elektrana
+      ikad prebace na osobni profil (vidi „Čije su elektrane?" niže), zaključak o
+      §16 iznad ne vrijedi automatski — provjeriti ponovno.
 - [ ] ⚠️ **Čije su elektrane?** EURe na Safeovima povezanima s ITalk-ovim
       profilom su e-novac ITalka, a lokacije su Matijine. Ili su elektrane
       imovina ITalka (izvedba na tuđem krovu), ili Safeovi trebaju biti na
       osobnom Monerium profilu. Pitanje za knjigovođu prije prve veće uplate.
+      Isto vrijedi za isplatu: redeem sa Safea na Matijin osobni IBAN (test
+      −2 €, 2.10.) knjigovodstveno je isplata ITalka Matiji.
 - [ ] Rail (`pay.domovina.ai`) vidi i ove Monerium naloge: `gnosis:` opis mu je
       `unroutable_prefix` → `park` + alert. Novac nije u rail Safeu pa nema što
       parkirati, ali alert je šum. Provjeriti na test uplati od 1 €.
