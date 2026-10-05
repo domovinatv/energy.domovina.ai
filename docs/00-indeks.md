@@ -36,6 +36,7 @@ Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.** ([11
 |---|---|
 | [2026-09-15-istrazivacki-dnevnik](./2026-09-15-istrazivacki-dnevnik.md) | **Dug provjere** (V1–V8 — tvrdnje koje NISU potvrđene), slijepe ulice, odbačene alternative, lanac zaključivanja koji je lako izgubiti |
 | [2026-09-15-dnevnik-izvedbe](./2026-09-15-dnevnik-izvedbe.md) | Parnjak za **kod**: odluke o stacku i što je odbačeno, ⚠️ **maplibre worker pod Turbopackom** (tihi kvar), ispravci koje su izvukli testovi invarijanti, što je ostalo nemjereno |
+| [2026-10-05-solardei-rail-i-zajednicka-jezgra](./2026-10-05-solardei-rail-i-zajednicka-jezgra.md) | **solardei = prvi Mod 2 klijent**: usporedba s `/beta/`, pravni nalaz o copyju modela A, rail za više tenanata (ADR 0017), SSE, Monerium pitanja a–e, plan zajedničke jezgre |
 
 ### Refactor
 
