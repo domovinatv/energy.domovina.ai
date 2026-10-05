@@ -1,8 +1,10 @@
 /**
  * MPT payment intent iz preglednika — isti ugovor koji koriste rail checkout
  * (`pay.domovina.ai/backend/src/checkout/page.ts`) i domovina.ai/c/…/support.
- * Ništa novo: `POST /api/intents` stvori intent, `GET status_url` se čita svake
- * 2 s (SSE `/stream` je na railu rezerviran i vraća 404).
+ * `POST /api/intents` stvori intent; status stiže SSE-om s
+ * `/api/intents/:sid/stream` (pay.domovina.ai ADR 0017 §SSE) u trenutku
+ * Monerium webhooka, a `GET status_url` svake 2 s je rezerva dok stream nije
+ * spojen ili kad padne (`watchIntentStatus`).
  *
  * Faze (`intents/stage.ts`): awaiting_payment → received_processing (Monerium je
  * ZAPRIMIO SEPA — „uplata je stigla", i kad prva uplata čeka provjeru) → minted →
@@ -71,7 +73,7 @@ interface IntentJson {
   expires_at?: string;
   state?: string;
   forward_tx_hash?: string | null;
-  status?: { stage?: IntentStage; review_expected?: boolean | null };
+  status?: { stage?: IntentStage; review_expected?: boolean | null; forward_tx_hash?: string | null };
   error?: string;
 }
 
@@ -108,12 +110,160 @@ export async function createPaymentIntent(target: Address, amountEur: number): P
   return { ok: false, reason: "unknown" };
 }
 
+/**
+ * Isti oblik dolazi iz `GET status_url` i iz SSE eventa (`{sid, state, status}`,
+ * gdje je `status` bajt-identičan pollingu). Zamjenski izbor faze kad `status`
+ * izostane je isti kao u checkoutu.
+ */
+export function statusFromJson(b: IntentJson): IntentStatus {
+  const stage: IntentStage =
+    b.status?.stage ?? (b.state === "paid" ? "settled" : b.state === "expired" ? "expired" : "awaiting_payment");
+  return {
+    stage,
+    forwardTxHash: b.forward_tx_hash ?? b.status?.forward_tx_hash ?? null,
+    reviewExpected: b.status?.review_expected ?? null,
+  };
+}
+
 export async function fetchIntentStatus(statusUrl: string, signal: AbortSignal): Promise<IntentStatus> {
   const res = await fetch(statusUrl, { signal });
   if (!res.ok) throw new Error(String(res.status));
-  const b = (await res.json()) as IntentJson;
-  // Isti zamjenski izbor kao checkout kad `status` izostane.
-  const stage: IntentStage =
-    b.status?.stage ?? (b.state === "paid" ? "settled" : b.state === "expired" ? "expired" : "awaiting_payment");
-  return { stage, forwardTxHash: b.forward_tx_hash ?? null, reviewExpected: b.status?.review_expected ?? null };
+  return statusFromJson((await res.json()) as IntentJson);
+}
+
+export const intentStreamUrl = (sid: string) => `${RAIL_API_BASE}/${encodeURIComponent(sid)}/stream`;
+
+/** Kako status trenutno stiže — za `data-transport` na panelu i provjeru u pregledniku. */
+export type IntentTransport = "sse" | "poll";
+
+/** Ono što `watchIntentStatus` treba od `EventSource` — u testu se podmeće. */
+export interface StreamSource {
+  readonly readyState: number;
+  addEventListener(type: "stage", listener: (ev: { data: string }) => void): void;
+  onerror: ((ev: unknown) => void) | null;
+  close(): void;
+}
+
+export interface WatchDeps {
+  openStream: ((url: string) => StreamSource) | null;
+  fetchStatus: (statusUrl: string, signal: AbortSignal) => Promise<IntentStatus>;
+  setTimeout: (fn: () => void, ms: number) => number;
+  clearTimeout: (id: number) => void;
+}
+
+export const POLL_MS = 2_000;
+const CLOSED = 2;
+
+function browserDeps(): WatchDeps {
+  return {
+    openStream: typeof EventSource === "undefined" ? null : (url) => new EventSource(url) as unknown as StreamSource,
+    fetchStatus: fetchIntentStatus,
+    setTimeout: (fn, ms) => window.setTimeout(fn, ms),
+    clearTimeout: (id) => window.clearTimeout(id),
+  };
+}
+
+const sameStatus = (a: IntentStatus, b: IntentStatus) =>
+  a.stage === b.stage && a.forwardTxHash === b.forwardTxHash && a.reviewExpected === b.reviewExpected;
+
+/**
+ * Prati status intenta dok ne dođe do završne faze. Obrazac je railov checkout
+ * (`checkout/page.ts` `startStream`): polling i stream kreću zajedno, prvi SSE
+ * event gasi polling, greška streama ga vraća. Tako nema rupe ni kad je SSE na
+ * railu isključen (404) ni kad preglednik nema `EventSource`.
+ *
+ * `onStatus` se zove samo kad se status promijeni — ne pri svakom odgovoru
+ * (refactor R4.2: `savePending` je pisao `localStorage` svake 2 s).
+ * Vraća funkciju za gašenje.
+ */
+export function watchIntentStatus(
+  intent: Pick<PaymentIntent, "sid" | "statusUrl">,
+  onStatus: (s: IntentStatus) => void,
+  onTransport: (t: IntentTransport) => void = () => {},
+  deps: WatchDeps = browserDeps(),
+): () => void {
+  const controller = new AbortController();
+  let timer: number | undefined;
+  let polling = false;
+  let done = false;
+  let last: IntentStatus | null = null;
+  let stream: StreamSource | null = null;
+
+  const stop = () => {
+    done = true;
+    controller.abort();
+    if (timer !== undefined) deps.clearTimeout(timer);
+    stream?.close();
+  };
+
+  const apply = (s: IntentStatus) => {
+    if (done) return;
+    if (last === null || !sameStatus(last, s)) {
+      last = s;
+      onStatus(s);
+    }
+    if (isTerminal(s.stage)) stop();
+  };
+
+  const poll = () => {
+    if (!polling || done) return;
+    deps.fetchStatus(intent.statusUrl, controller.signal).then(
+      (s) => {
+        apply(s);
+        if (polling && !done) timer = deps.setTimeout(poll, POLL_MS);
+      },
+      () => {
+        // Prolazna greška mreže: pokušaj ponovno, prikaz ostaje kakav jest.
+        if (polling && !done) timer = deps.setTimeout(poll, POLL_MS);
+      },
+    );
+  };
+
+  const startPolling = () => {
+    if (polling || done) return;
+    polling = true;
+    onTransport("poll");
+    poll();
+  };
+
+  const stopPolling = () => {
+    polling = false;
+    if (timer !== undefined) deps.clearTimeout(timer);
+    timer = undefined;
+  };
+
+  startPolling();
+
+  if (deps.openStream !== null) {
+    try {
+      stream = deps.openStream(intentStreamUrl(intent.sid));
+    } catch {
+      stream = null;
+    }
+    if (stream !== null) {
+      const es = stream;
+      es.addEventListener("stage", (ev) => {
+        let b: IntentJson;
+        try {
+          b = JSON.parse(ev.data) as IntentJson;
+        } catch {
+          return;
+        }
+        if (polling) {
+          stopPolling();
+          onTransport("sse");
+        }
+        apply(statusFromJson(b));
+      });
+      es.onerror = () => {
+        if (done) return;
+        // CLOSED: rail je odbio (404 dok je SSE isključen) — od sad samo polling.
+        // CONNECTING: EventSource se sam ponovno spaja; dotad polling.
+        startPolling();
+        if (es.readyState === CLOSED) es.close();
+      };
+    }
+  }
+
+  return stop;
 }

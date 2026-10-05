@@ -3,23 +3,23 @@
 /**
  * Ugrađeni MPT checkout: QR, podaci za ručnu uplatu i status uživo — bez
  * odlaska na mpt.domovina.ai. Ponašanje je preslikano iz rail checkouta
- * (`pay.domovina.ai/backend/src/checkout/page.ts`): čitanje statusa svake 2 s,
- * uspjeh čim Monerium zaprimi uplatu, kraj na settled / rejected / expired.
+ * (`pay.domovina.ai/backend/src/checkout/page.ts`): status uživo preko SSE-a s
+ * pollingom kao rezervom (`watchIntentStatus`), uspjeh čim Monerium zaprimi
+ * uplatu, kraj na settled / rejected / expired.
  */
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { useT } from "@/lib/i18n";
 import { gnosisscanTxUrl } from "@/lib/beta-projects";
 import {
-  fetchIntentStatus,
   isReceived,
   isTerminal,
+  watchIntentStatus,
   type IntentStatus,
+  type IntentTransport,
   type PaymentIntent,
 } from "@/lib/mpt-intent";
 import type { PendingPayment } from "@/lib/pending-payments";
-
-const POLL_MS = 2_000;
 
 export function IntentPanel({
   intent,
@@ -40,6 +40,7 @@ export function IntentPanel({
     forwardTxHash: null,
     reviewExpected: null,
   });
+  const [transport, setTransport] = useState<IntentTransport>("poll");
 
   // ⚠️ Revolut iOS NE čita gust EPC QR iscrtan sitno: ≥ 320 px, tiha zona 4
   // modula, ECC M (pay.domovina.ai memorija feedback_epc_format). EPC tekst je
@@ -54,11 +55,10 @@ export function IntentPanel({
     };
   }, [intent.epcQrData]);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    let timer: number | undefined;
-    const poll = () => {
-      fetchIntentStatus(intent.statusUrl, controller.signal).then(
+  useEffect(
+    () =>
+      watchIntentStatus(
+        intent,
         (s) => {
           setStatus(s);
           if (isReceived(s.stage) || s.stage === "settled") {
@@ -70,29 +70,20 @@ export function IntentPanel({
               txHash: s.stage === "settled" ? s.forwardTxHash : null,
             });
           }
-          if (!isTerminal(s.stage)) timer = window.setTimeout(poll, POLL_MS);
         },
-        () => {
-          // Prolazna greška mreže: pokušaj ponovno, prikaz ostaje kakav jest.
-          if (!controller.signal.aborted) timer = window.setTimeout(poll, POLL_MS);
-        },
-      );
-    };
-    poll();
-    return () => {
-      controller.abort();
-      window.clearTimeout(timer);
-    };
-    // `onPayment` i `intent.sid` su stabilni za isti intent; poll se veže uz status_url.
+        setTransport,
+      ),
+    // `onPayment` i ostatak `intent` su stabilni za isti intent; praćenje se veže uz status_url.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [intent.statusUrl]);
+    [intent.statusUrl],
+  );
 
   const stage = status.stage;
   const amount = `${intent.amountEur.replace(".", ",")} €`;
 
   return (
     // Na mobitelu bez vlastitog okvira i paddinga: svaki piksel ide QR-u (≥ 320 px na 414 px ekranu).
-    <div className="mt-4 sm:rounded-sm sm:border sm:border-ink/10 sm:bg-white sm:p-5">
+    <div data-transport={transport} className="mt-4 sm:rounded-sm sm:border sm:border-ink/10 sm:bg-white sm:p-5">
       <StageBanner stage={stage} amount={amount} reviewExpected={status.reviewExpected} />
 
       {stage === "awaiting_payment" && (

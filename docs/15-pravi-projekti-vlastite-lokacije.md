@@ -113,8 +113,9 @@ koda: bez intenta nema obavijesti uplatitelju ni zapisa u adminu.
 **Checkout je ugrađen u `/beta/`** (2.10.2026., `components/beta/intent-panel.tsx`),
 ne preusmjerava se na mpt.domovina.ai — isti obrazac kao domovina.ai/c/…/support.
 Ponašanje preslikano iz rail checkouta (`backend/src/checkout/page.ts`): QR iz
-railova `epc_qr_data` (≥ 316 px na 414 px ekranu, tiha zona 4, ECC M), `GET
-status_url` svake 2 s (SSE `/stream` je na railu rezerviran → 404), „uplata je
+railova `epc_qr_data` (≥ 316 px na 414 px ekranu, tiha zona 4, ECC M), status
+SSE-om s `/api/intents/:sid/stream` uz `GET status_url` svake 2 s kao rezervu
+(`watchIntentStatus`, od 5.10.2026. — vidi „Plan: push" niže), „uplata je
 stigla" na `received_processing`, kraj na `settled` / `rejected` / `expired`.
 
 **Euro stiže odmah, EURe kasni (2.10.2026.).** SEPA je trenutna, ali prvu uplatu
@@ -239,7 +240,7 @@ s čistim opisom prije nego link ode ikome**; ako EURe završi na `mpt-main-rail
 **Ne** preusmjeravati na `cmp:` samo radi detekcije: gas za forward i vraća se
 hold-and-forward korak koji je rizičniji dio raila po Monerium ToS §17.
 
-### Plan: push umjesto pollinga (odluka 2.10.2026., nije izvedeno)
+### Plan: push umjesto pollinga (odluka 2.10.2026., korak 1 izveden 5.10.2026.)
 
 Danas: intent se čita svake 2 s, lanac (gnosisscan) svakih 20 s + 3 s i 8 s nakon
 forwarda. Za betu nije opterećenje (~6 upita / 20 s po posjetitelju, samo vidljiva
@@ -247,7 +248,7 @@ kartica) — push je dobitak u brzini i osjećaju.
 
 | Korak | Gdje | Što daje |
 |---|---|---|
-| **1. SSE za intente** — `/api/intents/:sid/stream` je na railu već rezerviran (danas 404) | pay.domovina.ai | „euro je stigao" u trenutku Monerium webhooka, bez čitanja svake 2 s. Najmanje posla, najveći učinak |
+| **1. SSE za intente** — ✅ 5.10.2026.: rail ADR 0017 (Durable Object `IntentStream`, `INTENT_SSE=1`), ovdje `watchIntentStatus` u `lib/mpt-intent.ts`. Obrazac je railov checkout: polling i stream kreću zajedno, prvi SSE event gasi polling, greška streama ga vraća; završna faza zatvara `EventSource`. Panel nosi `data-transport="sse" \| "poll"` za provjeru | pay.domovina.ai + energy | „euro je stigao" u trenutku Monerium webhooka, bez čitanja svake 2 s |
 | **2. Node listener → Worker → kanal po Safeu** — `eth_subscribe` na EURe Transfer prema Safeovima; potpisani eventi Cloudflare Workeru; Durable Object drži WebSocket/SSE kanal po Safeu | domovina-gnosis-node (+ Worker) | popis i saldo osvježeni u bloku (~5 s), bez čekanja gnosisscan indeksa |
 | **3. Polling ostaje kao rezerva**, rjeđe (npr. 60 s) | energy.domovina.ai | node je jedna mašina — nestanak struje/mreže ne smije zaustaviti prikaz |
 
