@@ -12,6 +12,8 @@ import {
   DEFAULT_AMOUNT_EUR,
   type BetaProject,
 } from "@/lib/beta-projects";
+import { BETA_HEP } from "@/lib/beta-hep";
+import { istaAdresa, zadnjeOcitanje, zadnjih12Mjeseci } from "@/lib/moja-mreza";
 import { balanceOfCalldata, decodeAddressArray, decodeUint } from "@/lib/safe-rpc";
 
 const SAFE = "0x6693a7D19486Dc45e9F90Fd2D515d972bBA2d65e" as const;
@@ -147,5 +149,44 @@ describe("beta: saldo s lanca", () => {
     expect(balanceOfCalldata("0x4f7f1950B2CB6713CcB47b869F30C0ebc01d0173")).toBe(
       "0x70a08231" + "000000000000000000000000" + "4f7f1950b2cb6713ccb47b869f30c0ebc01d0173",
     );
+  });
+});
+
+describe("beta: HEP ODS mjerna mjesta (Moja mreža)", () => {
+  it("svako mjerno mjesto je na adresi svog projekta", () => {
+    for (const [slug, hep] of Object.entries(BETA_HEP)) {
+      const project = BETA_PROJECTS.find((p) => p.slug === slug);
+      expect(project, slug).toBeDefined();
+      expect(istaAdresa(hep.mjesto.adresa, project!.address), `${hep.mjesto.adresa} ≠ ${project!.address}`).toBe(true);
+    }
+  });
+  it("ime nositelja se ne objavljuje", () => {
+    for (const hep of Object.values(BETA_HEP)) expect(hep.mjesto.korisnik).toBeUndefined();
+  });
+  it("Lukavec: OMM, brojilo, zadnje stvarno očitanje i 12 mjeseci potrošnje", () => {
+    const { mjesto } = BETA_HEP.lukavec!;
+    expect(mjesto.omm).toBe("0100031779");
+    expect(mjesto.broj_brojila).toBe("87071794");
+    expect(zadnjeOcitanje(mjesto)).toMatchObject({ datum: "2026-10-05", t1_kwh: 15343, t2_kwh: 9019 });
+    const godina = zadnjih12Mjeseci(mjesto);
+    expect(godina[0]?.od).toBe("2025-10-01");
+    expect(godina.at(-1)?.do).toBe("2026-09-30");
+    expect(godina.reduce((s, p) => s + p.ukupno_kwh, 0)).toBe(9723);
+  });
+  it("vrsta razdoblja: procjena, korekcija nakon procjena, izmjereno", () => {
+    const byOd = Object.fromEntries(zadnjih12Mjeseci(BETA_HEP.lukavec!.mjesto).map((p) => [p.od, p.vrsta]));
+    expect(byOd["2026-03-01"]).toBe("procjena"); // kraj 31.3. = automatska procjena
+    expect(byOd["2026-07-01"]).toBe("korekcija"); // 30.6. procjena → 26.7. ODS
+    expect(byOd["2026-09-01"]).toBe("izmjereno"); // rubovi 1.9. i 1.10. su ODS-ova očitanja
+  });
+});
+
+describe("Moja mreža: adresa", () => {
+  it("HEP-ov zapis i naš zapis iste adrese se poklapaju", () => {
+    expect(istaAdresa("CIGLENICE 38/A, LUKAVEC", "Ciglenice 38A, 10412 Lukavec")).toBe(true);
+  });
+  it("protuprimjer: drugi kućni broj nije ista adresa", () => {
+    expect(istaAdresa("CIGLENICE 38/B, LUKAVEC", "Ciglenice 38A, 10412 Lukavec")).toBe(false);
+    expect(istaAdresa("CIGLENICE 3, LUKAVEC", "Ciglenice 38A, 10412 Lukavec")).toBe(false);
   });
 });

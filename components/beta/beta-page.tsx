@@ -23,6 +23,8 @@ import {
 import { fetchSafeActivity, type SafeActivity } from "@/lib/beta-chain";
 import { createPaymentIntent, type IntentResult, type PaymentIntent } from "@/lib/mpt-intent";
 import { IntentPanel } from "@/components/beta/intent-panel";
+import { HepMeter } from "@/components/beta/hep-meter";
+import { BETA_HEP } from "@/lib/beta-hep";
 import { justArrivedRemainingMs, unconfirmedCents, type PendingPayment } from "@/lib/pending-payments";
 import { removePending, savePending, usePending } from "@/lib/pending-store";
 import { fetchIntentStatus } from "@/lib/mpt-intent";
@@ -128,6 +130,8 @@ function ProjectSection({ project }: { project: BetaProject }) {
       ) : (
         <p className="mt-6 rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft">{t("beta.pending")}</p>
       )}
+
+      {BETA_HEP[project.slug] !== undefined && <HepMeter hep={BETA_HEP[project.slug]!} />}
     </section>
   );
 }

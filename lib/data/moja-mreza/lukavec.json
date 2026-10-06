@@ -1,0 +1,453 @@
+{
+  "dohvaceno": "2026-10-06T14:01:58.189Z",
+  "izvor": "https://mojamreza.hep.hr",
+  "mjesta": [
+    {
+      "adresa": "CIGLENICE 38/A, LUKAVEC",
+      "broj_brojila": "87071794",
+      "ocitanja": [
+        {
+          "datum": "2026-10-05",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 15343,
+          "t2_kwh": 9019
+        },
+        {
+          "datum": "2026-10-04",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 15328,
+          "t2_kwh": 9012
+        },
+        {
+          "datum": "2026-10-01",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 15283,
+          "t2_kwh": 8993
+        },
+        {
+          "datum": "2026-10-01",
+          "opis": "Očitanje od strane ODS-a",
+          "t1_kwh": 15283,
+          "t2_kwh": 8989
+        },
+        {
+          "datum": "2026-09-21",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 15202,
+          "t2_kwh": 8948
+        },
+        {
+          "datum": "2026-09-16",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 15140,
+          "t2_kwh": 8922
+        },
+        {
+          "datum": "2026-09-01",
+          "opis": "Očitanje od strane ODS-a",
+          "t1_kwh": 14984,
+          "t2_kwh": 8862
+        },
+        {
+          "datum": "2026-08-01",
+          "opis": "Očitanje od strane ODS-a",
+          "t1_kwh": 14845,
+          "t2_kwh": 8774
+        },
+        {
+          "datum": "2026-07-26",
+          "opis": "Očitanje od strane ODS-a",
+          "t1_kwh": 14803,
+          "t2_kwh": 8749
+        },
+        {
+          "datum": "2026-06-30",
+          "opis": "Automatska procjena",
+          "t1_kwh": 13493,
+          "t2_kwh": 8443
+        },
+        {
+          "datum": "2026-05-31",
+          "opis": "Automatska procjena",
+          "t1_kwh": 13244,
+          "t2_kwh": 8193
+        },
+        {
+          "datum": "2026-04-30",
+          "opis": "Automatska procjena",
+          "t1_kwh": 12987,
+          "t2_kwh": 7934
+        },
+        {
+          "datum": "2026-03-31",
+          "opis": "Automatska procjena",
+          "t1_kwh": 12738,
+          "t2_kwh": 7684
+        },
+        {
+          "datum": "2026-02-28",
+          "opis": "Automatska procjena",
+          "t1_kwh": 12480,
+          "t2_kwh": 7426
+        },
+        {
+          "datum": "2026-01-31",
+          "opis": "Dostavljeno stanje preračunato na zadnji dan u mjesecu",
+          "t1_kwh": 12248,
+          "t2_kwh": 7193
+        },
+        {
+          "datum": "2026-01-25",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 12172,
+          "t2_kwh": 7132
+        },
+        {
+          "datum": "2026-01-04",
+          "opis": "Automatska procjena",
+          "t1_kwh": 12023,
+          "t2_kwh": 6968
+        },
+        {
+          "datum": "2025-12-31",
+          "opis": "Automatska procjena",
+          "t1_kwh": 11855,
+          "t2_kwh": 6876
+        },
+        {
+          "datum": "2025-12-01",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 10589,
+          "t2_kwh": 6192
+        },
+        {
+          "datum": "2025-11-30",
+          "opis": "Očitanje procijenjeno",
+          "t1_kwh": 10571,
+          "t2_kwh": 6180
+        },
+        {
+          "datum": "2025-11-24",
+          "opis": "Očitanje od strane ODS-a",
+          "t1_kwh": 10464,
+          "t2_kwh": 6109
+        },
+        {
+          "datum": "2025-10-31",
+          "opis": "Automatska procjena",
+          "t1_kwh": 9280,
+          "t2_kwh": 5484
+        },
+        {
+          "datum": "2025-09-30",
+          "opis": "Automatska procjena",
+          "t1_kwh": 9150,
+          "t2_kwh": 5397
+        },
+        {
+          "datum": "2025-08-31",
+          "opis": "Dostavljeno stanje preračunato na zadnji dan u mjesecu",
+          "t1_kwh": 9024,
+          "t2_kwh": 5313
+        },
+        {
+          "datum": "2025-08-26",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 9003,
+          "t2_kwh": 5300
+        },
+        {
+          "datum": "2025-08-02",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 8902,
+          "t2_kwh": 5233
+        },
+        {
+          "datum": "2025-07-31",
+          "opis": "Očitanje procijenjeno",
+          "t1_kwh": 8876,
+          "t2_kwh": 5222
+        },
+        {
+          "datum": "2025-06-30",
+          "opis": "Očitanje procijenjeno",
+          "t1_kwh": 8489,
+          "t2_kwh": 5054
+        },
+        {
+          "datum": "2025-06-30",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 8489,
+          "t2_kwh": 5054
+        },
+        {
+          "datum": "2025-05-31",
+          "opis": "Očitanje od strane ODS-a",
+          "t1_kwh": 8061,
+          "t2_kwh": 4856
+        },
+        {
+          "datum": "2025-05-31",
+          "opis": "Očitanje procijenjeno",
+          "t1_kwh": 8061,
+          "t2_kwh": 4856
+        },
+        {
+          "datum": "2025-05-20",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 7798,
+          "t2_kwh": 4736
+        },
+        {
+          "datum": "2025-05-14",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 7798,
+          "t2_kwh": 4736
+        },
+        {
+          "datum": "2025-03-12",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 6839,
+          "t2_kwh": 4219
+        },
+        {
+          "datum": "2025-03-12",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 6839,
+          "t2_kwh": 4219
+        },
+        {
+          "datum": "2025-02-01",
+          "opis": "Automatska procjena",
+          "t1_kwh": 6065,
+          "t2_kwh": 3746
+        },
+        {
+          "datum": "2025-01-31",
+          "opis": "Automatska procjena",
+          "t1_kwh": 6065,
+          "t2_kwh": 3746
+        },
+        {
+          "datum": "2025-01-11",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 5523,
+          "t2_kwh": 3410
+        },
+        {
+          "datum": "2025-01-02",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 5255,
+          "t2_kwh": 3295
+        },
+        {
+          "datum": "2024-11-30",
+          "opis": "Automatska procjena",
+          "t1_kwh": 4200,
+          "t2_kwh": 2548
+        },
+        {
+          "datum": "2024-10-15",
+          "opis": "Očitanje od strane ODS-a",
+          "t1_kwh": 3697,
+          "t2_kwh": 2241
+        },
+        {
+          "datum": "2024-09-19",
+          "opis": "Očitanje kupca",
+          "t1_kwh": 3364,
+          "t2_kwh": 2078
+        },
+        {
+          "datum": "2024-05-31",
+          "opis": "Automatska procjena",
+          "t1_kwh": 255,
+          "t2_kwh": 139
+        },
+        {
+          "datum": "2023-12-01",
+          "opis": "Očitanje od strane ODS-a",
+          "t1_kwh": 255,
+          "t2_kwh": 139
+        },
+        {
+          "datum": "2023-11-30",
+          "opis": "Očitanje procijenjeno",
+          "t1_kwh": 251,
+          "t2_kwh": 136
+        },
+        {
+          "datum": "2023-09-21",
+          "opis": "Očitanje od strane ODS-a",
+          "t1_kwh": 0,
+          "t2_kwh": 0
+        }
+      ],
+      "omm": "0100031779",
+      "potrosnja": [
+        {
+          "do": "2026-09-30",
+          "od": "2026-09-01",
+          "t1_kwh": 299,
+          "t2_kwh": 128,
+          "ukupno_kwh": 427
+        },
+        {
+          "do": "2026-08-31",
+          "od": "2026-08-01",
+          "t1_kwh": 138,
+          "t2_kwh": 87,
+          "ukupno_kwh": 225
+        },
+        {
+          "do": "2026-07-31",
+          "od": "2026-07-27",
+          "t1_kwh": 42,
+          "t2_kwh": 26,
+          "ukupno_kwh": 68
+        },
+        {
+          "do": "2026-07-26",
+          "od": "2026-07-01",
+          "t1_kwh": 1310,
+          "t2_kwh": 306,
+          "ukupno_kwh": 1616
+        },
+        {
+          "do": "2026-06-30",
+          "od": "2026-06-01",
+          "t1_kwh": 249,
+          "t2_kwh": 250,
+          "ukupno_kwh": 499
+        },
+        {
+          "do": "2026-05-31",
+          "od": "2026-05-01",
+          "t1_kwh": 257,
+          "t2_kwh": 258,
+          "ukupno_kwh": 515
+        },
+        {
+          "do": "2026-04-30",
+          "od": "2026-04-01",
+          "t1_kwh": 249,
+          "t2_kwh": 250,
+          "ukupno_kwh": 499
+        },
+        {
+          "do": "2026-03-31",
+          "od": "2026-03-01",
+          "t1_kwh": 257,
+          "t2_kwh": 258,
+          "ukupno_kwh": 515
+        },
+        {
+          "do": "2026-02-28",
+          "od": "2026-02-01",
+          "t1_kwh": 233,
+          "t2_kwh": 233,
+          "ukupno_kwh": 466
+        },
+        {
+          "do": "2026-01-31",
+          "od": "2026-01-01",
+          "t1_kwh": 393,
+          "t2_kwh": 316,
+          "ukupno_kwh": 709
+        },
+        {
+          "do": "2025-12-31",
+          "od": "2025-12-01",
+          "t1_kwh": 1284,
+          "t2_kwh": 697,
+          "ukupno_kwh": 1981
+        },
+        {
+          "do": "2025-11-30",
+          "od": "2025-11-01",
+          "t1_kwh": 1290,
+          "t2_kwh": 696,
+          "ukupno_kwh": 1986
+        },
+        {
+          "do": "2025-10-31",
+          "od": "2025-10-01",
+          "t1_kwh": 130,
+          "t2_kwh": 87,
+          "ukupno_kwh": 217
+        },
+        {
+          "do": "2025-09-30",
+          "od": "2025-09-01",
+          "t1_kwh": 126,
+          "t2_kwh": 84,
+          "ukupno_kwh": 210
+        },
+        {
+          "do": "2025-08-31",
+          "od": "2025-08-01",
+          "t1_kwh": 147,
+          "t2_kwh": 92,
+          "ukupno_kwh": 239
+        },
+        {
+          "do": "2025-07-31",
+          "od": "2025-07-01",
+          "t1_kwh": 388,
+          "t2_kwh": 168,
+          "ukupno_kwh": 556
+        },
+        {
+          "do": "2025-06-30",
+          "od": "2025-06-01",
+          "t1_kwh": 428,
+          "t2_kwh": 198,
+          "ukupno_kwh": 626
+        },
+        {
+          "do": "2025-05-31",
+          "od": "2025-05-20",
+          "t1_kwh": 263,
+          "t2_kwh": 121,
+          "ukupno_kwh": 384
+        },
+        {
+          "do": "2025-05-19",
+          "od": "2025-02-01",
+          "t1_kwh": 1733,
+          "t2_kwh": 989,
+          "ukupno_kwh": 2722
+        },
+        {
+          "do": "2025-01-31",
+          "od": "2024-12-01",
+          "t1_kwh": 1864,
+          "t2_kwh": 1198,
+          "ukupno_kwh": 3062
+        },
+        {
+          "do": "2024-11-30",
+          "od": "2024-06-01",
+          "t1_kwh": 3945,
+          "t2_kwh": 2409,
+          "ukupno_kwh": 6354
+        },
+        {
+          "do": "2024-05-31",
+          "od": "2023-12-01",
+          "t1_kwh": 4,
+          "t2_kwh": 2,
+          "ukupno_kwh": 6
+        },
+        {
+          "do": "2023-11-30",
+          "od": "2023-09-21",
+          "t1_kwh": 251,
+          "t2_kwh": 137,
+          "ukupno_kwh": 388
+        }
+      ],
+      "tarifni_model": "Kućanstvo NN Bijeli Mjesečno"
+    }
+  ]
+}
