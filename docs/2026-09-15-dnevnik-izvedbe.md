@@ -671,3 +671,39 @@ morao ponovno otkriti.
 - Faza `review_expected` na stvarnoj prvoj uplati s novog IBAN-a.
 - Revolut iOS na QR-u s `/beta/` (izvan rail checkouta) — Matija je platio, ali
   nije zapisano kojim putem je skenirao.
+
+## 13. /beta/ — slike, saldo s lanca, HEP ODS, rute po elektrani (6.10.2026.)
+
+Odluke o rutama su u [15](./15-pravi-projekti-vlastite-lokacije.md) §6. Ovdje je
+ono što bi sljedeći prolaz morao ponovno otkriti.
+
+### 13.1 Zamke
+
+| Zamka | Simptom | Rješenje |
+|---|---|---|
+| Blockscout `/addresses/:a/token-balances` osvježava se lijeno | Lukavec: „na računu 7,26 €" uz „uplaćeno 8,26 €", bez ijednog odlaznog prijenosa; `token-transfers` je uplatu iz 13:50 već imao | saldo = `balanceOf` preko `eth_call` na `rpc.gnosischain.com` (CORS `*`, u CSP-u), Blockscout samo rezerva (`lib/beta-chain.ts`) |
+| Cloudflare odmah nakon deploya | nove `.webp` naizmjence 404 / 200 prvu minutu, `cf-cache-status: HIT` na 404 | čekati ~1 min; 32 uzastopna 200 nakon toga. Ne zaključivati iz prvog curla |
+| HEP rub obračunskog razdoblja | rujan (1.–30.9.) nema očitanje 30.9.; zatvara ga ODS-ovo očitanje od **1.10.** | rub razdoblja gleda oba dana (`do` i `do+1`, `od-1` i `od`) — `lib/moja-mreza.ts` |
+| HEP procjene između očitanja | veljača–lipanj 2026 ~500 kWh/mj (procjena), srpanj 1.616 kWh | razdoblje s procijenjenim početkom i stvarnim krajem = **korekcija**; zbroj 12 mj. je točan jer ga drže stanja brojila (9.723 kWh) |
+| JSON import završi u javnom JS paketu | izvoz Moje mreže nosi `korisnik` (ime) | `jq 'del(.mjesta[].korisnik)'` prije commita; test pada ako se ime vrati; provjereno `grep -r STEPANI out/` |
+| Skrivena kartica guši i **tajmere**, ne samo rAF | zamjena `requestAnimationFrame` s `setTimeout(16)` i dalje skoči na kraj u jednom koraku | međukorake animacije nije moguće vidjeti pod automatizacijom; provjeriti krajnje stanje + klasu, a odbrojavanje na mobitelu |
+| Promjena hasha na istoj stranici ne remounta | `/beta/` → `/beta/#rab` nije preusmjerio | to nije stvarni slučaj; svježe učitavanje `/beta/#rab` preusmjeri na `/beta/rab/` |
+| Oznaka „+X upravo stiglo" iz `localStorage` | pokazivala se na svakom osvježavanju danima | samo `JUST_ARRIVED_MS` (10 min) od railove potvrde (`lib/pending-payments.ts`) |
+
+### 13.2 Odluke
+
+- **AI vizualizacija** je označena **na slici** („AI vizualizacija") i ispod nje
+  („nije fotografija; raspored panela i okoliš su ilustracija"). Gemini je uz krov
+  uredio i okoliš (zemlju u travnjak) — vlasnik je svjesno odabrao tu verziju.
+- **Shema Moje mreže** je točno izvoz Chrome extensiona iz
+  `stepanic/flutter_moja_mreza` (`extension/uvoz.js`); `mjestoIzUvoza` ruši build
+  ako se oblik promijeni. Ime nositelja se ne objavljuje, OMM i broj brojila da.
+- **Jedna kampanja po stranici:** `/beta/` je popis, `/beta/<slug>/` sve ostalo.
+
+### 13.3 Otvoreno
+
+- Fotografija gotove elektrane (Lukavec) — `photos.after`.
+- Slike i HEP podaci za Donju Lomnicu (2 OMM-a) i Rab.
+- Animacija odbrojavanja nije viđena kadar po kadar (vidi 13.1) — provjera na
+  mobitelu stvarnom uplatom.
+- Automatski uvoz Moje mreže na webu (extension → stranica) — zasad ručno.

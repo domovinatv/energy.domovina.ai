@@ -204,6 +204,13 @@ Iz Faze 1d (`docs/2026-09-15-dnevnik-izvedbe.md` §10):
   `mpt-machine.ts` koji radi s decimalnim eurima. Zbroj salda je tada cjelobrojan
   i invarijanta očuvanja nema zaokruživanja.
 
+Iz /beta/ (dnevnik §13, 6.10.2026.):
+- **Saldo Safea nikad iz Blockscoutovog `token-balances`** — kasni satima za
+  prijenosima. `balanceOf` preko `rpc.gnosischain.com`, Blockscout samo rezerva.
+- **HEP obračunsko razdoblje zatvara očitanje sljedećeg dana** (rujan → 1.10.);
+  procijenjeni rubovi daju „korekcije". Logika i testovi u `lib/moja-mreza.ts`.
+- **Izvoz Moje mreže bez `korisnik`** — JSON ide u javni JS paket.
+
 Iz `pinka-finance/app`:
 - Statički export → `script-src` mora imati `'unsafe-inline'` (inline RSC bez
   nonce-a). Dobitak traži u `frame-ancestors`, origin-pin, `object-src 'none'`.
