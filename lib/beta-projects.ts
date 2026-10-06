@@ -57,6 +57,21 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
  */
 export type BetaPayment = { kind: "mpt-intent" };
 
+/**
+ * Tri slike kampanje: stanje prije, vizualizacija, gotova elektrana.
+ * Putanja je osnova bez širine i nastavka (`/beta/lukavec/stanje`); u `public/`
+ * leže `-800.webp` i `-1600.webp`. `null` = slike još nema, UI to kaže.
+ * Vizualizacija je AI render i UI je trajno označava kao takvu — na stranici
+ * s pravim novcem neoznačen render pokraj snimke bio bi obmana (CLAUDE.md, pravilo 3).
+ */
+export const PHOTO_WIDTHS = [800, 1600] as const;
+
+export interface BetaPhotos {
+  before: string | null;
+  render: string | null;
+  after: string | null;
+}
+
 export interface BetaProject {
   slug: string;
   /** Mjesto — naslov kartice. */
@@ -82,6 +97,8 @@ export interface BetaProject {
   goalCents: number | null;
   /** `null` dok Safe nije povezan s načinom uplate. */
   payment: BetaPayment | null;
+  /** `null` = projekt još nema nijednu sliku, pa se blok ne prikazuje. */
+  photos: BetaPhotos | null;
 }
 
 export const BETA_PROJECTS: readonly BetaProject[] = [
@@ -97,6 +114,13 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     signers: OWNER_SIGNERS,
     goalCents: 1_120_000,
     payment: MPT_INTENT,
+    photos: {
+      // Snimka dronom prije izvedbe (vlasnik, 6.10.2026.).
+      before: "/beta/lukavec/stanje",
+      // Gemini render iz iste snimke; okoliš je uređeniji nego u stvarnosti.
+      render: "/beta/lukavec/vizualizacija",
+      after: null,
+    },
   },
   {
     slug: "donja-lomnica",
@@ -110,6 +134,7 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     signers: OWNER_SIGNERS,
     goalCents: 1_550_000,
     payment: MPT_INTENT,
+    photos: null,
   },
   {
     slug: "rab",
@@ -123,6 +148,7 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     signers: OWNER_SIGNERS,
     goalCents: 650_000,
     payment: MPT_INTENT,
+    photos: null,
   },
 ];
 

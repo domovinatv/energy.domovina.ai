@@ -1,6 +1,9 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   BETA_PROJECTS,
+  PHOTO_WIDTHS,
   isPayable,
   isValidSafe,
   weiToCents,
@@ -26,6 +29,7 @@ function project(overrides: Partial<BetaProject>): BetaProject {
     signers: null,
     goalCents: null,
     payment: null,
+    photos: null,
     ...overrides,
   };
 }
@@ -119,6 +123,16 @@ describe("beta: podaci o projektima", () => {
   });
   it("ciljevi kampanja: 11.200 €, 15.500 €, 6.500 €", () => {
     expect(BETA_PROJECTS.map((p) => p.goalCents)).toEqual([1_120_000, 1_550_000, 650_000]);
+  });
+  it("svaka slika kampanje ima obje širine u public/", () => {
+    for (const p of BETA_PROJECTS) {
+      for (const base of Object.values(p.photos ?? {})) {
+        if (base === null) continue;
+        for (const w of PHOTO_WIDTHS) {
+          expect(existsSync(join(process.cwd(), "public", `${base}-${w}.webp`)), `${base}-${w}.webp`).toBe(true);
+        }
+      }
+    }
   });
   it("adresa sadrži poštanski broj i mjesto kartice", () => {
     for (const p of BETA_PROJECTS) {

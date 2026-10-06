@@ -15,7 +15,9 @@ import {
   gnosisscanAddressUrl,
   gnosisscanTxUrl,
   isPayable,
+  PHOTO_WIDTHS,
   type Address,
+  type BetaPhotos,
   type BetaProject,
 } from "@/lib/beta-projects";
 import { fetchSafeActivity, type SafeActivity } from "@/lib/beta-chain";
@@ -94,6 +96,8 @@ function ProjectSection({ project }: { project: BetaProject }) {
       </dl>
       {project.goalCents === null && <p className="mt-2 text-xs text-inkMuted">{t("beta.goalPending")}</p>}
 
+      {project.photos !== null && <ProjectPhotos photos={project.photos} place={project.place} />}
+
       {hasVerifiedSafe(project) ? (
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <PendingWatcher safe={project.safe} pending={pending} onSettled={() => setRefreshKey((k) => k + 1)} />
@@ -125,6 +129,63 @@ function ProjectSection({ project }: { project: BetaProject }) {
         <p className="mt-6 rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft">{t("beta.pending")}</p>
       )}
     </section>
+  );
+}
+
+/**
+ * Prije · vizualizacija · poslije. Oznaka „AI vizualizacija" stoji NA slici, ne
+ * u potpisu — potpis se na mobitelu lako preskoči, a render pokraj prave snimke
+ * bez oznake bio bi obmana (CLAUDE.md, pravilo 3).
+ */
+function ProjectPhotos({ photos, place }: { photos: BetaPhotos; place: string }) {
+  const { t } = useT();
+  const slots = [
+    { key: "before", base: photos.before, caption: t("beta.photoBefore"), pending: t("beta.photoBeforePending") },
+    { key: "render", base: photos.render, caption: t("beta.photoRender"), pending: t("beta.photoRenderPending") },
+    { key: "after", base: photos.after, caption: t("beta.photoAfter"), pending: t("beta.photoAfterPending") },
+  ] as const;
+  return (
+    <ol className="mt-6 grid gap-4 sm:grid-cols-3">
+      {slots.map((slot, i) => (
+        <li key={slot.key}>
+          <figure>
+            <div className="relative aspect-video overflow-hidden rounded-sm bg-sandDeep">
+              {slot.base === null ? (
+                <p className="flex h-full items-center justify-center px-4 text-center text-sm text-inkMuted">
+                  {slot.pending}
+                </p>
+              ) : (
+                <a href={`${slot.base}-1600.webp`} target="_blank" rel="noreferrer" className="block h-full">
+                  {/* Statički export: next/image ovdje ne optimizira (images.unoptimized), pa običan img sa srcset. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`${slot.base}-800.webp`}
+                    srcSet={PHOTO_WIDTHS.map((w) => `${slot.base}-${w}.webp ${w}w`).join(", ")}
+                    sizes="(min-width: 640px) 33vw, 100vw"
+                    alt={t(`beta.photoAlt.${slot.key}`, { place })}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
+                </a>
+              )}
+              {slot.key === "render" && slot.base !== null && (
+                <span className="absolute left-2 top-2 rounded-full bg-ink/80 px-2.5 py-0.5 text-xs font-medium text-cream">
+                  {t("beta.photoRenderBadge")}
+                </span>
+              )}
+            </div>
+            <figcaption className="mt-2 text-sm text-inkSoft">
+              <span className="text-inkMuted">{i + 1}. </span>
+              {slot.caption}
+            </figcaption>
+            {slot.key === "render" && slot.base !== null && (
+              <p className="mt-1 text-xs text-inkMuted">{t("beta.photoRenderNote")}</p>
+            )}
+          </figure>
+        </li>
+      ))}
+    </ol>
   );
 }
 
