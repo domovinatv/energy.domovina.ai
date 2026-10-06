@@ -23,7 +23,7 @@ import {
 import { fetchSafeActivity, type SafeActivity } from "@/lib/beta-chain";
 import { createPaymentIntent, type IntentResult, type PaymentIntent } from "@/lib/mpt-intent";
 import { IntentPanel } from "@/components/beta/intent-panel";
-import { unconfirmedCents, type PendingPayment } from "@/lib/pending-payments";
+import { justArrivedRemainingMs, unconfirmedCents, type PendingPayment } from "@/lib/pending-payments";
 import { removePending, savePending, usePending } from "@/lib/pending-store";
 import { fetchIntentStatus } from "@/lib/mpt-intent";
 
@@ -265,9 +265,43 @@ function PendingWatcher({
   return null;
 }
 
-/** Iznos koji se „odbroji" do nove vrijednosti — uplatitelj vidi da se njegov novac pribrojio. */
+/**
+ * „+X upravo stiglo" samo JUST_ARRIVED_MS nakon što je rail javio uplatu, pa
+ * nestane sama — i bez osvježavanja. Uplata ostaje pribrojena i u popisu.
+ */
+function JustArrived({ payment }: { payment: PendingPayment }) {
+  const { t } = useT();
+  const [remainingMs] = useState(() => justArrivedRemainingMs(payment, Date.now()));
+  const [expired, setExpired] = useState(remainingMs === 0);
+  useEffect(() => {
+    if (remainingMs === 0) return;
+    const timer = window.setTimeout(() => setExpired(true), remainingMs);
+    return () => window.clearTimeout(timer);
+  }, [remainingMs]);
+  if (expired) return null;
+  return (
+    <p className="mt-3 inline-block animate-beta-arrived rounded-full bg-forest px-3 py-1 text-sm font-medium text-cream">
+      {t("beta.justArrived", { amount: formatEurPrecise(payment.cents) })}
+    </p>
+  );
+}
+
+/**
+ * Iznos koji se „odbroji" do nove vrijednosti, uz „+X" koji kratko iskoči
+ * pokraj njega — isti obrazac kao BalanceDisplay u pay.domovina.ai walletu.
+ * Prvo učitavanje se ne animira: animira se samo PROMJENA, tj. nova uplata,
+ * pa je vidi svaki posjetitelj, ne samo uplatitelj.
+ */
 function AnimatedEur({ cents }: { cents: number }) {
   const [shown, setShown] = useState(cents);
+  // Prethodni cilj u stanju, ne u refu: razlika se računa tijekom rendera
+  // (React „adjusting state on prop change"), bez setState u efektu.
+  const [prev, setPrev] = useState(cents);
+  const [delta, setDelta] = useState<{ key: string; cents: number } | null>(null);
+  if (cents !== prev) {
+    setPrev(cents);
+    if (cents > prev) setDelta({ key: `${prev}-${cents}`, cents: cents - prev });
+  }
   useEffect(() => {
     const from = shown;
     if (from === cents) return;
@@ -287,7 +321,23 @@ function AnimatedEur({ cents }: { cents: number }) {
     // iznosa samo kad se promijeni cilj.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cents]);
-  return <>{formatEurPrecise(shown)}</>;
+  return (
+    <span className="inline-flex flex-wrap items-baseline gap-x-2">
+      {/* tabular-nums: znamenke iste širine, pa broj ne podrhtava dok se odbrojava. */}
+      <span className={`tabular-nums transition-colors duration-300 ${shown !== cents ? "text-forest" : ""}`}>
+        {formatEurPrecise(shown)}
+      </span>
+      {delta !== null && (
+        <span
+          key={delta.key}
+          aria-live="polite"
+          className="animate-beta-delta rounded-full bg-forest/10 px-2 py-0.5 font-sans text-xs font-semibold tabular-nums text-forest"
+        >
+          +{formatEurPrecise(delta.cents)}
+        </span>
+      )}
+    </span>
+  );
 }
 
 function Fact({ label, value }: { label: string; value: string }) {
@@ -379,19 +429,19 @@ function LiveActivity({
                 <AnimatedEur cents={receivedCents} />
               </dd>
             </div>
-            <Fact label={t("beta.balance")} value={formatEurPrecise(state.data.balanceCents)} />
+            <div>
+              <dt className="text-xs uppercase tracking-wide text-inkMuted">{t("beta.balance")}</dt>
+              <dd className="mt-0.5 font-display text-xl font-semibold text-ink">
+                <AnimatedEur cents={state.data.balanceCents} />
+              </dd>
+            </div>
           </dl>
           {goalCents !== null && goalCents > 0 && (
             <GoalProgress receivedCents={receivedCents} goalCents={goalCents} />
           )}
           {latest !== undefined && (
             // key = sid: svaka nova uplata ponovno pokrene animaciju oznake.
-            <p
-              key={latest.sid}
-              className="mt-3 inline-block animate-beta-arrived rounded-full bg-forest px-3 py-1 text-sm font-medium text-cream"
-            >
-              {t("beta.justArrived", { amount: formatEurPrecise(latest.cents) })}
-            </p>
+            <JustArrived key={latest.sid} payment={latest} />
           )}
           {extraCents > 0 && (
             <p className="mt-2 text-xs text-inkMuted">

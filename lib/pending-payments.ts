@@ -37,3 +37,14 @@ export function upsertPending(list: readonly PendingPayment[], next: PendingPaym
   const merged = { ...list[i]!, txHash: next.txHash ?? list[i]!.txHash, receivedAt: list[i]!.receivedAt };
   return [...list.slice(0, i), merged, ...list.slice(i + 1)];
 }
+
+/**
+ * Koliko dugo stoji oznaka „+X upravo stiglo". Uplata ostaje u localStorageu
+ * danima (dok ne sjedne na lanac), ali „upravo" nakon sat vremena laže.
+ */
+export const JUST_ARRIVED_MS = 10 * 60 * 1000;
+
+/** Koliko još ms oznaka smije stajati; 0 = više ne. */
+export function justArrivedRemainingMs(p: PendingPayment, now: number): number {
+  return Math.max(0, p.receivedAt + JUST_ARRIVED_MS - now);
+}

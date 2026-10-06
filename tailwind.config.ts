@@ -127,6 +127,8 @@ const config: Config = {
         "fade-in": "fade-in 0.4s ease-out",
         // /beta/: oznaka „+X upravo stiglo" — iskoči, zadrži se, pa nestane.
         "beta-arrived": "beta-arrived 8s ease-out forwards",
+        // /beta/: „+X" pokraj iznosa kad se promijeni — kraće, kao u pay.domovina.ai walletu.
+        "beta-delta": "beta-arrived 4s ease-out forwards",
       },
     },
   },

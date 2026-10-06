@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { unconfirmedCents, upsertPending, type PendingPayment } from "@/lib/pending-payments";
+import {
+  JUST_ARRIVED_MS,
+  justArrivedRemainingMs,
+  unconfirmedCents,
+  upsertPending,
+  type PendingPayment,
+} from "@/lib/pending-payments";
 
 const p = (sid: string, cents: number, txHash: string | null): PendingPayment => ({
   sid,
@@ -25,5 +31,15 @@ describe("uplata zaprimljena, a još nije na lancu", () => {
     l = upsertPending(l, p("a", 102, null));
     expect(l).toEqual([p("a", 102, "0x1")]);
     expect(l[0]?.receivedAt).toBe(1_000);
+  });
+});
+
+describe("oznaka „upravo stiglo“", () => {
+  const paid: PendingPayment = { sid: "s", cents: 100, statusUrl: "u", receivedAt: 1_000_000, txHash: null };
+  it("stoji odmah nakon uplate i nestane nakon JUST_ARRIVED_MS", () => {
+    expect(justArrivedRemainingMs(paid, 1_000_000)).toBe(JUST_ARRIVED_MS);
+    expect(justArrivedRemainingMs(paid, 1_000_000 + JUST_ARRIVED_MS - 1)).toBe(1);
+    expect(justArrivedRemainingMs(paid, 1_000_000 + JUST_ARRIVED_MS)).toBe(0);
+    expect(justArrivedRemainingMs(paid, 1_000_000 + 24 * 60 * 60 * 1000)).toBe(0);
   });
 });
