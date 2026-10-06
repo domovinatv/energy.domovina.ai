@@ -94,6 +94,12 @@ nosi traku „Stvarni projekti". Root layout drži samo fontove i i18n. Poddomen
 odbačena jer bi tražila drugi build ili Worker koji prepisuje putanje, a
 `*.energy.domovina.ai` nije pokriven univerzalnim certifikatom.
 
+**Rute (6.10.2026.):** `/beta/` je samo popis — kartica po elektrani (slika,
+snaga, cilj, prikupljeno). Sve o jednoj elektrani je na `/beta/<slug>/`
+(`app/beta/[slug]/page.tsx`): slike, uplata, uplate s lanca, mjerno mjesto HEP
+ODS. Jedna kampanja po stranici — link koji se šalje ljudima vodi na točno tu
+elektranu. Stari linkovi `/beta/#<slug>` preusmjeravaju se na novu rutu.
+
 **Nema baze, nema prijave, nema našeg backenda.** Sve što stranica zna stoji u
 `lib/beta-projects.ts` (statično) ili se čita s lanca (`lib/beta-chain.ts`,
 gnosisscan.io/api/v2). QR kod za uplatu (EPC069-12, isti raspored kao

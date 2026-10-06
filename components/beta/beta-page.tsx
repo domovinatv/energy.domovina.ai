@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { BRAND } from "@/lib/brand";
@@ -37,19 +38,28 @@ const PENDING_CHECK_MS = 15_000;
 /** Ponovna čitanja lanca nakon forwarda, dok ga gnosisscan ne indeksira. */
 const SETTLE_RETRY_MS = [3_000, 8_000];
 
+/** `/beta/` — popis elektrana. Sve o jednoj elektrani je na `/beta/<slug>/`. */
 export function BetaPage() {
   const { t } = useT();
+  const router = useRouter();
+  // Stari linkovi `/beta/#lukavec` (prije zasebnih ruta) vode na stranicu elektrane.
+  useEffect(() => {
+    const slug = window.location.hash.slice(1);
+    if (BETA_PROJECTS.some((p) => p.slug === slug)) router.replace(`/beta/${slug}/`);
+  }, [router]);
   return (
     <div className="container-content py-10 sm:py-14">
       <h1 className="font-display text-display-md font-semibold text-ink">{t("beta.title")}</h1>
       <p className="mt-4 max-w-3xl text-inkSoft">{t("beta.intro")}</p>
       <p className="mt-3 max-w-3xl text-sm text-inkMuted">{t("beta.who")}</p>
 
-      <div className="mt-10 grid gap-6">
+      <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {BETA_PROJECTS.map((project) => (
-          <ProjectSection key={project.slug} project={project} />
+          <li key={project.slug}>
+            <ProjectCard project={project} />
+          </li>
         ))}
-      </div>
+      </ul>
 
       <p className="mt-10 max-w-3xl text-sm text-inkMuted">
         {t("beta.notInvestment", { brand: BRAND.name })}
@@ -58,6 +68,103 @@ export function BetaPage() {
         <Link href="/" className="text-forest underline underline-offset-2">
           {t("beta.prototypeLink")}
         </Link>
+      </p>
+    </div>
+  );
+}
+
+/** `/beta/<slug>/` — jedna elektrana: slike, uplata, uplate s lanca, HEP ODS. */
+export function BetaProjectPage({ slug }: { slug: string }) {
+  const { t } = useT();
+  const project = BETA_PROJECTS.find((p) => p.slug === slug);
+  if (project === undefined) return null;
+  return (
+    <div className="container-content py-8 sm:py-12">
+      <Link href="/beta/" className="text-sm text-forest underline underline-offset-2">
+        {t("beta.backToList")}
+      </Link>
+      <div className="mt-4">
+        <ProjectSection project={project} />
+      </div>
+      <p className="mt-10 max-w-3xl text-sm text-inkMuted">
+        {t("beta.notInvestment", { brand: BRAND.name })}
+      </p>
+    </div>
+  );
+}
+
+/** Kartica na popisu: prva slika, osnovni podaci i koliko je prikupljeno. */
+function ProjectCard({ project }: { project: BetaProject }) {
+  const { t } = useT();
+  const photo = project.photos?.render ?? project.photos?.before ?? null;
+  const isRender = photo !== null && photo === project.photos?.render;
+  return (
+    <Link
+      href={`/beta/${project.slug}/`}
+      className="group flex h-full flex-col overflow-hidden rounded-md border border-ink/8 bg-white/60 transition-shadow hover:shadow-soft"
+    >
+      <div className="relative aspect-video bg-sandDeep">
+        {photo !== null && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`${photo}-800.webp`}
+            alt={t(isRender ? "beta.photoAlt.render" : "beta.photoAlt.before", { place: project.place })}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover"
+          />
+        )}
+        {isRender && (
+          <span className="absolute left-2 top-2 rounded-full bg-ink/80 px-2.5 py-0.5 text-xs font-medium text-cream">
+            {t("beta.photoRenderBadge")}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <h2 className="font-display text-xl font-semibold text-ink group-hover:text-forest">{project.place}</h2>
+        <p className="mt-1 text-sm text-inkSoft">{project.address}</p>
+        <p className="mt-3 text-sm text-ink">
+          {project.powerKw} kW
+          {project.goalCents !== null && (
+            <span className="text-inkMuted"> · {t("beta.goal")} {formatEur(project.goalCents)}</span>
+          )}
+        </p>
+        {hasVerifiedSafe(project) && project.goalCents !== null && project.goalCents > 0 && (
+          <CardProgress safe={project.safe} goalCents={project.goalCents} />
+        )}
+        <span className="mt-auto pt-4 text-sm font-medium text-forest">{t("beta.openProject")}</span>
+      </div>
+    </Link>
+  );
+}
+
+/** Prikupljeno na kartici — jedno čitanje lanca, bez osvježavanja (to radi stranica elektrane). */
+function CardProgress({ safe, goalCents }: { safe: Address; goalCents: number }) {
+  const { t } = useT();
+  const pending = usePending(safe);
+  const [data, setData] = useState<SafeActivity | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchSafeActivity(safe, controller.signal).then(setData, () => undefined);
+    return () => controller.abort();
+  }, [safe]);
+  if (data === null) return <div className="mt-3 h-2 rounded-full bg-sandDeep" />;
+  const received = data.receivedCents + unconfirmedCents(pending, data.transfers.map((tr) => tr.hash));
+  const fraction = received / goalCents;
+  return (
+    <div className="mt-3">
+      <div className="h-2 overflow-hidden rounded-full bg-sandDeep">
+        <div
+          className="h-full rounded-full bg-forest"
+          style={{ width: received > 0 ? `max(0.375rem, ${Math.min(100, fraction * 100)}%)` : "0%" }}
+        />
+      </div>
+      <p className="mt-1.5 text-xs text-inkSoft">
+        {t("beta.progress", {
+          received: formatEurPrecise(received),
+          goal: formatEur(goalCents),
+          percent: formatPercent(fraction, fraction > 0 && fraction < 0.01 ? 1 : 0),
+        })}
       </p>
     </div>
   );
@@ -76,13 +183,13 @@ function ProjectSection({ project }: { project: BetaProject }) {
     if (p.txHash !== null) setRefreshKey((k) => k + 1);
   };
   return (
-    <section id={project.slug} className="scroll-mt-6 rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7">
+    <section className="rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-1">
         <div>
           <p className="inline-block rounded-full bg-forest/10 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-forest">
             {t("beta.campaign")}
           </p>
-          <h2 className="mt-2 font-display text-2xl font-semibold text-ink">{project.place}</h2>
+          <h1 className="mt-2 font-display text-display-md font-semibold text-ink">{project.place}</h1>
           <p className="mt-1 text-sm text-inkSoft">{project.address}</p>
         </div>
         <p className="text-sm text-inkMuted">{project.county}</p>

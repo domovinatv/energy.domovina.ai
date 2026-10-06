@@ -904,6 +904,8 @@ export const hr = {
   "beta.hepTotal": "Ukupno",
   "beta.hepKindHeader": "Podatak",
   "beta.hepSource": "Izvor: Moja mreža HEP ODS-a (mojamreza.hep.hr), preuzeo vlasnik mjernog mjesta svojom prijavom {date}",
+  "beta.backToList": "← Sve elektrane",
+  "beta.openProject": "Pogledaj elektranu i uplati →",
   "beta.safe": "Račun elektrane (Safe)",
   "beta.notInvestment":
     "Uplata nije ulaganje: ne donosi udio u elektrani ni pravo na novac natrag. {brand} ne drži ključeve nijednog Safea.",

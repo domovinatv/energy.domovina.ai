@@ -866,6 +866,8 @@ export const en: Catalog = {
   "beta.hepTotal": "Total",
   "beta.hepKindHeader": "Data",
   "beta.hepSource": "Source: HEP ODS Moja mreža (mojamreza.hep.hr), retrieved by the metering point holder with their own login on {date}.",
+  "beta.backToList": "← All plants",
+  "beta.openProject": "See the plant and contribute →",
   "beta.safe": "Plant account (Safe)",
   "beta.notInvestment":
     "A payment is not an investment: it gives no stake in the plant and no claim to the money back. {brand} holds no keys to any Safe.",
