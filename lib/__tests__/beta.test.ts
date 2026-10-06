@@ -12,7 +12,7 @@ import {
   DEFAULT_AMOUNT_EUR,
   type BetaProject,
 } from "@/lib/beta-projects";
-import { decodeAddressArray, decodeUint } from "@/lib/safe-rpc";
+import { balanceOfCalldata, decodeAddressArray, decodeUint } from "@/lib/safe-rpc";
 
 const SAFE = "0x6693a7D19486Dc45e9F90Fd2D515d972bBA2d65e" as const;
 
@@ -139,5 +139,13 @@ describe("beta: podaci o projektima", () => {
       expect(p.address).toMatch(/\b\d{5}\b/);
       expect(p.address.endsWith(p.place)).toBe(true);
     }
+  });
+});
+
+describe("beta: saldo s lanca", () => {
+  it("balanceOf calldata: selektor + adresa na 32 bajta, mala slova", () => {
+    expect(balanceOfCalldata("0x4f7f1950B2CB6713CcB47b869F30C0ebc01d0173")).toBe(
+      "0x70a08231" + "000000000000000000000000" + "4f7f1950b2cb6713ccb47b869f30c0ebc01d0173",
+    );
   });
 });

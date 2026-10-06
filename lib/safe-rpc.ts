@@ -10,6 +10,8 @@ export const GNOSIS_RPC = "https://rpc.gnosischain.com";
 const SELECTOR = {
   getOwners: "0xa0e67e2b",
   getThreshold: "0xe75235b8",
+  /** ERC-20 `balanceOf(address)`. */
+  balanceOf: "0x70a08231",
 } as const;
 
 export interface SafeOnChain {
@@ -35,9 +37,10 @@ export function decodeUint(hex: string): number {
   return Number(BigInt(hex));
 }
 
-async function rpc(method: string, params: unknown[]): Promise<string> {
+async function rpc(method: string, params: unknown[], signal?: AbortSignal): Promise<string> {
   const res = await fetch(GNOSIS_RPC, {
     method: "POST",
+    signal,
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
   });
@@ -46,6 +49,20 @@ async function rpc(method: string, params: unknown[]): Promise<string> {
     throw new Error(`${method}: ${body.error?.message ?? res.status}`);
   }
   return body.result;
+}
+
+/** Calldata za `balanceOf(holder)`: selektor + adresa poravnata na 32 bajta. */
+export function balanceOfCalldata(holder: string): string {
+  return SELECTOR.balanceOf + holder.toLowerCase().replace(/^0x/, "").padStart(64, "0");
+}
+
+/**
+ * ERC-20 saldo u wei, ravno s lanca. Blockscoutov `token-balances` osvježava se
+ * lijeno i zna satima kasniti za prijenosima (6.10.2026.: 7,26 € umjesto 8,26 €),
+ * pa saldo na /beta/ dolazi odavde.
+ */
+export async function readErc20Balance(token: string, holder: string, signal?: AbortSignal): Promise<bigint> {
+  return BigInt(await rpc("eth_call", [{ to: token, data: balanceOfCalldata(holder) }, "latest"], signal));
 }
 
 export async function readSafe(address: string): Promise<SafeOnChain> {

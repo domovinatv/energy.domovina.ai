@@ -3,9 +3,12 @@
  *
  * Izvor je Blockscout API na gnosisscan.io (`/api/v2`, CORS `*`). Isti podaci
  * koje Gnosisscan prikazuje ljudima, pa se broj na stranici i broj na exploreru
- * ne mogu razići. Nova domena ovdje = nova stavka u CSP-u (public/_headers).
+ * ne mogu razići. Iznimka je saldo: njega Blockscout osvježava lijeno, pa se čita
+ * `balanceOf` izravno s lanca (`lib/safe-rpc`). Nova domena ovdje = nova stavka
+ * u CSP-u (public/_headers).
  */
 import { EURE_ADDRESS, weiToCents, type Address } from "@/lib/beta-projects";
+import { readErc20Balance } from "@/lib/safe-rpc";
 
 const API = "https://gnosisscan.io/api/v2";
 
@@ -71,15 +74,24 @@ export async function fetchSafeActivity(safe: Address, signal: AbortSignal): Pro
     pages += 1;
   } while (next && pages < MAX_PAGES);
 
+  const balanceWei = await readErc20Balance(EURE_ADDRESS, safe, signal).catch(() => {
+    if (signal.aborted) throw signal.reason;
+    return blockscoutBalanceWei(safe, signal);
+  });
+
+  return {
+    receivedCents: transfers.reduce((sum, t) => sum + t.cents, 0),
+    balanceCents: weiToCents(balanceWei.toString()),
+    transfers,
+    truncated: next !== null,
+  };
+}
+
+/** Rezerva kad RPC ne odgovara — može kasniti za prijenosima, ali je bolja od ničega. */
+async function blockscoutBalanceWei(safe: Address, signal: AbortSignal): Promise<bigint> {
   const balances = await getJson<TokenBalance[]>(`${API}/addresses/${safe}/token-balances`, signal);
   const eure = balances.find(
     (b) => (b.token.address_hash ?? b.token.address ?? "").toLowerCase() === EURE_ADDRESS.toLowerCase(),
   );
-
-  return {
-    receivedCents: transfers.reduce((sum, t) => sum + t.cents, 0),
-    balanceCents: eure ? weiToCents(eure.value) : 0,
-    transfers,
-    truncated: next !== null,
-  };
+  return eure ? BigInt(eure.value) : 0n;
 }
