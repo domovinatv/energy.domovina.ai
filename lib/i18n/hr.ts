@@ -849,7 +849,8 @@ export const hr = {
   "beta.bic": "BIC",
   "beta.reference": "Opis plaćanja",
   "beta.referenceExact": "Ako plaćaš ručno, opis plaćanja upiši točno ovako i uplati točno ovaj iznos — po tome se uplata prepoznaje.",
-  "beta.intentScan": "Skeniraj u aplikaciji banke: iznos {amount} i opis plaćanja popune se sami.",
+  "beta.intentScan": "Skeniraj u aplikaciji banke: popunit će se primatelj, IBAN i iznos {amount}.",
+  "beta.revolutReference": "Prije potvrde provjeri je li opis plaćanja popunjen. Revolut ga nakon skeniranja ponekad izostavi. Ako je prazan, odustani i plati ručno: kopiraj IBAN, iznos i opis plaćanja ispod. Bez točnog opisa uplata ne stiže do elektrane.",
   "beta.intentAwaiting": "Čekam uplatu od {amount}. Ova stranica sama prepozna kad stigne.",
   "beta.intentReceived": "Uplata od {amount} je stigla",
   "beta.intentReceivedSub":

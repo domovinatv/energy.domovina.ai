@@ -811,7 +811,8 @@ export const en: Catalog = {
   "beta.bic": "BIC",
   "beta.reference": "Payment reference",
   "beta.referenceExact": "If you pay manually, enter the reference exactly as shown and pay exactly this amount — that is how the payment is recognised.",
-  "beta.intentScan": "Scan it in your banking app: the amount {amount} and the reference fill in automatically.",
+  "beta.intentScan": "Scan it in your banking app: the recipient, IBAN and amount {amount} fill in.",
+  "beta.revolutReference": "Before confirming, check that the payment reference is filled in. Revolut sometimes drops it after a scan. If it is empty, cancel and pay manually: copy the IBAN, amount and reference below. Without the exact reference the payment does not reach the plant.",
   "beta.intentAwaiting": "Waiting for a payment of {amount}. This page notices on its own when it arrives.",
   "beta.intentReceived": "Payment of {amount} received",
   "beta.intentReceivedSub":

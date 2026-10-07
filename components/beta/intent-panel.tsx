@@ -97,6 +97,12 @@ export function IntentPanel({
             <div className="mt-4 aspect-square w-full max-w-[320px] bg-sand" />
           )}
           <p className="mt-2 max-w-[320px] text-xs text-inkMuted">{t("beta.intentScan", { amount })}</p>
+          {/* Revolut iOS od 7.10.2026.: kad stanje pokriva iznos, nakon skeniranja otvara
+              ekran „spremno za isplatu" BEZ opisa plaćanja (iznad stanja — obrazac s opisom).
+              Bez opisa Monerium uplatu ne usmjeri na Safe. Format QR-a nije uzrok. */}
+          <p className="mt-3 max-w-[320px] rounded-sm border border-coral-200 bg-coral-50 p-3 text-xs text-coral-800">
+            {t("beta.revolutReference")}
+          </p>
           <dl className="mt-4 space-y-2 text-sm">
             {copyRow(t("beta.beneficiary"), intent.beneficiaryName)}
             {copyRow(t("beta.iban"), intent.iban.replace(/(.{4})/g, "$1 ").trim(), intent.iban)}
