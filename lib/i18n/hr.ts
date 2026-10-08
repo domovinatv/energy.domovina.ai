@@ -854,10 +854,12 @@ export const hr = {
   "beta.intentAwaiting": "Čekam uplatu od {amount}. Ova stranica sama prepozna kad stigne.",
   "beta.intentReceived": "Uplata od {amount} je stigla",
   "beta.intentReceivedSub":
-    "Euro je stigao: Monerium je zaprimio tvoju SEPA uplatu i ona je već pribrojena kampanji. Na Gnosisscanu postaje provjerljiva kad Monerium izda EURe i on se proslijedi na Safe elektrane.",
+    "Monerium je zaprimio tvoju SEPA uplatu i već je pribrojena kampanji. Izdavanje EURe i prijenos na Safe elektrane odrade se sami, obično za nekoliko sekundi.",
   "beta.intentReviewNote":
     "Ovo je vjerojatno prva uplata s tvog računa. Monerium takve uplate provjerava prije izdavanja EURe, što može trajati od nekoliko minuta do nekoliko sati. Novac je u međuvremenu zaprimljen; slobodno zatvori stranicu.",
-  "beta.intentMintingSub": "EURe je izdan i prosljeđuje se na Safe elektrane.",
+  "beta.stepReceived": "Zaprimljeno u Moneriumu",
+  "beta.stepMinted": "EURe izdan na Gnosis Chainu",
+  "beta.stepSettled": "Na Safeu elektrane",
   "beta.intentSettledSub": "Novac je na Safeu elektrane, javno vidljiv na Gnosis Chainu.",
   "beta.intentRejected": "Uplata je odbijena. Novac se vraća na račun s kojeg je poslan.",
   "beta.intentExpired": "Vrijeme za ovu uplatu je isteklo. Ako si već platio, uplata će ipak stići na Safe elektrane — ne plaćaj ponovo. Ako nisi, napravi novu.",

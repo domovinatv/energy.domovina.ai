@@ -52,7 +52,14 @@ function harness(withStream: boolean) {
   let pollCount = 0;
   const stream = new FakeStream();
   const opened: string[] = [];
+  let visible: (() => void) | null = null;
   const deps: WatchDeps = {
+    onVisible: (fn) => {
+      visible = fn;
+      return () => {
+        visible = null;
+      };
+    },
     openStream: withStream
       ? (url) => {
           opened.push(url);
@@ -84,6 +91,13 @@ function harness(withStream: boolean) {
     timers,
     get pollCount() {
       return pollCount;
+    },
+    /** Kartica opet vidljiva (povratak iz aplikacije banke). */
+    becomeVisible() {
+      visible?.();
+    },
+    get listening() {
+      return visible !== null;
     },
     /** Odgovori na najstariji otvoreni poll i pusti mikrozadatke. */
     async answer(s: IntentStatus) {
@@ -121,6 +135,23 @@ describe("statusFromJson", () => {
 });
 
 describe("watchIntentStatus", () => {
+  it("povratak na karticu odmah dohvaća status, i kad stream čeka ponovno spajanje", async () => {
+    const h = harness(true);
+    await h.answer({ stage: "awaiting_payment", forwardTxHash: null, reviewExpected: null });
+    const before = h.pollCount;
+    h.becomeVisible();
+    expect(h.pollCount).toBe(before + 1);
+    await h.answer({ stage: "received_processing", forwardTxHash: null, reviewExpected: null });
+    expect(h.seen.at(-1)?.stage).toBe("received_processing");
+  });
+
+  it("stop odjavljuje slušanje povratka na karticu", () => {
+    const h = harness(true);
+    expect(h.listening).toBe(true);
+    h.stop();
+    expect(h.listening).toBe(false);
+  });
+
   it("otvara stream na railu za taj sid", () => {
     const h = harness(true);
     expect(h.opened).toEqual([intentStreamUrl(INTENT.sid)]);

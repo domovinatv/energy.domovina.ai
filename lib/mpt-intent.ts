@@ -149,6 +149,13 @@ export interface WatchDeps {
   fetchStatus: (statusUrl: string, signal: AbortSignal) => Promise<IntentStatus>;
   setTimeout: (fn: () => void, ms: number) => number;
   clearTimeout: (id: number) => void;
+  /**
+   * Javlja povratak na stranicu (kartica opet vidljiva). Vraća odjavu.
+   * Na istom mobitelu uplatitelj iz Revoluta skoči natrag tek nakon „Send";
+   * iOS je dotad uspavao SSE i timere, pa bez ovoga promjena čeka ponovno
+   * spajanje streama ili sljedeći krug pollinga.
+   */
+  onVisible?: (fn: () => void) => () => void;
 }
 
 export const POLL_MS = 2_000;
@@ -160,6 +167,13 @@ function browserDeps(): WatchDeps {
     fetchStatus: fetchIntentStatus,
     setTimeout: (fn, ms) => window.setTimeout(fn, ms),
     clearTimeout: (id) => window.clearTimeout(id),
+    onVisible: (fn) => {
+      const h = () => {
+        if (document.visibilityState === "visible") fn();
+      };
+      document.addEventListener("visibilitychange", h);
+      return () => document.removeEventListener("visibilitychange", h);
+    },
   };
 }
 
@@ -188,12 +202,14 @@ export function watchIntentStatus(
   let done = false;
   let last: IntentStatus | null = null;
   let stream: StreamSource | null = null;
+  const cleanups: (() => void)[] = [];
 
   const stop = () => {
     done = true;
     controller.abort();
     if (timer !== undefined) deps.clearTimeout(timer);
     stream?.close();
+    for (const off of cleanups) off();
   };
 
   const apply = (s: IntentStatus) => {
@@ -233,6 +249,16 @@ export function watchIntentStatus(
   };
 
   startPolling();
+
+  // Povratak iz aplikacije banke: jedan dohvat odmah, ne čeka stream ni timer.
+  if (deps.onVisible) {
+    cleanups.push(
+      deps.onVisible(() => {
+        if (done) return;
+        deps.fetchStatus(intent.statusUrl, controller.signal).then(apply, () => {});
+      }),
+    );
+  }
 
   if (deps.openStream !== null) {
     try {

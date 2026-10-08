@@ -816,10 +816,12 @@ export const en: Catalog = {
   "beta.intentAwaiting": "Waiting for a payment of {amount}. This page notices on its own when it arrives.",
   "beta.intentReceived": "Payment of {amount} received",
   "beta.intentReceivedSub":
-    "The euros have arrived: Monerium has received your SEPA payment and it is already counted towards the campaign. It becomes verifiable on Gnosisscan once Monerium issues the EURe and it is forwarded to the plant's Safe.",
+    "Monerium has received your SEPA payment and it already counts towards the campaign. Issuing EURe and moving it to the plant's Safe happen on their own, usually within seconds.",
   "beta.intentReviewNote":
     "This is probably the first payment from your account. Monerium checks such payments before issuing EURe, which can take from a few minutes to a few hours. The money has been received in the meantime; you can close this page.",
-  "beta.intentMintingSub": "EURe has been issued and is being forwarded to the plant's Safe.",
+  "beta.stepReceived": "Received by Monerium",
+  "beta.stepMinted": "EURe issued on Gnosis Chain",
+  "beta.stepSettled": "On the plant's Safe",
   "beta.intentSettledSub": "The money is on the plant's Safe, publicly visible on Gnosis Chain.",
   "beta.intentRejected": "The payment was rejected. The money goes back to the account it came from.",
   "beta.intentExpired": "The time for this payment has run out. If you already paid, it will still reach the plant's Safe — do not pay again. If not, start a new one.",

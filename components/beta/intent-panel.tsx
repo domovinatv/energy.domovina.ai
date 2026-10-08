@@ -60,7 +60,14 @@ export function IntentPanel({
       watchIntentStatus(
         intent,
         (s) => {
-          setStatus(s);
+          setStatus((prev) => {
+            // Kratka vibracija kad uplata prvi put stigne, kao terminal na blagajni
+            // (Android; iOS Safari `vibrate` nema pa se tiho preskače).
+            if (prev.stage === "awaiting_payment" && (isReceived(s.stage) || s.stage === "settled")) {
+              navigator.vibrate?.(60);
+            }
+            return s;
+          });
           if (isReceived(s.stage) || s.stage === "settled") {
             onPayment({
               sid: intent.sid,
@@ -139,6 +146,12 @@ export function IntentPanel({
   );
 }
 
+/**
+ * Trenutak „blagajne": rail javi „zaprimljeno" ~1 s nakon „Send" u banci (i za
+ * uplatu bez opisa — pay.domovina.ai ADR 0018, `sid_resolved`), a novac stigne
+ * na Safe ~15 s kasnije. Zato je uspjeh odmah velik i zelen, a ostatak puta se
+ * vidi kao koraci koji se sami odrade.
+ */
 function StageBanner({
   stage,
   amount,
@@ -154,19 +167,50 @@ function StageBanner({
   }
   if (stage === "rejected") return <p className="text-sm font-medium text-rust">{t("beta.intentRejected")}</p>;
   if (stage === "expired") return <p className="text-sm font-medium text-inkSoft">{t("beta.intentExpired")}</p>;
-  const sub =
-    stage === "received_processing"
-      ? t("beta.intentReceivedSub")
-      : stage === "settled"
-        ? t("beta.intentSettledSub")
-        : t("beta.intentMintingSub");
+  // received_processing → 1, minted / forwarding → 2, settled → 3 gotova koraka.
+  const doneSteps = stage === "received_processing" ? 1 : stage === "settled" ? 3 : 2;
+  const steps = [t("beta.stepReceived"), t("beta.stepMinted"), t("beta.stepSettled")];
   return (
-    <div className="rounded-sm bg-forest/10 px-4 py-3">
-      <p className="font-display text-lg font-semibold text-forest">{t("beta.intentReceived", { amount })}</p>
-      <p className="mt-1 text-sm text-inkSoft">{sub}</p>
+    <div role="status" className="animate-fade-in rounded-sm bg-forest/10 px-4 py-4">
+      <div className="flex items-center gap-3">
+        <CheckCircle className="h-9 w-9 shrink-0 text-forest" />
+        <p className="font-display text-lg font-semibold leading-tight text-forest">
+          {t("beta.intentReceived", { amount })}
+        </p>
+      </div>
+      <ol className="mt-3 space-y-1.5 text-sm">
+        {steps.map((label, i) => {
+          const done = i < doneSteps;
+          const current = i === doneSteps;
+          return (
+            <li key={label} className={`flex items-center gap-2 ${done ? "text-ink" : "text-inkMuted"}`}>
+              {done ? (
+                <CheckCircle className="h-4 w-4 shrink-0 text-forest" />
+              ) : (
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+                  <span className={`h-2 w-2 rounded-full ${current ? "animate-pulse bg-forest" : "border border-ink/30"}`} />
+                </span>
+              )}
+              {label}
+            </li>
+          );
+        })}
+      </ol>
+      <p className="mt-3 text-xs text-inkSoft">
+        {stage === "settled" ? t("beta.intentSettledSub") : t("beta.intentReceivedSub")}
+      </p>
       {stage === "received_processing" && reviewExpected === true && (
-        <p className="mt-2 text-sm text-inkSoft">{t("beta.intentReviewNote")}</p>
+        <p className="mt-2 text-xs text-inkSoft">{t("beta.intentReviewNote")}</p>
       )}
     </div>
+  );
+}
+
+function CheckCircle({ className }: { className: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+      <circle cx="12" cy="12" r="11" fill="currentColor" />
+      <path d="M7 12.5l3.2 3.2L17 9" fill="none" className="stroke-cream" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
