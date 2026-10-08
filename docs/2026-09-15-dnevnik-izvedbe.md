@@ -763,3 +763,92 @@ prazan odustani i plati ručno. Tekst ispod QR-a više ne obećava da se opis po
   Yapily…) — vlastita PISP licenca (HNB, 50.000 € kapitala) nije realna; agregator
   često dopušta samo verificirani račun trgovca (Mod 2 problem); ide uz B1.
   Revolut Pay odbačen — novac sjeda na ITalk Revolut Business = skrbništvo.
+
+---
+
+## 15. Uplata bez opisa ipak stiže + „zaprimljeno" za 1 s (8.–9.10.2026.)
+
+Nastavak §14. Rail (`pay.domovina.ai`, ADR 0018) od 8.10. veže uplatu bez opisa uz
+intent po tenantu, **točnom iznosu** i vremenu (prozor 48 h). Ovdje: što je to
+promijenilo na `/beta/`, jedan kvar u produkciji i mjerenje brzine.
+
+### 15.1 Zadani iznos 1 € (`9fa…`, vizija)
+
+Zadani i prvi ponuđeni iznos na `/beta/` je **1 €** (`lib/beta-projects.ts`, test
+pinira odluku). Vizija: mnoge mikrouplate, dokaz da se 1 € može prenijeti SEPA-om.
+U copy nije ušla tvrdnja „besplatno" — većina HR banaka naplaćuje SEPA nalog
+(0,25–0,40 €), bez naknade je npr. Revolut; tvrdnja bi trebala izvor.
+
+⚠️ **1 € kao zadani povećava sudare u resolveru.** Sve tri elektrane primaju na isti
+IBAN (tenant `italk`), a resolver razlikuje uplate samo po iznosu. Dva intenta od
+1 € za različite Safeove = sukob = parkiranje.
+
+### 15.2 Kvar 8.10. 23:17 → resolver u dva sloja (pay #63)
+
+Order `a30abad7…` (forward #78) parkiran kao `no_routing_target`, iako je platitelj
+imao **dva otvorena** intenta za Rab. Uzrok: treći kandidat, intent od 1 € za
+**Lukavec istekao ~4 h ranije**, bio je u prozoru od 48 h → dvije adrese → sukob.
+
+Popravak: ako je u trenutku uplate bio otvoren ijedan kandidat, odlučuju **samo
+otvoreni**; istekli tek kad otvorenih nema. Rizik koji ostaje: kasna uplata po
+isteklom QR-u dok je za istu svotu otvoren tuđi checkout za drugu elektranu —
+pogrešna namjena unutar tenanta, nikad tuđi novac. #78 se ne rješava sam (resolver
+ne prolazi ponovno parkirane) — ručno u `/admin/forwards` → `fyihzkvy9yyq`.
+
+### 15.3 Brzina: od „Send" do Safea (mjereno u D1 i na lancu)
+
+Prije (8.10. 00:31, nakon #63, intent `9g8a69f775qd`, Rab): panel je šutio do
+„plaćeno" jer je korak „zaprimljeno" bio vezan uz sid iz opisa.
+
+Poslije „ranog zaprimljeno" (pay #65 + energy, 9.10. 00:57, intent
+`szdmvyd3r536`, Lukavec, opis prazan):
+
+| Δ od `placedAt` | događaj | izvor |
+|---|---|---|
+| ≈ −5 s | „Send" u Revolutu (procjena korisnika, ne mjereno) | — |
+| **0 s** | Monerium prima uplatu (`placedAt` 22:57:21.24 UTC) | order |
+| 0 s | `order.created` na railu; resolver **samo za čitanje** bira `szdmvyd3r536` (`sid_resolved`), SSE javlja „zaprimljeno" | `monerium_webhook_events` #160 |
+| +7 s | `processed` (EURe mintan) | order |
+| +7 s | forward #81 `auto` — **isti** intent kao rani odabir | `monerium_forwards` |
+| +13 s | EURe na Safeu, intent `paid` | `paid_at` |
+
+```mermaid
+sequenceDiagram
+  participant R as Revolut
+  participant M as Monerium
+  participant P as rail (pay)
+  participant E as panel (energy)
+  R->>M: SEPA Instant (~5 s od Send)
+  M->>P: order.created (0 s)
+  P->>P: previewStraySid → sid_resolved
+  P-->>E: SSE: received_processing (0 s)
+  M->>P: order.updated processed (+7 s)
+  P->>P: resolveStray → forward #81
+  P-->>E: SSE: settled (+13 s)
+```
+
+Zaključak: naš dio od zaprimanja do Safea je **13 s**; korak „zaprimljeno"
+korisnik vidi ~5 s nakon „Send", a tih 5 s je Revolut + SEPA Instant prije
+Moneriuma (`placedAt` = trenutak kad Monerium zna) — na to ne utječemo.
+
+### 15.4 Što je promijenjeno u panelu
+
+- Uspjeh na „zaprimljeno": velika kvačica + tri koraka (Monerium → EURe → Safe),
+  trenutni pulsira; kratka vibracija (samo Android, iOS nema `vibrate`).
+- Povratak na karticu (`visibilitychange`) odmah dohvaća status: iOS uspava SSE i
+  timere dok je korisnik u Revolutu na istom mobitelu.
+- Napomena o Revolutu više nije upozorenje „odustani i plati ručno", nego „ne
+  mijenjaj iznos, plati unutar 48 h"; poruka o isteku kaže „ne plaćaj ponovo".
+
+### 15.5 Otvoreno
+
+- **Panel nakon `expired`** prestaje pratiti status (`isTerminal`), pa zakašnjelu
+  namiru vidi tek nakon osvježavanja (ADR 0018 §Otvoreno). Prijedlog: nastaviti
+  povremeno pitati do 48 h dok je kartica otvorena.
+- **Brže od 13 s** — forward na mint (+4 s, praćenjem lanca) umjesto na
+  `processed` (+7–8 s). Šalje novac prije nego Monerium kaže „gotovo" → zasebna
+  odluka, ADR.
+- **`client_ref`** (ADR 0018 §Sljedeći korak) za istovremene uplate istog iznosa od
+  različitih ljudi — s 1 € kao zadanim to postaje stvarno.
+- Vizualni prikaz novih koraka u panelu nije snimljen u pregledniku; potvrđen je
+  samo pravom uplatom na mobitelu korisnika.
