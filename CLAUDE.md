@@ -210,6 +210,9 @@ Iz /beta/ (dnevnik §13, 6.10.2026.):
 - **HEP obračunsko razdoblje zatvara očitanje sljedećeg dana** (rujan → 1.10.);
   procijenjeni rubovi daju „korekcije". Logika i testovi u `lib/moja-mreza.ts`.
 - **Izvoz Moje mreže bez `korisnik`** — JSON ide u javni JS paket.
+- **Revolut iOS (od 7.10.2026.) ispušta opis plaćanja iz EPC QR-a kad stanje
+  pokriva iznos** — novi ekran „spremno za isplatu". Format QR-a NIJE uzrok (~45
+  varijanti provjereno); ne „popravljati" `buildEpcText`. Dnevnik §14.
 
 Iz `pinka-finance/app`:
 - Statički export → `script-src` mora imati `'unsafe-inline'` (inline RSC bez

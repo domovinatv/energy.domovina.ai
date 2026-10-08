@@ -707,3 +707,59 @@ ono što bi sljedeći prolaz morao ponovno otkriti.
 - Animacija odbrojavanja nije viđena kadar po kadar (vidi 13.1) — provjera na
   mobitelu stvarnom uplatom.
 - Automatski uvoz Moje mreže na webu (extension → stranica) — zasad ručno.
+
+## 14. Revolut iOS ispušta opis plaćanja iz EPC QR-a (7.10.2026.)
+
+**Zaključak: kvar nije kod nas — Revolut je 7.10. promijenio tok plaćanja iz QR-a.**
+Selidba na `/beta/<slug>/` (`9bd58a9`) QR nije dirala; EPC tekst sastavlja rail
+(`pay.domovina.ai/backend/src/intents/epc.ts`, zadnja izmjena 5.6.), a dekodirani QR
+sa žive stranice je točno 10 redaka po `feedback_epc_format`.
+
+### 14.1 Pravilo (izmjereno)
+
+```mermaid
+flowchart LR
+  S[Skeniranje EPC QR] --> P["POST api.revolut.com/v2/qr-code<br/>(~2 s, parser na poslužitelju)"]
+  P --> A{iznos u QR-u?}
+  A -- ne --> R[Add recipient]
+  A -- da --> B{stanje ≥ iznos?}
+  B -- da --> F["NOVO: ekran „spremno za isplatu“<br/>BEZ opisa plaćanja"]
+  B -- ne --> O[stari obrazac, opis popunjen]
+```
+
+- Dokaz: stanje 3,99 € → `EUR3.98` bez opisa, `EUR4.02` s opisom (isti raspored).
+- Format nije uzrok: ~45 varijanti bez učinka dok je iznos pokriven — 10/11/12
+  redaka, opis u 10./11./12. retku, RF strukturirana referenca (ISO 11649), CRLF,
+  v001/v002, sa/bez BIC-a, svrha prazna/OTHR/GDDS/CHAR/SUPP, charset 2, decimale.
+- Prijelaz preko QR-a drugog primatelja ne pomaže. „Send again" na staroj
+  transakciji otvara puni obrazac bez čekanja (podaci lokalni) — ali nosi STARU
+  referencu, pa za novi intent ne vrijedi.
+
+### 14.2 Kako Revolut čita QR (statička analiza Android 10.150.2)
+
+- Sirovi QR ide `{"qrCode": …}` na `POST /v2/qr-code` (`QrCodeService`, traži
+  prijavu — bez nje 401 `code 9001`). Poslužitelj vraća primatelja, iznos i
+  `ReferenceField(value, optionType, fieldType)`. Promjena parsera ne treba izdanje
+  aplikacije — zato „od danas" bez ičega u App Storeu.
+- Tipovi koda samo `EUROPEAN` (`BCD`) i `SWISS` (`SPC`); HUB3 ne ide tim putem.
+- Nema deep linka koji puni SEPA nalog (nijedan `iban=`/`reference=` parametar);
+  `revolut.me`/`pay.revolut.com` plaćaju Revolut korisnika/trgovca, ne naš IBAN.
+- Odbačeno: skripta prema `/v2/qr-code` s pravom sesijom — traži zaobilaženje
+  certificate pinninga na pravom bankovnom računu (rizik zamrzavanja, ToS).
+
+### 14.3 Što je napravljeno
+
+`1d17773` — uz QR na `/beta/<slug>/` upozorenje: provjeri opis prije potvrde, ako je
+prazan odustani i plati ručno. Tekst ispod QR-a više ne obećava da se opis popuni sam.
+
+### 14.4 Otvoreno
+
+- Može li se na Revolutovom brzom ekranu ručno dodati opis? Ako može, uputu
+  ublažiti u „zalijepi opis prije potvrde".
+- Provjeriti na railu je li od 7.10. stigla Revolut uplata bez opisa (Monerium je
+  tada mint-a na zadani wallet profila — treba ručno proslijediti).
+- Prijava Revolutovoj podršci s parom 3,98 / 4,02 €.
+- Trajno: PSD2 iniciranje plaćanja preko licenciranog agregatora (TrueLayer, Tink,
+  Yapily…) — vlastita PISP licenca (HNB, 50.000 € kapitala) nije realna; agregator
+  često dopušta samo verificirani račun trgovca (Mod 2 problem); ide uz B1.
+  Revolut Pay odbačen — novac sjeda na ITalk Revolut Business = skrbništvo.
