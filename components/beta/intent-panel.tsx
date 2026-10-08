@@ -98,9 +98,12 @@ export function IntentPanel({
           )}
           <p className="mt-2 max-w-[320px] text-xs text-inkMuted">{t("beta.intentScan", { amount })}</p>
           {/* Revolut iOS od 7.10.2026.: kad stanje pokriva iznos, nakon skeniranja otvara
-              ekran „spremno za isplatu" BEZ opisa plaćanja (iznad stanja — obrazac s opisom).
-              Bez opisa Monerium uplatu ne usmjeri na Safe. Format QR-a nije uzrok. */}
-          <p className="mt-3 max-w-[320px] rounded-sm border border-coral-200 bg-coral-50 p-3 text-xs text-coral-800">
+              ekran „spremno za isplatu" BEZ opisa plaćanja. Format QR-a nije uzrok.
+              Od 8.10. rail takvu uplatu veže uz intent po tenantu, točnom iznosu i
+              vremenu (pay.domovina.ai ADR 0018, prozor 48 h); kad kandidati vode na
+              različite Safeove, parkira je za ručno preusmjeravanje. Zato napomena
+              više nije upozorenje. */}
+          <p className="mt-3 max-w-[320px] rounded-sm border border-ink/10 bg-sand p-3 text-xs text-inkSoft">
             {t("beta.revolutReference")}
           </p>
           <dl className="mt-4 space-y-2 text-sm">

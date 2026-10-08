@@ -812,7 +812,7 @@ export const en: Catalog = {
   "beta.reference": "Payment reference",
   "beta.referenceExact": "If you pay manually, enter the reference exactly as shown and pay exactly this amount — that is how the payment is recognised.",
   "beta.intentScan": "Scan it in your banking app: the recipient, IBAN and amount {amount} fill in.",
-  "beta.revolutReference": "Before confirming, check that the payment reference is filled in. Revolut sometimes drops it after a scan. If it is empty, cancel and pay manually: copy the IBAN, amount and reference below. Without the exact reference the payment does not reach the plant.",
+  "beta.revolutReference": "Revolut sometimes drops the payment reference after a scan. The payment still reaches the plant: we match it by the exact amount and time. So do not change the amount, and pay within 48 hours. In rare cases, such as two identical payments at the same time for different plants, we route the payment by hand and it arrives later.",
   "beta.intentAwaiting": "Waiting for a payment of {amount}. This page notices on its own when it arrives.",
   "beta.intentReceived": "Payment of {amount} received",
   "beta.intentReceivedSub":
@@ -822,7 +822,7 @@ export const en: Catalog = {
   "beta.intentMintingSub": "EURe has been issued and is being forwarded to the plant's Safe.",
   "beta.intentSettledSub": "The money is on the plant's Safe, publicly visible on Gnosis Chain.",
   "beta.intentRejected": "The payment was rejected. The money goes back to the account it came from.",
-  "beta.intentExpired": "The time for this payment has run out. Start a new one.",
+  "beta.intentExpired": "The time for this payment has run out. If you already paid, it will still reach the plant's Safe — do not pay again. If not, start a new one.",
   "beta.intentTx": "Transfer to the Safe on Gnosisscan",
   "beta.intentNew": "New payment",
   "beta.intentCancel": "Cancel",

@@ -850,7 +850,7 @@ export const hr = {
   "beta.reference": "Opis plaćanja",
   "beta.referenceExact": "Ako plaćaš ručno, opis plaćanja upiši točno ovako i uplati točno ovaj iznos — po tome se uplata prepoznaje.",
   "beta.intentScan": "Skeniraj u aplikaciji banke: popunit će se primatelj, IBAN i iznos {amount}.",
-  "beta.revolutReference": "Prije potvrde provjeri je li opis plaćanja popunjen. Revolut ga nakon skeniranja ponekad izostavi. Ako je prazan, odustani i plati ručno: kopiraj IBAN, iznos i opis plaćanja ispod. Bez točnog opisa uplata ne stiže do elektrane.",
+  "beta.revolutReference": "Revolut nakon skeniranja ponekad izostavi opis plaćanja. Uplata tada ipak stiže do elektrane: prepoznajemo je po točnom iznosu i vremenu. Zato ne mijenjaj iznos i plati unutar 48 sati. U rijetkim slučajevima, npr. dvije jednake uplate u isto vrijeme za različite elektrane, uplatu usmjeravamo ručno pa stigne kasnije.",
   "beta.intentAwaiting": "Čekam uplatu od {amount}. Ova stranica sama prepozna kad stigne.",
   "beta.intentReceived": "Uplata od {amount} je stigla",
   "beta.intentReceivedSub":
@@ -860,7 +860,7 @@ export const hr = {
   "beta.intentMintingSub": "EURe je izdan i prosljeđuje se na Safe elektrane.",
   "beta.intentSettledSub": "Novac je na Safeu elektrane, javno vidljiv na Gnosis Chainu.",
   "beta.intentRejected": "Uplata je odbijena. Novac se vraća na račun s kojeg je poslan.",
-  "beta.intentExpired": "Vrijeme za ovu uplatu je isteklo. Napravi novu.",
+  "beta.intentExpired": "Vrijeme za ovu uplatu je isteklo. Ako si već platio, uplata će ipak stići na Safe elektrane — ne plaćaj ponovo. Ako nisi, napravi novu.",
   "beta.intentTx": "Prijenos na Safe na Gnosisscanu",
   "beta.intentNew": "Nova uplata",
   "beta.intentCancel": "Odustani",
