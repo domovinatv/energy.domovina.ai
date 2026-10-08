@@ -1,8 +1,8 @@
 # domovina.energy
 
 **P2P platforma za zajedničko financiranje i suvlasništvo sunčanih elektrana u
-Hrvatskoj.** Bez provizije, bez posrednika koji drži novac, s javnim dokazom tko je
-što uložio.
+Hrvatskoj.** Ne uzimamo postotak od prikupljenog — zarađujemo kao izvođač koji
+elektranu gradi, a trošak izvedbe je javan. Javni dokaz tko je što uplatio.
 
 > **Ime:** `domovina.energy` · **Live:** `energy.domovina.ai` (closed beta)
 > **Jedno okruženje:** development = staging = production. Grana `main` je ono što
@@ -16,22 +16,34 @@ Hrvatskoj.** Bez provizije, bez posrednika koji drži novac, s javnim dokazom tk
 
 ## Stanje
 
-**Faza 1a + 1b — temelj i registar.** `docs/` je i dalje jedini izvor istine iz
-kojeg se piše kod, ne obrnuto ([`docs/00`](./docs/00-indeks.md)).
+Dva dijela, odvojena route groupom:
 
-Isporučeno:
+| Ruta | Što je | Novac |
+|---|---|---|
+| `/`, `/karta/`, `/projekt/…`, `/zajednice/`, `/novi-projekt/` | **maketa** (Faza 1a–1d): landing, registar s kartom, marketplace, čarobnjak | nema — svaki zapis nosi `demo: true` i UI to prikazuje |
+| `/beta/` | **tri stvarne elektrane** (Lukavec, Donja Lomnica, Rab), pravi Safe 2-od-3 na Gnosis Chainu, uplata SEPA → Monerium → EURe → Safe | **pravi** — samo vlasnik lokacije i osobno poznati ljudi, **nije javno prikupljanje** ([`docs/15`](./docs/15-pravi-projekti-vlastite-lokacije.md)) |
 
-- **Karta Hrvatske** s klasterima, filtrima (županija, status, priključak, snaga)
-  i popisom koji gleda **isti filtrirani skup** ([`docs/07`](./docs/07-produkt-app.md) §2.1)
-- `/elektrana/:slug` za svaku elektranu u registru
-- `lib/mock.ts` — 352 elektrane, 4 projekta, 3 zajednice, **sve `demo: true`**
-- `lib/facts.ts` — samo **potvrđene** brojke; V1–V8 iz duga provjere nemaju
-  vrijednost i ne mogu se prikazati
-- `lib/brand.ts`, `lib/fees.ts`, i18n HR/EN (HR izvor)
+Zadani iznos na `/beta/` je **1 €**, namjerno: vizija su mnoge mikrouplate.
 
-Sljedeće: **Faza 1c — marketplace** ([`docs/11`](./docs/11-plan-izvedbe.md)).
+Sljedeće: **Faza 1e — uglačavanje i štand** ([`docs/11`](./docs/11-plan-izvedbe.md)).
+Rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.**
 
-Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.**
+`docs/` je jedini izvor istine iz kojeg se piše kod, ne obrnuto
+([`docs/00`](./docs/00-indeks.md)).
+
+---
+
+## Zašto je kod javan
+
+Dok je na Safeovima malo novca, svaki pronađeni bug je jeftin. Kasnije bi bio
+skup. Zato je sve javno od bete: kod, dokumentacija, otvorena pitanja i greške iz
+kojih smo učili ([`docs/2026-09-15-dnevnik-izvedbe.md`](./docs/2026-09-15-dnevnik-izvedbe.md)).
+
+Adrese Safeova, potpisnika i lokacija su javne namjerno — sve se može provjeriti
+na lancu bez prijave.
+
+**Našli ste bug ili rupu?** Otvorite [issue](https://github.com/domovinatv/energy.domovina.ai/issues)
+ili pišite na `hello@italk.hr`. Ako se tiče novca na Safeu, prvo mail, pa issue.
 
 ---
 
@@ -48,8 +60,11 @@ okruženje: svaki push u `main` je objava ([`docs/12`](./docs/12-ime-domena-okru
 
 `npm run lint:copy` je **kontrola usklađenosti, ne kozmetika**: blokira riječi
 koje uplatu opisuju kao prinosnu ili povratnu ([`docs/03`](./docs/03-pravni-okvir.md) §3,
-zahtjev E3). Odobrene iznimke su doslovne rečenice odricanja, popisane u
-`scripts/check-copy.ts`.
+zahtjev E3). Popis riječi je u `lib/forbidden-words.ts`.
+
+`npm run deploy` = `verify` + provjera Safeova na lancu (`check:beta`) +
+`wrangler deploy`. Deploy traži pristup Cloudflare računu; za doprinos kodu ne
+treba.
 
 ---
 
@@ -104,9 +119,28 @@ Karta odnosa: [`docs/00-indeks.md`](./docs/00-indeks.md) · što odakle preuzima
 
 ## Pravna napomena
 
-ITalk d.o.o. je **non-custodial pružatelj softvera**. Sredstva nikad ne prolaze
-kroz platformu niti platforma drži ključeve. Regulirane funkcije e-novca obavlja
-**Monerium** (EMI, MiCA EMT). Platforma nije pružatelj usluga skupnog financiranja
-po Uredbi (EU) 2020/1503, nije investicijsko društvo i ne daje investicijski savjet.
+Dva moda rada ([`docs/14`](./docs/14-poslovni-model.md)):
+
+- **Mod 1 — mi smo izvođač.** ITalk d.o.o. gradi elektranu i prodaje je ključ u
+  ruke; uplata je predujam na elektranu. Kod rail puta primatelj SEPA naloga je
+  ITalk d.o.o. (operater raila), koji EURe prosljeđuje na Safe projekta.
+  Ključeve Safea drže članovi, a izvođač nikad ne drži većinu praga
+  ([`docs/14`](./docs/14-poslovni-model.md) §4). Na `/beta/` sva tri ključa drži
+  vlasnik lokacija, jer su elektrane njegove ([`docs/15`](./docs/15-pravi-projekti-vlastite-lokacije.md)).
+- **Mod 2 — bez nas u sredini.** Klijent koristi isti softver sa **svojim**
+  Monerium IBAN-om i **svojim** Safeom; novac ne prolazi kroz nas.
+
+Regulirane funkcije e-novca obavlja **Monerium** (EMI, MiCA EMT). Ne nudimo
+kamatu, udio u dobiti ni prenosive udjele; platforma nije pružatelj usluga skupnog
+financiranja po Uredbi (EU) 2020/1503, nije investicijsko društvo i ne daje
+investicijski savjet. Otvorena pravna pitanja su javno popisana u
+[`docs/03`](./docs/03-pravni-okvir.md) §9 i [`docs/11`](./docs/11-plan-izvedbe.md) (Blokirano).
 
 Ništa u ovom repozitoriju nije pravni ni porezni savjet.
+
+---
+
+## Licenca
+
+Kod je pod [MIT licencom](./LICENSE). Ime i oznaka `domovina.energy` nisu dio
+licence.

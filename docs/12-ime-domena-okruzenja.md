@@ -167,7 +167,7 @@ etiketu kasnije (`docs/10` §5).
 | Naredba | **`npm run deploy`** = `npm run verify` + `wrangler deploy` |
 | 404 | `not_found_handling: "404-page"` → `out/404.html` |
 | Zaglavlja | `public/_headers` — CSP, `X-Robots-Tag: noindex`, `immutable` za `/_next/static/` |
-| Repo | privatni `github.com/domovinatv/energy.domovina.ai` |
+| Repo | javni `github.com/domovinatv/energy.domovina.ai`, MIT (od 8.10.2026.; razlog u README-u „Zašto je kod javan") |
 | Rollback | `wrangler rollback` ili prethodna verzija u CF nadzornoj ploči |
 
 ⚠️ **Push u `main` zasad NE objavljuje sam.** Pravilo „svaki push je objava" (§2.1)

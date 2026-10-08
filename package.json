@@ -2,6 +2,7 @@
   "name": "domovina-energy",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "domovina.energy — registar i zajedničko financiranje sunčanih elektrana u Hrvatskoj. Live: energy.domovina.ai (closed beta).",
   "engines": {
     "node": ">=20"
