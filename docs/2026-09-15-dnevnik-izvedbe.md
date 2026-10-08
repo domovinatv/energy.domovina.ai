@@ -772,7 +772,7 @@ Nastavak §14. Rail (`pay.domovina.ai`, ADR 0018) od 8.10. veže uplatu bez opis
 intent po tenantu, **točnom iznosu** i vremenu (prozor 48 h). Ovdje: što je to
 promijenilo na `/beta/`, jedan kvar u produkciji i mjerenje brzine.
 
-### 15.1 Zadani iznos 1 € (`9fa…`, vizija)
+### 15.1 Zadani iznos 1 € (`6930995`)
 
 Zadani i prvi ponuđeni iznos na `/beta/` je **1 €** (`lib/beta-projects.ts`, test
 pinira odluku). Vizija: mnoge mikrouplate, dokaz da se 1 € može prenijeti SEPA-om.
