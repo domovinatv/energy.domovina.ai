@@ -100,6 +100,9 @@ describe("beta: iznos intenta (obavezan u EPC QR-u)", () => {
     expect(PRESET_AMOUNTS_EUR).toContain(DEFAULT_AMOUNT_EUR);
     for (const a of PRESET_AMOUNTS_EUR) expect(parseAmountEur(String(a))).toBe(a);
   });
+  it("zadani iznos je 1 € — vizija su mikrouplate (8.10.2026.)", () => {
+    expect(DEFAULT_AMOUNT_EUR).toBe(1);
+  });
 });
 
 describe("beta: iznosi s lanca", () => {
