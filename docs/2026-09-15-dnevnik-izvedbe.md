@@ -852,3 +852,33 @@ Moneriuma (`placedAt` = trenutak kad Monerium zna) — na to ne utječemo.
   različitih ljudi — s 1 € kao zadanim to postaje stvarno.
 - Vizualni prikaz novih koraka u panelu nije snimljen u pregledniku; potvrđen je
   samo pravom uplatom na mobitelu korisnika.
+
+## 16. Barkod uplatnice (HUB3 PDF417) — pokus Aircash i HR banke (10.–11.10.2026.)
+
+Ideja: Aircash nadoplata preko Apple Paya je besplatna, a „Slikaj i plati" isto, pa bi
+uplata HUB3 barkodom na Monerium IBAN bila besplatan put uz Revolut. Istraživanje i
+nalazi su u pay.domovina.ai `docs/research/aircash/` (README, `05-hub3-format-provjera.md`).
+
+### 16.1 Što je u kodu
+
+- `IntentPanel` ima karticu „Barkod uplatnice" uz EPC QR **samo kad rail vrati
+  `hub3_data`** (`lib/mpt-intent.ts` → `hub3Data`). PDF417 crta bwip-js 4.11.4 po HUB3 v6:
+  9 stupaca, ECL 4, redak 3× modul — provjereno zxing-cpp i Apple Vision.
+- Rail (pay.domovina.ai #74, #76, #77) daje `hub3_data` **samo za hrvatski IBAN
+  primatelja**. Monerium IBAN je `EE…`, pa danas kartice nema — to je namjerno.
+
+### 16.2 Rezultat testa na uređajima (11.10.)
+
+| Kod | PBZ iOS | HPB biz | RBA biz | Aircash |
+|---|---|---|---|---|
+| HUB3 s Monerium `EE…` IBAN-om | čita, ne pušta | čita, ne pušta | čita, ne pušta | čita, „Unknown code" |
+| HUB3 s HR (HPB) IBAN-om | radi | radi | radi | radi |
+
+HUB3 je u praksi vezan uz hrvatski IBAN primatelja. Format nije problem.
+
+### 16.3 Otvoreno
+
+- Kartica se sama vraća kad tenant dobije **HR IBAN** (vlastiti račun + AIS, Monerium HR
+  IBAN ako postoji, ili partner — pay.domovina.ai `docs/research/aircash/04`).
+- RBA „Generiraj uplatnicu" dijeli HUB3 kao **QR**, ne PDF417 — HR aplikacije prihvaćaju
+  HRVHUB30 i u QR-u. Za uski mobilni ekran to je bolji oblik od širokog PDF417.
