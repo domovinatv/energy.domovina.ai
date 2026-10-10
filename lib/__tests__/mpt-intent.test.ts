@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  createPaymentIntent,
   intentStreamUrl,
   POLL_MS,
   statusFromJson,
@@ -232,5 +233,36 @@ describe("watchIntentStatus", () => {
     await h.answer(st("settled"));
     expect(h.seen).toHaveLength(0);
     expect(h.stream.closed).toBe(true);
+  });
+});
+
+describe("createPaymentIntent — hub3_data", () => {
+  const base = {
+    sid: "abc123",
+    amount_eur: "1.00",
+    memo: "mpt:0x0000000000000000000000000000000000000001?sid=abc123",
+    iban: "EE707777000162921128",
+    beneficiary_name: "ITalk d.o.o.",
+    epc_qr_data: "BCD",
+    status_url: INTENT.statusUrl,
+  };
+  const withFetch = async (body: object) => {
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => new Response(JSON.stringify(body), { status: 201 })) as typeof fetch;
+    try {
+      return await createPaymentIntent("0x0000000000000000000000000000000000000001", 1);
+    } finally {
+      globalThis.fetch = orig;
+    }
+  };
+
+  it("prenosi HUB3 tekst koji je rail sastavio", async () => {
+    const r = await withFetch({ ...base, hub3_data: "HRVHUB30\nEUR\n" });
+    expect(r.ok && r.intent.hub3Data).toBe("HRVHUB30\nEUR\n");
+  });
+
+  it("stari rail bez polja → null, panel nudi samo QR", async () => {
+    const r = await withFetch(base);
+    expect(r.ok && r.intent.hub3Data).toBeNull();
   });
 });

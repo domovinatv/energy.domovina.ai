@@ -7,8 +7,9 @@
  * pollingom kao rezervom (`watchIntentStatus`), uspjeh čim Monerium zaprimi
  * uplatu, kraj na settled / rejected / expired.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
+import { toSVG } from "bwip-js/browser";
 import { useT } from "@/lib/i18n";
 import { gnosisscanTxUrl } from "@/lib/beta-projects";
 import {
@@ -20,6 +21,9 @@ import {
   type PaymentIntent,
 } from "@/lib/mpt-intent";
 import type { PendingPayment } from "@/lib/pending-payments";
+
+/** PDF417 opcije iz HUB3 v6 — bwip-js ih prima, ali njegovi tipovi ih ne navode. */
+const HUB3_PDF417 = { columns: 9, eclevel: 4, rowmult: 3 };
 
 export function IntentPanel({
   intent,
@@ -41,6 +45,19 @@ export function IntentPanel({
     reviewExpected: null,
   });
   const [transport, setTransport] = useState<IntentTransport>("poll");
+  const [code, setCode] = useState<"qr" | "hub3">("qr");
+
+  // HUB3 PDF417 (pokus, pay.domovina.ai docs/research/aircash/05): parametri
+  // iz HUB3 v6 specifikacije — 9 stupaca, ECL 4, redak 3× modul. Dart `barcode`
+  // paket daje simbol koji zxing ne čita; bwip-js prolazi i zxing i Apple Vision.
+  const hub3Svg = useMemo(() => {
+    if (intent.hub3Data === null) return null;
+    try {
+      return toSVG({ bcid: "pdf417", text: intent.hub3Data, paddingwidth: 4, paddingheight: 4, ...HUB3_PDF417 });
+    } catch {
+      return null;
+    }
+  }, [intent.hub3Data]);
 
   // ⚠️ Revolut iOS NE čita gust EPC QR iscrtan sitno: ≥ 320 px, tiha zona 4
   // modula, ECC M (pay.domovina.ai memorija feedback_epc_format). EPC tekst je
@@ -95,15 +112,44 @@ export function IntentPanel({
 
       {stage === "awaiting_payment" && (
         <>
-          {svg !== null ? (
-            <div
-              className="mt-4 aspect-square w-full max-w-[320px] bg-white [&_svg]:h-full [&_svg]:w-full [&_svg]:[shape-rendering:crispEdges]"
-              dangerouslySetInnerHTML={{ __html: svg }}
-            />
-          ) : (
-            <div className="mt-4 aspect-square w-full max-w-[320px] bg-sand" />
+          {hub3Svg !== null && (
+            <div role="tablist" className="mt-4 flex max-w-[320px] gap-1 text-sm">
+              {(["qr", "hub3"] as const).map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  role="tab"
+                  aria-selected={code === c}
+                  onClick={() => setCode(c)}
+                  className={`flex-1 rounded-sm px-3 py-1.5 ${code === c ? "bg-ink text-cream" : "bg-sand text-inkSoft"}`}
+                >
+                  {c === "qr" ? t("beta.codeQr") : t("beta.codeHub3")}
+                </button>
+              ))}
+            </div>
           )}
-          <p className="mt-2 max-w-[320px] text-xs text-inkMuted">{t("beta.intentScan", { amount })}</p>
+          {code === "hub3" && hub3Svg !== null ? (
+            <>
+              <div
+                data-code="hub3"
+                className="mt-4 w-full max-w-[320px] bg-white [&_svg]:h-auto [&_svg]:w-full [&_svg]:[shape-rendering:crispEdges]"
+                dangerouslySetInnerHTML={{ __html: hub3Svg }}
+              />
+              <p className="mt-2 max-w-[320px] text-xs text-inkMuted">{t("beta.hub3Scan")}</p>
+            </>
+          ) : (
+            <>
+              {svg !== null ? (
+                <div
+                  className="mt-4 aspect-square w-full max-w-[320px] bg-white [&_svg]:h-full [&_svg]:w-full [&_svg]:[shape-rendering:crispEdges]"
+                  dangerouslySetInnerHTML={{ __html: svg }}
+                />
+              ) : (
+                <div className="mt-4 aspect-square w-full max-w-[320px] bg-sand" />
+              )}
+              <p className="mt-2 max-w-[320px] text-xs text-inkMuted">{t("beta.intentScan", { amount })}</p>
+            </>
+          )}
           {/* Revolut iOS od 7.10.2026.: kad stanje pokriva iznos, nakon skeniranja otvara
               ekran „spremno za isplatu" BEZ opisa plaćanja. Format QR-a nije uzrok.
               Od 8.10. rail takvu uplatu veže uz intent po tenantu, točnom iznosu i

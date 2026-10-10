@@ -24,6 +24,12 @@ export interface PaymentIntent {
   bic: string | null;
   /** EPC tekst koji je rail sastavio — QR se crta iz njega, ne iz našeg koda. */
   epcQrData: string;
+  /**
+   * HUB3 tekst (PDF417 barkod hrvatske uplatnice) koji je rail sastavio, za
+   * aplikacije koje skeniraju samo uplatnice (Aircash „Slikaj i plati“).
+   * `null` dok rail polje ne šalje ili kad IBAN ne stane u HUB3.
+   */
+  hub3Data: string | null;
   statusUrl: string;
   expiresAt: string;
 }
@@ -69,6 +75,7 @@ interface IntentJson {
   beneficiary_name?: string;
   bic?: string | null;
   epc_qr_data?: string;
+  hub3_data?: string | null;
   status_url?: string;
   expires_at?: string;
   state?: string;
@@ -100,6 +107,7 @@ export async function createPaymentIntent(target: Address, amountEur: number): P
         beneficiaryName: b.beneficiary_name,
         bic: b.bic ?? null,
         epcQrData: b.epc_qr_data,
+        hub3Data: b.hub3_data ?? null,
         statusUrl: b.status_url,
         expiresAt: b.expires_at ?? "",
       },
