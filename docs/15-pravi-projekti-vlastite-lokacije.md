@@ -227,6 +227,13 @@ Cilj je UX kao kartica na POS terminalu: „novac je stigao" za nekoliko sekundi
 pa je EURe mintan na **zadani** wallet profila, ne na adresu iz opisa. Zato
 postoji `mpt-main-rail` (`0x449a…`) i `mpt:<safe>?sid=` s forwardom.
 
+> **Ispravak 11. 10. 2026.:** uzrok nije „exact match“, nego nastavak `?sid…` bez
+> razmaka. Opis `gnosis:0x<safe> sid:<id>` (razmak iza adrese) na produkciji je
+> mintao 1 EURe ravno na Lukavec Safe, a rail iz istog opisa čita `sid`. Pravilo,
+> tablica oblika i dokazi su u `pay.domovina.ai/docs/monerium-private.md`
+> („Usmjeravanje po memu“). Time je dokazan i čisti `gnosis:<safe>` za povezani
+> Safe koji nije zadani wallet.
+
 **Nije dokazano ni u jednom smjeru:** radi li **čisti** `gnosis:<safe>` (bez
 nastavka) za povezani Safe koji nije zadani wallet. Za: Monerium UI to nudi,
 `pay.domovina.ai/docs/monerium-private.md:232,429`. Protiv: Matijino sjećanje
