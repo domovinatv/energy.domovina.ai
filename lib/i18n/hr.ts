@@ -938,7 +938,7 @@ export const hr = {
   "receipt.statusAwaiting": "Uplata još nije stigla. Potvrda nastaje kad uplata stigne do primatelja.",
   "receipt.statusSettling": "Uplata je stigla i prosljeđuje se. Potvrda nastaje za minutu.",
   "receipt.statusUnbound":
-    "Uplata je stigla bez reference u opisu, pa nije vezana uz ključ. Pokrit će je sljedeća uplata s potvrdom s istog IBAN-a.",
+    "Novac je stigao na Safe elektrane, ali banka nije prenijela opis plaćanja s referencom (Revolut ga ispušta kad stanje pokriva iznos). Zato uplata nije vezana uz ključ i potvrda za nju nije izdana. Pokrit će je naknadno sljedeća uplata s potvrdom s istog IBAN-a kojoj referenca stigne u opisu.",
   "receipt.statusNotDelivered": "Uplata nije isporučena. Javi se podršci i navedi referencu.",
   "receipt.statusUnknown": "Stanje: {status}",
   "receipt.sid": "Referenca (sid)",

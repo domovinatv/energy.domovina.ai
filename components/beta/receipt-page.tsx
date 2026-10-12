@@ -212,9 +212,13 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
           <Field label={t("receipt.target")}>
             <code className="break-all font-mono text-xs">{rc.intent.target_address}</code>
           </Field>
-          <Field label={t("receipt.total")}>
-            <strong>{formatEurPrecise(total)}</strong>
-          </Field>
+          {/* Bez potvrđenih redaka „0,00 €" bi izgledalo kao da uplata nije stigla;
+              stanje ispod kaže što se dogodilo (npr. uplata bez reference). */}
+          {rc.payments.length > 0 && (
+            <Field label={t("receipt.total")}>
+              <strong>{formatEurPrecise(total)}</strong>
+            </Field>
+          )}
           <Field label={t("receipt.owner")}>
             <code className="break-all font-mono text-xs">{pub.owner ?? t("receipt.ownerMissing")}</code>
           </Field>
@@ -222,7 +226,11 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
 
         <p
           data-status={rc.status}
-          className={`mt-4 text-sm ${rc.status === "issued" ? "text-forest" : statusKey === "receipt.statusNotDelivered" ? "text-rust" : "text-inkSoft"}`}
+          className={
+            rc.status === "issued"
+              ? "mt-4 text-sm text-forest"
+              : `mt-4 rounded-sm border p-3 text-sm font-medium ${statusKey === "receipt.statusNotDelivered" ? "border-rust/40 bg-rust/5 text-rust" : "border-solar/50 bg-solar-soft text-ink"}`
+          }
         >
           {t(statusKey as MessageKey, { status: rc.status })}
         </p>

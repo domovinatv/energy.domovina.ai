@@ -900,7 +900,7 @@ export const en: Catalog = {
   "receipt.statusAwaiting": "The payment has not arrived yet. The receipt is issued once it reaches the recipient.",
   "receipt.statusSettling": "The payment has arrived and is being forwarded. The receipt follows within a minute.",
   "receipt.statusUnbound":
-    "The payment arrived without the reference in its description, so it is not bound to the key. The next payment with a receipt from the same IBAN will cover it.",
+    "The money reached the plant's Safe, but the bank did not pass on the payment description with the reference (Revolut drops it when the balance covers the amount). The payment is therefore not bound to the key and no receipt was issued for it. The next payment with a receipt from the same IBAN whose reference does arrive will cover it retroactively.",
   "receipt.statusNotDelivered": "The payment was not delivered. Contact support and quote the reference.",
   "receipt.statusUnknown": "Status: {status}",
   "receipt.sid": "Reference (sid)",

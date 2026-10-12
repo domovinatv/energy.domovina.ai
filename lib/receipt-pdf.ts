@@ -181,7 +181,7 @@ export async function buildReceiptPdf(
     [t("receipt.sid"), rc.sid, mono],
     [t("receipt.label"), rc.intent.label ?? "—", regular],
     [t("receipt.target"), rc.intent.target_address, mono],
-    [t("receipt.total"), text.formatEur(total), semibold],
+    ...(rc.payments.length > 0 ? [[t("receipt.total"), text.formatEur(total), semibold] as [string, string, PDFFont]] : []),
     [t("receipt.owner"), pub.owner ?? t("receipt.ownerMissing"), pub.owner ? mono : regular],
   ];
   for (const [label, value, font] of fields) {
