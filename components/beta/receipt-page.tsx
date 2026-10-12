@@ -112,7 +112,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     // Desktop (xl): lijevo naslov, preuzimanja i ključ, desno potvrda preko svih
     // redaka (zadnji red je 1fr, pa lijeve stavke ne dobiju razmake). Ispis i
     // mobitel: jedan stupac, kao prije.
-    <div className="container-wide max-w-3xl py-8 xl:grid xl:max-w-none xl:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] xl:grid-rows-[repeat(5,auto)_1fr] xl:items-start xl:gap-x-10 xl:py-6 print:block print:max-w-none print:py-0">
+    <div className="container-wide max-w-3xl py-8 xl:grid xl:max-w-none xl:grid-cols-[minmax(0,27rem)_minmax(0,1fr)] xl:grid-rows-[repeat(5,auto)_1fr] xl:items-start xl:gap-x-10 xl:py-6 print:block print:max-w-none print:py-0">
       <h1 className="font-display text-2xl font-semibold text-ink xl:col-start-1">{t("receipt.title")}</h1>
       {children}
     </div>
@@ -435,7 +435,7 @@ function PartB({ receiptKey: key }: { receiptKey: ReceiptKey }) {
   const [short, setShort] = useState(false);
   const secret = locked ?? JSON.stringify(key);
   return (
-    <article className="mt-8 rounded-sm border border-rust/30 bg-white p-4 sm:p-6 xl:col-start-1 xl:mt-6 print:break-before-page print:border-0 print:p-0">
+    <article className="mt-8 rounded-sm border border-rust/30 bg-white p-4 sm:p-6 xl:col-start-1 xl:mt-4 xl:p-5 print:break-before-page print:border-0 print:p-0">
       <h2 className="font-display text-xl font-semibold text-ink">{t("receipt.partBTitle")}</h2>
       <p className="mt-2 text-sm font-medium text-rust">{t("receipt.partBWarning")}</p>
       <div className="mt-3 flex flex-wrap items-center gap-2 print:hidden">
@@ -470,7 +470,7 @@ function PartB({ receiptKey: key }: { receiptKey: ReceiptKey }) {
         </button>
       </div>
       {short && <p className="mt-2 text-sm text-rust">{t("receipt.lockShort")}</p>}
-      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start xl:flex-col">
+      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start xl:flex-col xl:gap-3">
         <Qr text={secret} className="w-48 shrink-0" />
         <div className="min-w-0">
           <pre className="whitespace-pre-wrap break-all rounded-sm bg-sand p-3 font-mono text-[11px] text-ink">{secret}</pre>
