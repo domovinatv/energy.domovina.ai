@@ -928,6 +928,9 @@ export const hr = {
   "receipt.keyWarning": "Tko ima ovaj ključ, ima i pravo iz potvrde. Ne dijeli ga.",
   "receipt.hub3Hidden":
     "Uplatnica (barkod) nema potvrdu o uplati; dobit ćeš je naknadno kad jednom platiš QR-om s istog računa.",
+  "receipt.referenceTitle": "Za potvrdu provjeri opis plaćanja prije slanja",
+  "receipt.referenceText":
+    "U opisu mora pisati cijela referenca ispod, od „mpt:” do kraja. Neke aplikacije je izostave (Revolut kad stanje pokriva iznos). Tada je kopiraj i zalijepi u opis ručno, cijelu i bez izmjena; sam dio iza „sid=” nije dovoljan. Novac na elektranu stiže i bez reference, ali potvrdu dobiva samo uplata kojoj referenca stigne u opisu.",
   "receipt.open": "Potvrda o uplati",
   "receipt.title": "Potvrda o uplati",
   "receipt.loading": "Učitavam potvrdu…",
@@ -938,7 +941,7 @@ export const hr = {
   "receipt.statusAwaiting": "Uplata još nije stigla. Potvrda nastaje kad uplata stigne do primatelja.",
   "receipt.statusSettling": "Uplata je stigla i prosljeđuje se. Potvrda nastaje za minutu.",
   "receipt.statusUnbound":
-    "Novac je stigao na Safe elektrane, ali banka nije prenijela opis plaćanja s referencom (Revolut ga ispušta kad stanje pokriva iznos). Zato uplata nije vezana uz ključ i potvrda za nju nije izdana. Pokrit će je naknadno sljedeća uplata s potvrdom s istog IBAN-a kojoj referenca stigne u opisu.",
+    "Što se dogodilo: novac je stigao na Safe elektrane, ali u opisu plaćanja nije stigla referenca (Revolut je ispušta kad stanje pokriva iznos; može biti i tipfeler pri ručnom upisu). Uplata je zato povezana samo po iznosu i vremenu, a to ne dokazuje da je platio vlasnik ovog ključa, pa potvrda za nju nije izdana. Što dalje: čim s istog računa stigne uplata s potvrdom kojoj je cijela referenca u opisu, ova se uplata pridruži toj potvrdi kao naknadno potvrđena.",
   "receipt.statusNotDelivered": "Uplata nije isporučena. Javi se podršci i navedi referencu.",
   "receipt.statusUnknown": "Stanje: {status}",
   "receipt.sid": "Referenca (sid)",

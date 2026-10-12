@@ -890,6 +890,9 @@ export const en: Catalog = {
   "receipt.keyWarning": "Whoever has this key holds the claim from the receipt. Do not share it.",
   "receipt.hub3Hidden":
     "The payment slip (barcode) carries no receipt; you will get one retroactively once you pay by QR from the same account.",
+  "receipt.referenceTitle": "For a receipt, check the payment description before sending",
+  "receipt.referenceText":
+    "The description must contain the full reference below, from “mpt:” to the end. Some apps leave it out (Revolut when the balance covers the amount). Then copy it and paste it into the description by hand, in full and unchanged; the part after “sid=” alone is not enough. The money reaches the plant without the reference too, but only a payment whose reference arrives in the description gets a receipt.",
   "receipt.open": "Payment receipt",
   "receipt.title": "Payment receipt",
   "receipt.loading": "Loading the receipt…",
@@ -900,7 +903,7 @@ export const en: Catalog = {
   "receipt.statusAwaiting": "The payment has not arrived yet. The receipt is issued once it reaches the recipient.",
   "receipt.statusSettling": "The payment has arrived and is being forwarded. The receipt follows within a minute.",
   "receipt.statusUnbound":
-    "The money reached the plant's Safe, but the bank did not pass on the payment description with the reference (Revolut drops it when the balance covers the amount). The payment is therefore not bound to the key and no receipt was issued for it. The next payment with a receipt from the same IBAN whose reference does arrive will cover it retroactively.",
+    "What happened: the money reached the plant's Safe, but the reference did not arrive in the payment description (Revolut drops it when the balance covers the amount; a typo when typing it by hand has the same effect). The payment was therefore matched only by amount and time, which does not prove that the owner of this key paid, so no receipt was issued for it. What next: as soon as a payment with a receipt arrives from the same account with the full reference in its description, this payment joins that receipt as confirmed retroactively.",
   "receipt.statusNotDelivered": "The payment was not delivered. Contact support and quote the reference.",
   "receipt.statusUnknown": "Status: {status}",
   "receipt.sid": "Reference (sid)",

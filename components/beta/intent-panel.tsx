@@ -193,9 +193,20 @@ export function IntentPanel({
               vremenu (pay.domovina.ai ADR 0018, prozor 48 h); kad kandidati vode na
               različite Safeove, parkira je za ručno preusmjeravanje. Zato napomena
               više nije upozorenje. */}
-          <p className="mt-3 max-w-[320px] rounded-sm border border-ink/10 bg-sand p-3 text-xs text-inkSoft">
-            {t("beta.revolutReference")}
-          </p>
+          {receipt !== null ? (
+            // Za potvrdu iznos i vrijeme NISU dokaz (rail ADR 0022): sidro nastaje samo kad
+            // opis počinje s `mpt:` i nosi sid (`monerium/sid.ts` extractRoutingTarget).
+            // Sam sid u opisu ne vrijedi — zato se kopira cijela referenca.
+            <div data-receipt-reference className="mt-3 max-w-[320px] rounded-sm border border-solar/60 bg-solar-soft p-3 text-xs text-ink">
+              <p className="text-sm font-medium">{t("receipt.referenceTitle")}</p>
+              <p className="mt-1">{t("receipt.referenceText")}</p>
+              <dl className="mt-2 text-sm">{copyRow(t("beta.reference"), intent.memo, intent.memo, true)}</dl>
+            </div>
+          ) : (
+            <p className="mt-3 max-w-[320px] rounded-sm border border-ink/10 bg-sand p-3 text-xs text-inkSoft">
+              {t("beta.revolutReference")}
+            </p>
+          )}
           <dl className="mt-4 space-y-2 text-sm">
             {copyRow(t("beta.beneficiary"), intent.beneficiaryName)}
             {copyRow(t("beta.iban"), intent.iban.replace(/(.{4})/g, "$1 ").trim(), intent.iban)}
