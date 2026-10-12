@@ -5,7 +5,8 @@ import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument } from "pdf-lib";
 import { hr } from "@/lib/i18n/hr";
 import { formatDateShort, formatEurPrecise } from "@/lib/format";
-import { buildReceiptPdf, RECEIPT_PDF_FONT_URLS, type ReceiptPdfFonts } from "@/lib/receipt-pdf";
+import { buildReceiptPdf, RECEIPT_PDF_FONT_URLS, wrapText, type ReceiptPdfFonts } from "@/lib/receipt-pdf";
+import { StandardFonts } from "pdf-lib";
 import type { Receipt } from "@/lib/receipt-api";
 
 const font = (url: string) => new Uint8Array(readFileSync(join(process.cwd(), "public", url)));
@@ -69,6 +70,41 @@ describe("PDF potvrde", () => {
     const doc = await PDFDocument.load(bytes);
     expect(doc.getPageCount()).toBeGreaterThanOrEqual(1);
     expect(doc.getTitle()).toContain(RC.sid);
+  });
+
+  it("velika potvrda (74 retka, ~30 KB JSON-a bez razmaka) se napravi brzo", async () => {
+    const base = RC.payments[0]!;
+    const many: Receipt = {
+      ...RC,
+      payments: Array.from({ length: 74 }, (_, i) => ({
+        ...base,
+        order_id: `o${i}`,
+        leaf_hash: `0x${i.toString(16).padStart(64, "0")}`,
+        anchor: { ...base.anchor!, proof: Array.from({ length: 7 }, (_, j) => `0x${String(j).repeat(64)}`) },
+      })),
+    };
+    const started = Date.now();
+    const bytes = await buildReceiptPdf(many, null, FONTS, {
+      t,
+      formatEur: formatEurPrecise,
+      formatDate: (iso) => formatDateShort(iso, "hr"),
+      generatedAt: "12. 10. 2026. 09:00",
+    });
+    expect(Date.now() - started).toBeLessThan(5_000);
     if (process.env.RECEIPT_PDF_OUT) writeFileSync(process.env.RECEIPT_PDF_OUT, bytes);
+    expect((await PDFDocument.load(bytes)).getPageCount()).toBeGreaterThan(2);
+  }, 20_000);
+
+  it("wrapText: nijedan redak nije širi od zadanog i tekst ostaje cijel", async () => {
+    const doc = await PDFDocument.create();
+    const mono = await doc.embedFont(StandardFonts.Courier);
+    const json = JSON.stringify({ a: "x".repeat(5000), b: Array.from({ length: 200 }, (_, i) => i) });
+    const lines = wrapText(json, mono, 7, 300);
+    expect(lines.join("")).toBe(json);
+    for (const line of lines) expect(mono.widthOfTextAtSize(line, 7)).toBeLessThanOrEqual(300.01);
+    const prose = "Rijeci se lome na razmaku, a preduga 0x" + "ab".repeat(80) + " ide po znakovima.";
+    const pl = wrapText(prose, mono, 9, 200);
+    expect(pl.join(" ").replace(/\s+/g, "")).toBe(prose.replace(/\s+/g, ""));
+    for (const line of pl) expect(mono.widthOfTextAtSize(line, 9)).toBeLessThanOrEqual(200.01);
   });
 });

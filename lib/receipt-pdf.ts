@@ -71,38 +71,72 @@ class Layout {
   constructor(private doc: PDFDocument) {
     this.page = doc.addPage([W, H]);
   }
-  ensure(h: number) {
+  /** `true` kad je otvorena nova stranica (tablica tada ponovi zaglavlje). */
+  ensure(h: number): boolean {
     if (this.y - h < M + 24) {
       this.page = this.doc.addPage([W, H]);
       this.y = H - M;
+      return true;
     }
+    return false;
   }
   gap(h: number) {
     this.y -= h;
   }
 }
 
-/** Prelamanje po riječima; predugačka „riječ" (hash, JSON) se lomi po znakovima. */
+/**
+ * Prelamanje po riječima; predugačka „riječ" (hash, kanonski JSON) se lomi po
+ * znakovima. ⚠️ Linearno: kanonski JSON velike potvrde je ~30 KB bez ijednog
+ * razmaka. Prva verzija skraćivala je takvu riječ znak po znak i svaki put
+ * mjerila cijeli ostatak — O(n²) po retku, a kartica se smrznula (12. 10. 2026.,
+ * potvrda s 74 retka). Zato se širina znakova zbraja jednim prolazom.
+ */
 export function wrapText(text: string, font: PDFFont, size: number, width: number): string[] {
   const lines: string[] = [];
+  const space = font.widthOfTextAtSize(" ", size);
+  const charW = new Map<string, number>();
+  const widthOfChar = (c: string) => {
+    let w = charW.get(c);
+    if (w === undefined) {
+      w = font.widthOfTextAtSize(c, size);
+      charW.set(c, w);
+    }
+    return w;
+  };
   for (const para of text.split("\n")) {
     let line = "";
+    let lineW = 0;
     for (const word of para.split(" ")) {
-      const next = line === "" ? word : `${line} ${word}`;
-      if (font.widthOfTextAtSize(next, size) <= width) {
-        line = next;
+      // Mjeri se samo riječ, ne cijeli redak; širina riječi je zbroj znakova
+      // (bez kerninga — razlika je ispod pola točke, a redak ima rezervu).
+      let wordW = 0;
+      for (const c of word) wordW += widthOfChar(c);
+      const sep = line === "" ? 0 : space;
+      if (lineW + sep + wordW <= width) {
+        line = line === "" ? word : `${line} ${word}`;
+        lineW += sep + wordW;
         continue;
       }
       if (line !== "") lines.push(line);
       line = "";
-      let rest = word;
-      while (font.widthOfTextAtSize(rest, size) > width) {
-        let n = rest.length;
-        while (n > 1 && font.widthOfTextAtSize(rest.slice(0, n), size) > width) n--;
-        lines.push(rest.slice(0, n));
-        rest = rest.slice(n);
+      lineW = 0;
+      if (wordW <= width) {
+        line = word;
+        lineW = wordW;
+        continue;
       }
-      line = rest;
+      // Riječ šira od retka: lomi po znakovima, jednim prolazom.
+      for (const c of word) {
+        const w = widthOfChar(c);
+        if (line !== "" && lineW + w > width) {
+          lines.push(line);
+          line = "";
+          lineW = 0;
+        }
+        line += c;
+        lineW += w;
+      }
     }
     lines.push(line);
   }
@@ -214,13 +248,16 @@ export async function buildReceiptPdf(
       anchor: { h: t("receipt.colAnchor"), x: M + 432, w: CONTENT_W - 432, right: false },
     };
     const cols = Object.values(C);
+    const header = () => {
+      for (const c of cols) {
+        const s = c.h.toUpperCase();
+        const x = c.right ? c.x + c.w - regular.widthOfTextAtSize(s, 7.5) : c.x;
+        l.page.drawText(s, { x, y: l.y - 8, size: 7.5, font: regular, color: MUTED });
+      }
+      l.gap(14);
+    };
     l.ensure(20);
-    for (const c of cols) {
-      const s = c.h.toUpperCase();
-      const x = c.right ? c.x + c.w - regular.widthOfTextAtSize(s, 7.5) : c.x;
-      l.page.drawText(s, { x, y: l.y - 8, size: 7.5, font: regular, color: MUTED });
-    }
-    l.gap(14);
+    header();
     for (const p of rc.payments) {
       const recipient = recipientLabel(p.target_address, BETA_PROJECTS);
       const kind =
@@ -228,7 +265,7 @@ export async function buildReceiptPdf(
         (recipient !== null ? `\n→ ${recipient}` : "");
       const kindLines = wrapText(kind, regular, 9, C.kind.w);
       const rowH = Math.max(1, kindLines.length) * 12 + 6;
-      l.ensure(rowH);
+      if (l.ensure(rowH)) header();
       l.page.drawLine({ start: { x: M, y: l.y }, end: { x: W - M, y: l.y }, thickness: 0.5, color: RULE });
       const top = l.y - 12;
       l.page.drawText(text.formatDate(p.placed_at) || "—", { x: C.date.x, y: top, size: 9, font: regular, color: INK });
