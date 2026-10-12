@@ -3,7 +3,7 @@
 **Stanje 12. 10. 2026. (navečer):** izvedeno i **live za sve** (bez zastavice, §4). Test s pravim
 novcem prošao: potvrda `r1dbxtrxtdnn8rcnzgu5bz8b6g` = 1 izravna + 73 naknadne uplate (80,93 €).
 Neovisna provjera je na `/beta/provjera/` (§7). Zamke i tijek izvedbe: dnevnik izvedbe §17.
-Otvoreno: prvo sidro (00:00 UTC 13. 10.) još nije provjereno na stvarnim podacima.
+Prvo sidro (seq 1) provjereno na stvarnim podacima osim Bitcoin koraka, koji čeka atestaciju.
 
 Izvor istine za kriptografiju i pravila je rail:
 

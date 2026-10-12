@@ -945,9 +945,12 @@ stranicu projekta. `/beta/provjera/` 434 KB gz (generator izvještaja u pozadini
 
 ### 17.6 Otvoreno
 
-- Prvo sidro: 00:00 UTC 13. 10. Koraci 5–6 na `/beta/provjera/` trebali bi proći odmah,
-  7–9 (checkpoint, OTS, Bitcoin) tek ~dan kasnije (javni repo `ots upgrade` u 00:40 UTC,
-  Worker povlači svakih 6 h). Logika sidra/OTS/Bitcoina dosad testirana samo sintetički.
+- **Prvo sidro (seq 1) napravljeno je ad hoc 12. 10. navečer** (74 lista, 79,93 €,
+  `chain_head 0xfb79b98d…7736d`) i provjereno ovim verifikatorom na stvarnim podacima:
+  list, Merkle, chain_head, javni checkpoint (GitHub) i Gnosis ✓; pravi `.ots` iz 4
+  kalendara raščlanjen i žigosa sha256(chain_head) ✓. **Otvoreno: Bitcoin korak** — čeka
+  atestaciju i `ots upgrade` u javnom repou (00:40 UTC); na stvarnom bloku još nije prošao,
+  dosad samo sintetički test i header Genesis bloka.
 - Jedinstveni iznos po otvorenom intentu (druga razina vezanja bez reference) — prijedlog
   pay.domovina.ai sesije, čeka Matijinu odluku; energy tok se dotad ne mijenja.
 - Rečenica „Tko ima ovaj ključ, ima i pravo iz potvrde" (docs/16 §4.1) — „pravo" je pravno
