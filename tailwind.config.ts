@@ -104,7 +104,7 @@ const config: Config = {
           { lineHeight: "1.15", letterSpacing: "-0.01em" },
         ],
       },
-      maxWidth: { content: "1200px", hero: "1280px" },
+      maxWidth: { content: "1200px", hero: "1280px", wide: "1760px" },
       borderRadius: { lg: "16px", md: "12px", sm: "8px" },
       boxShadow: {
         soft: "0 1px 2px rgba(26,26,26,0.04), 0 4px 14px rgba(26,26,26,0.06)",

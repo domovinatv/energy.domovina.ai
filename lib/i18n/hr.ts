@@ -1059,6 +1059,17 @@ export const hr = {
   "verify.why.ots": "Datoteka .ots mora žigosati sha256(chain_head); stablo operacija ponovno se računa do Bitcoin atestacije.",
   "verify.why.bitcoin": "Header bloka s dva neovisna Bitcoin API-ja mora nositi rezultat dokaza kao merkle root, a vrijeme bloka mora biti unutar 48 h od sidrenja.",
   "verify.why.gnosis": "Za svaku uplatu s hashom: transakcija je uspjela i nosi EURe prijenos točnog iznosa primatelju.",
+  "verify.planTitle": "Što se provjerava, redom",
+  "verify.plan.format": "Datoteka je potvrda o uplati",
+  "verify.plan.sid": "Referenca (sid) izvedena je iz vlasnika i salta",
+  "verify.plan.key": "Ključ pripada ovoj potvrdi i potpisuje",
+  "verify.plan.leaves": "Svaki redak ima ispravan hash lista",
+  "verify.plan.merkle": "Merkle dokazi vode do korijena sidra",
+  "verify.plan.chainHead": "Sidro je ispravno ulančano (chain_head)",
+  "verify.plan.checkpoint": "Sidro stoji u javnim checkpointima (GitHub)",
+  "verify.plan.ots": "OpenTimestamps dokaz žigosa to sidro",
+  "verify.plan.bitcoin": "Bitcoin blok sadrži taj žig, u pravo vrijeme",
+  "verify.plan.gnosis": "Gnosis transakcije stvarno su prenijele novac",
   "receipt.verifyLink": "Provjeri ovu potvrdu korak po korak",
 } as const;
 

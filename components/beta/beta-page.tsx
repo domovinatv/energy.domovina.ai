@@ -51,7 +51,7 @@ export function BetaPage() {
     if (BETA_PROJECTS.some((p) => p.slug === slug)) router.replace(`/beta/${slug}/`);
   }, [router]);
   return (
-    <div className="container-content py-10 sm:py-14">
+    <div className="container-wide py-10 sm:py-14">
       <h1 className="font-display text-display-md font-semibold text-ink">{t("beta.title")}</h1>
       <p className="mt-4 max-w-3xl text-inkSoft">{t("beta.intro")}</p>
       <p className="mt-3 max-w-3xl text-sm text-inkMuted">{t("beta.who")}</p>
@@ -82,14 +82,15 @@ export function BetaProjectPage({ slug }: { slug: string }) {
   const project = BETA_PROJECTS.find((p) => p.slug === slug);
   if (project === undefined) return null;
   return (
-    <div className="container-content py-8 sm:py-12">
+    <div className="container-wide py-8 sm:py-12 xl:py-5">
       <Link href="/beta/" className="text-sm text-forest underline underline-offset-2">
         {t("beta.backToList")}
       </Link>
-      <div className="mt-4">
+      <div className="mt-4 xl:mt-3">
         <ProjectSection project={project} />
       </div>
-      <p className="mt-10 max-w-3xl text-sm text-inkMuted">
+      {/* Na desktopu ista napomena stoji u prvom stupcu, unutar ekrana (ProjectSection). */}
+      <p className="mt-10 max-w-3xl text-sm text-inkMuted xl:hidden">
         {t("beta.notInvestment", { brand: BRAND.name })}
       </p>
     </div>
@@ -185,17 +186,21 @@ function ProjectSection({ project }: { project: BetaProject }) {
     savePending(project.safe, p);
     if (p.txHash !== null) setRefreshKey((k) => k + 1);
   };
+  // Desktop bez skrolanja: na xl tri stupca (elektrana | uplate | uplata) i HEP
+  // vodoravno ispod prva dva, na 2xl četiri stupca (HEP dobije svoj). Mobilni i tablet poredak je nepromijenjen:
+  // omotač uplata/plaćanja na xl postaje `contents`, pa su njegova djeca stavke mreže.
   return (
-    <section className="rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7">
-      <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-1">
-        <div>
-          <p className="inline-block rounded-full bg-forest/10 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-forest">
-            {t("beta.campaign")}
-          </p>
-          <h1 className="mt-2 font-display text-display-md font-semibold text-ink">{project.place}</h1>
-          <p className="mt-1 text-sm text-inkSoft">{project.address}</p>
-        </div>
-        <p className="text-sm text-inkMuted">{project.county}</p>
+    <section className="rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7 xl:grid xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_400px] xl:grid-rows-[auto_1fr] xl:gap-x-8 2xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(0,1.15fr)_400px] 2xl:grid-rows-1 2xl:gap-x-7">
+      <div className="xl:col-start-1 xl:row-start-1">
+        <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-1">
+          <div>
+            <p className="inline-block rounded-full bg-forest/10 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-forest">
+              {t("beta.campaign")}
+            </p>
+            <h1 className="mt-2 font-display text-display-md font-semibold text-ink">{project.place}</h1>
+            <p className="mt-1 text-sm text-inkSoft">{project.address}</p>
+          </div>
+          <p className="text-sm text-inkMuted">{project.county}</p>
       </div>
 
       <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-4">
@@ -209,11 +214,15 @@ function ProjectSection({ project }: { project: BetaProject }) {
       {project.goalCents === null && <p className="mt-2 text-xs text-inkMuted">{t("beta.goalPending")}</p>}
 
       {project.photos !== null && <ProjectPhotos photos={project.photos} place={project.place} />}
+      <p className="mt-6 hidden text-xs text-inkMuted xl:block">
+        {t("beta.notInvestment", { brand: BRAND.name })}
+      </p>
+      </div>
 
       {hasVerifiedSafe(project) ? (
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div className="mt-6 grid gap-6 lg:grid-cols-2 xl:contents">
           <PendingWatcher safe={project.safe} pending={pending} onSettled={() => setRefreshKey((k) => k + 1)} />
-          <div>
+          <div className="xl:col-start-2 xl:row-start-1">
             <LiveActivity
               safe={project.safe}
               goalCents={project.goalCents}
@@ -228,9 +237,11 @@ function ProjectSection({ project }: { project: BetaProject }) {
             </p>
           </div>
           {isPayable(project) ? (
-            <PayWithIntent safe={project.safe} onPayment={onPayment} />
+            <div className="xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:self-start 2xl:col-start-4">
+              <PayWithIntent safe={project.safe} onPayment={onPayment} />
+            </div>
           ) : (
-            <div className="rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft">
+            <div className="rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:self-start 2xl:col-start-4">
               <p>{t("beta.payPending")}</p>
               <p className="mt-2 text-xs text-inkMuted">{t("beta.safe")}</p>
               <p className="break-all font-mono text-xs text-ink">{project.safe}</p>
@@ -238,10 +249,16 @@ function ProjectSection({ project }: { project: BetaProject }) {
           )}
         </div>
       ) : (
-        <p className="mt-6 rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft">{t("beta.pending")}</p>
+        <p className="mt-6 rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft xl:col-span-2 xl:col-start-2 xl:row-start-1 xl:mt-0 xl:self-start">
+          {t("beta.pending")}
+        </p>
       )}
 
-      {BETA_HEP[project.slug] !== undefined && <HepMeter hep={BETA_HEP[project.slug]!} />}
+      {BETA_HEP[project.slug] !== undefined && (
+        <div className="xl:col-span-2 xl:col-start-1 xl:row-start-2 2xl:col-span-1 2xl:col-start-3 2xl:row-start-1">
+          <HepMeter hep={BETA_HEP[project.slug]!} />
+        </div>
+      )}
     </section>
   );
 }
@@ -259,47 +276,137 @@ function ProjectPhotos({ photos, place }: { photos: BetaPhotos; place: string })
     { key: "after", base: photos.after, caption: t("beta.photoAfter"), pending: t("beta.photoAfterPending") },
   ] as const;
   return (
-    <ol className="mt-6 grid gap-4 sm:grid-cols-3">
-      {slots.map((slot, i) => (
-        <li key={slot.key}>
-          <figure>
-            <div className="relative aspect-video overflow-hidden rounded-sm bg-sandDeep">
-              {slot.base === null ? (
-                <p className="flex h-full items-center justify-center px-4 text-center text-sm text-inkMuted">
-                  {slot.pending}
-                </p>
-              ) : (
-                <a href={`${slot.base}-1600.webp`} target="_blank" rel="noreferrer" className="block h-full">
-                  {/* Statički export: next/image ovdje ne optimizira (images.unoptimized), pa običan img sa srcset. */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`${slot.base}-800.webp`}
-                    srcSet={PHOTO_WIDTHS.map((w) => `${slot.base}-${w}.webp ${w}w`).join(", ")}
-                    sizes="(min-width: 640px) 33vw, 100vw"
-                    alt={t(`beta.photoAlt.${slot.key}`, { place })}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-full w-full object-cover"
-                  />
-                </a>
-              )}
+    <>
+      <ol className="mt-6 grid gap-4 sm:grid-cols-3 xl:hidden">
+        {slots.map((slot, i) => (
+          <li key={slot.key}>
+            <figure>
+              <div className="relative aspect-video overflow-hidden rounded-sm bg-sandDeep">
+                {slot.base === null ? (
+                  <p className="flex h-full items-center justify-center px-4 text-center text-sm text-inkMuted">
+                    {slot.pending}
+                  </p>
+                ) : (
+                  <a href={`${slot.base}-1600.webp`} target="_blank" rel="noreferrer" className="block h-full">
+                    {/* Statički export: next/image ovdje ne optimizira (images.unoptimized), pa običan img sa srcset. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`${slot.base}-800.webp`}
+                      srcSet={PHOTO_WIDTHS.map((w) => `${slot.base}-${w}.webp ${w}w`).join(", ")}
+                      sizes="(min-width: 640px) 33vw, 100vw"
+                      alt={t(`beta.photoAlt.${slot.key}`, { place })}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
+                    />
+                  </a>
+                )}
+                {slot.key === "render" && slot.base !== null && (
+                  <span className="absolute left-2 top-2 rounded-full bg-ink/80 px-2.5 py-0.5 text-xs font-medium text-cream">
+                    {t("beta.photoRenderBadge")}
+                  </span>
+                )}
+              </div>
+              <figcaption className="mt-2 text-sm text-inkSoft">
+                <span className="text-inkMuted">{i + 1}. </span>
+                {slot.caption}
+              </figcaption>
               {slot.key === "render" && slot.base !== null && (
-                <span className="absolute left-2 top-2 rounded-full bg-ink/80 px-2.5 py-0.5 text-xs font-medium text-cream">
+                <p className="mt-1 text-xs text-inkMuted">{t("beta.photoRenderNote")}</p>
+              )}
+            </figure>
+          </li>
+        ))}
+      </ol>
+      <PhotoViewer slots={slots} place={place} />
+    </>
+  );
+}
+
+type PhotoSlot = {
+  readonly key: "before" | "render" | "after";
+  readonly base: string | null;
+  readonly caption: string;
+  readonly pending: string;
+};
+
+/**
+ * Desktop (xl): jedna velika slika i tri sličice umjesto tri slike u redu — ista
+ * visina nosi veću sliku. Oznaka „AI vizualizacija" stoji i na velikoj slici i na
+ * sličici, iz istog razloga kao u ProjectPhotos.
+ */
+function PhotoViewer({ slots, place }: { slots: readonly PhotoSlot[]; place: string }) {
+  const { t } = useT();
+  const [selected, setSelected] = useState(() => Math.max(0, slots.findIndex((s) => s.base !== null)));
+  const slot = slots[selected]!;
+  return (
+    <figure className="mt-5 hidden xl:block">
+      <div className="relative aspect-video overflow-hidden rounded-sm bg-sandDeep">
+        {slot.base === null ? (
+          <p className="flex h-full items-center justify-center px-4 text-center text-sm text-inkMuted">{slot.pending}</p>
+        ) : (
+          <a href={`${slot.base}-1600.webp`} target="_blank" rel="noreferrer" className="block h-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              key={slot.base}
+              src={`${slot.base}-800.webp`}
+              srcSet={PHOTO_WIDTHS.map((w) => `${slot.base}-${w}.webp ${w}w`).join(", ")}
+              sizes="40vw"
+              alt={t(`beta.photoAlt.${slot.key}`, { place })}
+              decoding="async"
+              className="h-full w-full object-cover"
+            />
+          </a>
+        )}
+        {slot.key === "render" && slot.base !== null && (
+          <span className="absolute left-2 top-2 rounded-full bg-ink/80 px-2.5 py-0.5 text-xs font-medium text-cream">
+            {t("beta.photoRenderBadge")}
+          </span>
+        )}
+      </div>
+      <figcaption className="mt-2 text-sm text-inkSoft">
+        <span className="text-inkMuted">{selected + 1}. </span>
+        {slot.caption}
+        {slot.key === "render" && slot.base !== null && (
+          <span className="mt-0.5 block text-xs text-inkMuted">{t("beta.photoRenderNote")}</span>
+        )}
+      </figcaption>
+      <ol className="mt-3 grid grid-cols-3 gap-3">
+        {slots.map((s, i) => (
+          <li key={s.key}>
+            <button
+              type="button"
+              aria-pressed={i === selected}
+              aria-label={`${i + 1}. ${s.caption}`}
+              onClick={() => setSelected(i)}
+              className={`relative block aspect-video w-full overflow-hidden rounded-sm bg-sandDeep ring-offset-2 ${
+                i === selected ? "ring-2 ring-forest" : "opacity-80 hover:opacity-100"
+              }`}
+            >
+              {s.base === null ? (
+                <span className="flex h-full items-center justify-center px-2 text-center text-xs text-inkMuted">
+                  {i + 1}. {s.caption}
+                </span>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={`${s.base}-${PHOTO_WIDTHS[0]}.webp`}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover"
+                />
+              )}
+              {s.key === "render" && s.base !== null && (
+                <span className="absolute left-1 top-1 rounded-full bg-ink/80 px-1.5 py-px text-[10px] font-medium text-cream">
                   {t("beta.photoRenderBadge")}
                 </span>
               )}
-            </div>
-            <figcaption className="mt-2 text-sm text-inkSoft">
-              <span className="text-inkMuted">{i + 1}. </span>
-              {slot.caption}
-            </figcaption>
-            {slot.key === "render" && slot.base !== null && (
-              <p className="mt-1 text-xs text-inkMuted">{t("beta.photoRenderNote")}</p>
-            )}
-          </figure>
-        </li>
-      ))}
-    </ol>
+            </button>
+          </li>
+        ))}
+      </ol>
+    </figure>
   );
 }
 

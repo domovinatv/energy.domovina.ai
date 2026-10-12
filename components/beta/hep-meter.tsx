@@ -29,9 +29,10 @@ export function HepMeter({ hep }: { hep: BetaHep }) {
   const vrste = new Set(godina.map((p) => p.vrsta));
 
   return (
-    <div className="mt-8 border-t border-ink/8 pt-6">
-      <h3 className="font-medium text-ink">{t("beta.hepTitle")}</h3>
-      <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+    // xl: vodoravno ispod elektrane i uplata (podaci lijevo, graf desno); 2xl: vlastiti stupac.
+    <div className="mt-8 border-t border-ink/8 pt-6 xl:grid xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] xl:gap-x-8 2xl:mt-0 2xl:block 2xl:border-t-0 2xl:pt-0">
+      <h3 className="font-medium text-ink xl:col-span-2">{t("beta.hepTitle")}</h3>
+      <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-2">
         <HepFact label={t("beta.hepOmm")} value={mjesto.omm} mono />
         <HepFact label={t("beta.hepMeter")} value={mjesto.broj_brojila} mono />
         <HepFact label={t("beta.hepAddress")} value={mjesto.adresa} />
@@ -56,11 +57,11 @@ export function HepMeter({ hep }: { hep: BetaHep }) {
       </dl>
 
       {godina.length > 0 && (
-        <figure className="mt-6">
+        <figure className="mt-6 xl:col-start-2 xl:row-span-3 xl:row-start-2 xl:mt-3 2xl:mt-6">
           <figcaption className="text-xs uppercase tracking-wide text-inkMuted">
             {t("beta.hepChart")} <span className="normal-case">(kWh)</span>
           </figcaption>
-          <ol className="mt-3 flex h-40 items-end gap-1 sm:gap-1.5" aria-label={t("beta.hepChart")}>
+          <ol className="mt-3 flex h-40 items-end xl:h-32 gap-1 sm:gap-1.5" aria-label={t("beta.hepChart")}>
             {godina.map((p) => (
               <li
                 key={p.od}

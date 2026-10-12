@@ -61,6 +61,11 @@
     @apply mx-auto w-full max-w-content px-5 sm:px-8 lg:px-12;
   }
 
+  /* /beta/: do xl isto kao container-content; na desktopu širi, da stupci stanu bez skrolanja. */
+  .container-wide {
+    @apply mx-auto w-full max-w-content px-5 sm:px-8 lg:px-12 xl:max-w-wide;
+  }
+
   .eyebrow {
     @apply inline-flex items-center gap-2 rounded-full bg-forest/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-forest-800;
   }

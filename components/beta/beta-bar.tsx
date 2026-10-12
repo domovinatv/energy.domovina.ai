@@ -11,13 +11,13 @@ export function BetaBar() {
   return (
     <header className="border-b border-ink/8 bg-cream print:hidden">
       <div className="bg-forest text-cream">
-        <div className="container-content flex items-center gap-2 py-2 text-xs">
+        <div className="container-wide flex items-center gap-2 py-2 text-xs">
           <span aria-hidden="true" className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-solar" />
           <span className="sm:hidden">{t("beta.barShort")}</span>
           <span className="hidden sm:inline">{t("beta.bar")}</span>
         </div>
       </div>
-      <div className="container-content flex items-center justify-between gap-4 py-4">
+      <div className="container-wide flex items-center justify-between gap-4 py-4">
         <Link href="/beta/" className="font-display text-lg font-semibold text-ink">
           {BRAND.name}
         </Link>
