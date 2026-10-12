@@ -1026,6 +1026,7 @@ export const hr = {
   "verify.errKey": "Ključ nije učitan: {error}",
   "verify.resultOk": "Potvrda je ispravna: nijedan korak nije pao.",
   "verify.resultFail": "Potvrda NIJE ispravna: barem jedan korak je pao.",
+  "verify.resultEmpty": "Ova potvrda je kriptografski ispravna, ali ne potvrđuje nijednu uplatu (0 €): uplata uz nju stigla je bez reference ili još nije stigla. Potvrđene uplate nosi potvrda kojoj je referenca stigla u opisu.",
   "verify.resultPending": "Neki koraci još čekaju (sidrenje u 00:00 UTC, Bitcoin atestacija). To nije greška; provjeru ponovi kasnije.",
   "verify.paymentsCount": "Broj uplata",
   "verify.inputs": "Provjerene datoteke",

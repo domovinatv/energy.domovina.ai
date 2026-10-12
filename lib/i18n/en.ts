@@ -986,6 +986,7 @@ export const en: Catalog = {
   "verify.errKey": "Key not loaded: {error}",
   "verify.resultOk": "The receipt is valid: no step failed.",
   "verify.resultFail": "The receipt is NOT valid: at least one step failed.",
+  "verify.resultEmpty": "This receipt is cryptographically valid but confirms no payment (€0): its payment arrived without the reference or has not arrived yet. Confirmed payments are on the receipt whose reference did arrive in the description.",
   "verify.resultPending": "Some steps are still pending (anchoring at 00:00 UTC, Bitcoin attestation). That is not an error; verify again later.",
   "verify.paymentsCount": "Payments",
   "verify.inputs": "Verified files",

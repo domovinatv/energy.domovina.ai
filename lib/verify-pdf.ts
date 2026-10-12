@@ -70,6 +70,8 @@ export async function buildVerifyPdf(
 
   const ok = report.result === "ok";
   paragraph(l, ok ? t("verify.resultOk") : t("verify.resultFail"), semibold, 13, { color: ok ? FOREST : hex(RUST) });
+  if (report.payments === 0) paragraph(l, t("verify.resultEmpty"), regular, 9.5, { color: INK });
+  if (report.checks.some((c) => c.status === "pending")) paragraph(l, t("verify.resultPending"), regular, 9, { color: MUTED });
   l.gap(6);
   // Hashevi i adrese u Courieru (ASCII); ostalo u Interu (€, crtica, razmak u iznosu).
   const rows: [string, string, boolean][] = [

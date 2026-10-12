@@ -261,6 +261,7 @@ export function VerifyPage() {
             <p className={`font-display text-lg font-semibold ${report.result === "ok" ? "text-forest" : "text-rust"}`}>
               {report.result === "ok" ? t("verify.resultOk") : t("verify.resultFail")}
             </p>
+            {report.payments === 0 && <p className="mt-1 text-sm font-medium text-ink">{t("verify.resultEmpty")}</p>}
             {pendingAny && <p className="mt-1 text-sm text-inkSoft">{t("verify.resultPending")}</p>}
             <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
               <dt className="text-xs uppercase tracking-wide text-inkMuted">{t("receipt.sid")}</dt>
