@@ -134,7 +134,10 @@ Odgovor (oba poziva):
 
 ## 4. Što napraviti u ovom repou
 
-Sve iza zastavice (pravilo iz `docs/12` §2.1), dok se ne prođe test s 1 €.
+Prvo je išlo iza zastavice `?potvrda=1` (pravilo iz `docs/12` §2.1). **Odluka 12. 10. 2026.:** zastavica
+je uklonjena, „Želim potvrdu o uplati" je **uvijek prikazano i uključeno po zadanom** (uplatitelj ga
+može isključiti). Nakon stvaranja intenta piše da ključ postoji samo u tom pregledniku, lokalno, i
+nije poslan ni spremljen nigdje drugdje.
 
 | # | Datoteka | Što |
 |---|---|---|
@@ -171,7 +174,7 @@ Riječi: „potvrda o uplati", „ključ potvrde", „naknadno potvrđeno (isti 
 
 ## 5. Test na produkciji (1 €)
 
-1. Zastavica uključena samo za sebe (npr. query `?potvrda=1` ili `localStorage`).
+1. ~~Zastavica uključena samo za sebe~~ — od 12. 10. potvrda je uključena za sve (§4).
 2. Lukavec (`0x4f7f…0173`), 1 €, „Želim potvrdu", preuzmi ključ, plati iz Revoluta skenom QR-a.
 3. U opisu naloga mora pisati cijeli `sid` od 26 znakova (glavna nepoznanica, rail ADR 0022,
    otvoreno pitanje 1).

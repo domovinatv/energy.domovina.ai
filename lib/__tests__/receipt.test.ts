@@ -22,7 +22,6 @@ import {
   type ReceiptDeps,
 } from "@/lib/receipt-api";
 import { createPaymentIntent, type IntentResult } from "@/lib/mpt-intent";
-import { receiptFlagFrom } from "@/lib/receipt-flag";
 
 /** Zlatni vektor iz railovog testa (docs/16 §3.1) — mora dati bajt-identičan sid. */
 const PK: Hex = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";
@@ -281,14 +280,5 @@ describe("mapiranje statusa i kanonski JSON", () => {
 
   it("kanonski JSON: sortirani ključevi, bez undefined", () => {
     expect(canonicalJson({ b: 1, a: { d: [2, null], c: "x" }, z: undefined })).toBe('{"a":{"c":"x","d":[2,null]},"b":1}');
-  });
-});
-
-describe("zastavica", () => {
-  it("URL ima prednost, inače zapamćeno", () => {
-    expect(receiptFlagFrom("", null)).toBe(false);
-    expect(receiptFlagFrom("?potvrda=1", null)).toBe(true);
-    expect(receiptFlagFrom("", "1")).toBe(true);
-    expect(receiptFlagFrom("?potvrda=0", "1")).toBe(false);
   });
 });

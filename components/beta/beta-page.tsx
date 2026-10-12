@@ -24,7 +24,6 @@ import {
 import { fetchSafeActivity, type SafeActivity } from "@/lib/beta-chain";
 import { createPaymentIntent, type IntentResult, type PaymentIntent } from "@/lib/mpt-intent";
 import type { ReceiptKey } from "@/lib/receipt-keys";
-import { useReceiptFlag } from "@/lib/receipt-flag";
 import { IntentPanel } from "@/components/beta/intent-panel";
 import { HepMeter } from "@/components/beta/hep-meter";
 import { BETA_HEP } from "@/lib/beta-hep";
@@ -629,9 +628,8 @@ function PayWithIntent({ safe, onPayment }: { safe: Address; onPayment: (p: Pend
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<IntentResult | null>(null);
   const [intent, setIntent] = useState<PaymentIntent | null>(null);
-  // Potvrda o uplati (docs/16): samo iza zastavice `?potvrda=1`.
-  const receiptFlag = useReceiptFlag();
-  const [wantReceipt, setWantReceipt] = useState(false);
+  // Potvrda o uplati (docs/16): uključena po zadanom, uplatitelj je može isključiti.
+  const [wantReceipt, setWantReceipt] = useState(true);
   const [receipt, setReceipt] = useState<{ key: ReceiptKey; saved: boolean } | null>(null);
   const amountEur = preset ?? parseAmountEur(custom);
 
@@ -639,7 +637,7 @@ function PayWithIntent({ safe, onPayment }: { safe: Address; onPayment: (p: Pend
     if (amountEur === null || busy) return;
     setBusy(true);
     setError(null);
-    if (receiptFlag && wantReceipt) {
+    if (wantReceipt) {
       // viem (~76 KB gz) se učita tek kad netko traži potvrdu, ne na svakoj /beta/ stranici.
       const [{ createReceiptIntent }, { receiptKeyStore }] = await Promise.all([
         import("@/lib/receipt-api"),
@@ -711,20 +709,18 @@ function PayWithIntent({ safe, onPayment }: { safe: Address; onPayment: (p: Pend
         )}
       </fieldset>
 
-      {receiptFlag && (
-        <label className="mt-4 flex items-start gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
-            checked={wantReceipt}
-            onChange={(e) => setWantReceipt(e.target.checked)}
-            className="mt-0.5 h-4 w-4 accent-forest"
-          />
-          <span>
-            <span className="font-medium">{t("receipt.toggle")}</span>
-            <span className="mt-1 block text-xs text-inkMuted">{t("receipt.toggleHint")}</span>
-          </span>
-        </label>
-      )}
+      <label className="mt-4 flex items-start gap-2 text-sm text-ink">
+        <input
+          type="checkbox"
+          checked={wantReceipt}
+          onChange={(e) => setWantReceipt(e.target.checked)}
+          className="mt-0.5 h-4 w-4 accent-forest"
+        />
+        <span>
+          <span className="font-medium">{t("receipt.toggle")}</span>
+          <span className="mt-1 block text-xs text-inkMuted">{t("receipt.toggleHint")}</span>
+        </span>
+      </label>
 
       <button
         type="button"

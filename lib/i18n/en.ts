@@ -881,7 +881,8 @@ export const en: Catalog = {
   "receipt.toggle": "I want a payment receipt",
   "receipt.toggleHint":
     "Your browser creates a receipt key and derives the payment reference from it. Once the payment arrives, the key proves that you made it, with no account and no sign-in. Earlier payments from the same IBAN are confirmed retroactively.",
-  "receipt.keySaved": "The receipt key is saved in this browser. Get the receipt on this device.",
+  "receipt.keySaved":
+    "The receipt key exists only in this browser, stored locally (offline). It is not sent or stored anywhere else, not even with us. Get the receipt on this device or keep a backup copy.",
   "receipt.keyNotSaved":
     "This browser does not allow saving (private mode?). Download the receipt key before paying, otherwise you will not be able to get the receipt.",
   "receipt.keyDownload": "Download a backup of the key",

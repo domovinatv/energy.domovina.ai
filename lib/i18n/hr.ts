@@ -919,7 +919,8 @@ export const hr = {
   "receipt.toggle": "Želim potvrdu o uplati",
   "receipt.toggleHint":
     "Preglednik napravi ključ potvrde i iz njega referencu plaćanja. Kad uplata stigne, ključem dokazuješ da si baš ti platio, bez računa i bez prijave. Ranije uplate s istog IBAN-a dobiju potvrdu naknadno.",
-  "receipt.keySaved": "Ključ potvrde je spremljen u ovom pregledniku. Potvrdu preuzmi na ovom uređaju.",
+  "receipt.keySaved":
+    "Ključ potvrde postoji samo u ovom pregledniku, lokalno (offline). Nije poslan ni spremljen nigdje drugdje, ni kod nas. Potvrdu preuzmi na ovom uređaju ili sačuvaj rezervnu kopiju.",
   "receipt.keyNotSaved":
     "Preglednik ne dopušta spremanje (privatni način?). Preuzmi ključ potvrde prije plaćanja, inače potvrdu nećeš moći preuzeti.",
   "receipt.keyDownload": "Preuzmi rezervnu kopiju ključa",
