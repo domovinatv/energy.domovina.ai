@@ -17,6 +17,8 @@ import { searchStore } from "@/lib/url-state";
 import { formatDateShort, formatEurPrecise } from "@/lib/format";
 import { BETA_PROJECTS, gnosisscanTxUrl } from "@/lib/beta-projects";
 import { downloadFile } from "@/lib/download";
+// Samo tip: sam modul (pdf-lib, fontkit) se učitava dinamički u loadPdfAssets.
+import type * as ReceiptPdf from "@/lib/receipt-pdf";
 import { isReceiptSid } from "@/lib/receipt-sid";
 import {
   canonicalJson,
@@ -40,6 +42,42 @@ import {
   receiptKeyStore,
   type ReceiptKey,
 } from "@/lib/receipt-keys";
+
+/**
+ * pdf-lib, fontkit i tri fonta (~0,8 MB) — učitaju se jednom, u pozadini, čim se
+ * otvori potvrda, ne na klik: „Preuzmi PDF" tada radi i bez mreže (PDF nastaje
+ * isključivo u pregledniku). Neuspjelo učitavanje se ne pamti, klik pokuša ponovno.
+ */
+let pdfAssets: Promise<{
+  buildReceiptPdf: typeof ReceiptPdf.buildReceiptPdf;
+  receiptPdfFileName: typeof ReceiptPdf.receiptPdfFileName;
+  fonts: ReceiptPdf.ReceiptPdfFonts;
+}> | null = null;
+
+function loadPdfAssets() {
+  pdfAssets ??= (async () => {
+    const mod = await import("@/lib/receipt-pdf");
+    const load = async (url: string) => {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`font ${res.status}`);
+      return new Uint8Array(await res.arrayBuffer());
+    };
+    const [regular, semibold, display] = await Promise.all([
+      load(mod.RECEIPT_PDF_FONT_URLS.regular),
+      load(mod.RECEIPT_PDF_FONT_URLS.semibold),
+      load(mod.RECEIPT_PDF_FONT_URLS.display),
+    ]);
+    return {
+      buildReceiptPdf: mod.buildReceiptPdf,
+      receiptPdfFileName: mod.receiptPdfFileName,
+      fonts: { regular, semibold, display },
+    };
+  })().catch((e: unknown) => {
+    pdfAssets = null;
+    throw e;
+  });
+  return pdfAssets;
+}
 
 function subscribeKey(onChange: () => void): () => void {
   window.addEventListener("storage", onChange);
@@ -156,6 +194,10 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
   const statusKey = receiptStatusKey(rc.status);
   const hasRecipients = rc.payments.some((p) => p.target_address);
   const [pdf, setPdf] = useState<"idle" | "busy" | "error">("idle");
+  // PDF mora nastati i bez mreže u trenutku klika: modul i fontovi u pozadini odmah.
+  useEffect(() => {
+    loadPdfAssets().catch(() => {});
+  }, []);
 
   return (
     <>
@@ -166,19 +208,9 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
           onClick={async () => {
             setPdf("busy");
             try {
-              // pdf-lib, fontkit i fontovi (~0,8 MB) tek na klik, ne pri otvaranju stranice.
-              const { buildReceiptPdf, receiptPdfFileName, RECEIPT_PDF_FONT_URLS } = await import("@/lib/receipt-pdf");
-              const load = async (url: string) => {
-                const res = await fetch(url);
-                if (!res.ok) throw new Error(`font ${res.status}`);
-                return new Uint8Array(await res.arrayBuffer());
-              };
-              const [regular, semibold, display] = await Promise.all([
-                load(RECEIPT_PDF_FONT_URLS.regular),
-                load(RECEIPT_PDF_FONT_URLS.semibold),
-                load(RECEIPT_PDF_FONT_URLS.display),
-              ]);
-              const bytes = await buildReceiptPdf(rc, key, { regular, semibold, display }, {
+              // Sve je već učitano pri otvaranju potvrde (loadPdfAssets), pa klik radi i offline.
+              const { buildReceiptPdf, receiptPdfFileName, fonts } = await loadPdfAssets();
+              const bytes = await buildReceiptPdf(rc, key, fonts, {
                 t,
                 formatEur: formatEurPrecise,
                 formatDate: (iso) => formatDateShort(iso, locale),

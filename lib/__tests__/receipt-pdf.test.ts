@@ -5,7 +5,7 @@ import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument } from "pdf-lib";
 import { hr } from "@/lib/i18n/hr";
 import { formatDateShort, formatEurPrecise } from "@/lib/format";
-import { buildReceiptPdf, RECEIPT_PDF_FONT_URLS, wrapText, type ReceiptPdfFonts } from "@/lib/receipt-pdf";
+import { buildReceiptPdf, monoSafe, RECEIPT_PDF_FONT_URLS, wrapText, type ReceiptPdfFonts } from "@/lib/receipt-pdf";
 import { StandardFonts } from "pdf-lib";
 import type { Receipt } from "@/lib/receipt-api";
 
@@ -106,5 +106,20 @@ describe("PDF potvrde", () => {
     const pl = wrapText(prose, mono, 9, 200);
     expect(pl.join(" ").replace(/\s+/g, "")).toBe(prose.replace(/\s+/g, ""));
     for (const line of pl) expect(mono.widthOfTextAtSize(line, 9)).toBeLessThanOrEqual(200.01);
+  });
+
+  it("dijakritike u labelu (JSON ide u Courier) ne ruše PDF", async () => {
+    const rc: Receipt = { ...RC, intent: { ...RC.intent, label: "Članarina čćđšž — „test”" } };
+    const bytes = await buildReceiptPdf(rc, null, FONTS, {
+      t,
+      formatEur: formatEurPrecise,
+      formatDate: (iso) => formatDateShort(iso, "hr"),
+      generatedAt: "12. 10. 2026. 09:00",
+    });
+    expect(bytes.length).toBeGreaterThan(1000);
+    // Escapeani JSON je ista vrijednost.
+    const json = JSON.stringify({ label: rc.intent.label });
+    expect(monoSafe(json)).toMatch(/^[\x20-\x7e]*$/);
+    expect(JSON.parse(monoSafe(json))).toEqual({ label: rc.intent.label });
   });
 });

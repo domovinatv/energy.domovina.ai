@@ -86,6 +86,15 @@ class Layout {
 }
 
 /**
+ * Ugrađeni Courier je WinAnsi i baca na „č" (`WinAnsi cannot encode`). Sve što
+ * ide u Courier prolazi ovdje: znak izvan ispisivog ASCII-ja postaje `\uXXXX`.
+ * Za kanonski JSON to je ista vrijednost (parsira se jednako); točni bajtovi su
+ * u „Preuzmi potvrdu (JSON)". Isto rješenje kao rail `receipts/client/pdf.ts`.
+ */
+export const monoSafe = (text: string) =>
+  text.replace(/[^\x20-\x7e\n]/g, (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, "0")}`);
+
+/**
  * Prelamanje po riječima; predugačka „riječ" (hash, kanonski JSON) se lomi po
  * znakovima. ⚠️ Linearno: kanonski JSON velike potvrde je ~30 KB bez ijednog
  * razmaka. Prva verzija skraćivala je takvu riječ znak po znak i svaki put
@@ -214,11 +223,11 @@ export async function buildReceiptPdf(
   // ── polja ──
   const labelW = 150;
   const fields: [string, string, PDFFont][] = [
-    [t("receipt.sid"), rc.sid, mono],
+    [t("receipt.sid"), monoSafe(rc.sid), mono],
     [t("receipt.label"), rc.intent.label ?? "—", regular],
-    [t("receipt.target"), rc.intent.target_address, mono],
+    [t("receipt.target"), monoSafe(rc.intent.target_address), mono],
     ...(rc.payments.length > 0 ? [[t("receipt.total"), text.formatEur(total), semibold] as [string, string, PDFFont]] : []),
-    [t("receipt.owner"), pub.owner ?? t("receipt.ownerMissing"), pub.owner ? mono : regular],
+    [t("receipt.owner"), pub.owner ? monoSafe(pub.owner) : t("receipt.ownerMissing"), pub.owner ? mono : regular],
   ];
   for (const [label, value, font] of fields) {
     const lines = wrapText(value, font, 10, CONTENT_W - labelW);
@@ -280,7 +289,7 @@ export async function buildReceiptPdf(
       kindLines.forEach((line, i) =>
         l.page.drawText(line, { x: C.kind.x, y: top - i * 12, size: 9, font: regular, color: INK }),
       );
-      l.page.drawText(p.tx_hash !== null ? `${p.tx_hash.slice(0, 14)}…` : "—", {
+      l.page.drawText(p.tx_hash !== null ? `${monoSafe(p.tx_hash.slice(0, 14))}...` : "—", {
         x: C.tx.x,
         y: top,
         size: 8,
@@ -301,7 +310,7 @@ export async function buildReceiptPdf(
     if (rc.payments.some((p) => p.anchor === null)) paragraph(l, t("receipt.anchorNote"), regular, 8, { color: MUTED });
     // Puni hashevi transakcija: u tablici su skraćeni, a dokaz mora biti provjerljiv iz PDF-a.
     for (const p of rc.payments) {
-      if (p.tx_hash !== null) paragraph(l, `tx ${p.tx_hash}`, mono, 7, { color: MUTED, leading: 10 });
+      if (p.tx_hash !== null) paragraph(l, monoSafe(`tx ${p.tx_hash}`), mono, 7, { color: MUTED, leading: 10 });
     }
   }
   if (!rc.lazy_included) paragraph(l, t("receipt.lazyOwnerOnly"), regular, 8, { color: MUTED });
@@ -329,11 +338,11 @@ export async function buildReceiptPdf(
   for (const a of anchors) {
     l.gap(4);
     paragraph(l, t("receipt.anchorLink", { id: a.anchor_id }), semibold, 9);
-    paragraph(l, otsUrl(a.anchor_id), mono, 8, { color: FOREST });
-    paragraph(l, `${t("receipt.anchorRoot")} ${a.root}`, mono, 7.5, { color: MUTED });
+    paragraph(l, monoSafe(otsUrl(a.anchor_id)), mono, 8, { color: FOREST });
+    paragraph(l, monoSafe(`${t("receipt.anchorRoot")} ${a.root}`), mono, 7.5, { color: MUTED });
   }
   l.gap(4);
-  paragraph(l, `salt: ${pub.salt ?? "—"}`, mono, 8, { color: MUTED });
+  paragraph(l, monoSafe(`salt: ${pub.salt ?? "-"}`), mono, 8, { color: MUTED });
   l.gap(12);
 
   // ── QR ──
@@ -347,7 +356,7 @@ export async function buildReceiptPdf(
   l.ensure(40);
   paragraph(l, t("receipt.jsonTitle"), semibold, 12);
   l.gap(4);
-  paragraph(l, json, mono, 7, { leading: 9 });
+  paragraph(l, monoSafe(json), mono, 7, { leading: 9 });
 
   // ── podnožje na svakoj stranici ──
   const pages = doc.getPages();
