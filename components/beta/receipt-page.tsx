@@ -480,8 +480,8 @@ function PartB({ receiptKey: key }: { receiptKey: ReceiptKey }) {
         </button>
       </div>
       {short && <p className="mt-2 text-sm text-rust">{t("receipt.lockShort")}</p>}
-      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start xl:flex-col xl:gap-3">
-        <Qr text={secret} className="w-48 shrink-0" />
+      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start xl:gap-3">
+        <Qr text={secret} className="w-48 shrink-0 xl:w-40" />
         <div className="min-w-0">
           <pre className="whitespace-pre-wrap break-all rounded-sm bg-sand p-3 font-mono text-[11px] text-ink">{secret}</pre>
           <p className="mt-2 text-xs text-inkMuted">{locked !== null ? t("receipt.locked") : t("receipt.unlocked")}</p>
