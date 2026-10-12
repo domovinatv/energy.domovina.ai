@@ -23,6 +23,8 @@ import {
 } from "@/lib/beta-projects";
 import { fetchSafeActivity, type SafeActivity } from "@/lib/beta-chain";
 import { createPaymentIntent, type IntentResult, type PaymentIntent } from "@/lib/mpt-intent";
+import type { ReceiptKey } from "@/lib/receipt-keys";
+import { useReceiptFlag } from "@/lib/receipt-flag";
 import { IntentPanel } from "@/components/beta/intent-panel";
 import { HepMeter } from "@/components/beta/hep-meter";
 import { BETA_HEP } from "@/lib/beta-hep";
@@ -627,14 +629,33 @@ function PayWithIntent({ safe, onPayment }: { safe: Address; onPayment: (p: Pend
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<IntentResult | null>(null);
   const [intent, setIntent] = useState<PaymentIntent | null>(null);
+  // Potvrda o uplati (docs/16): samo iza zastavice `?potvrda=1`.
+  const receiptFlag = useReceiptFlag();
+  const [wantReceipt, setWantReceipt] = useState(false);
+  const [receipt, setReceipt] = useState<{ key: ReceiptKey; saved: boolean } | null>(null);
   const amountEur = preset ?? parseAmountEur(custom);
 
   async function pay() {
     if (amountEur === null || busy) return;
     setBusy(true);
     setError(null);
+    if (receiptFlag && wantReceipt) {
+      // viem (~76 KB gz) se učita tek kad netko traži potvrdu, ne na svakoj /beta/ stranici.
+      const [{ createReceiptIntent }, { receiptKeyStore }] = await Promise.all([
+        import("@/lib/receipt-api"),
+        import("@/lib/receipt-keys"),
+      ]);
+      const result = await createReceiptIntent(safe, amountEur, receiptKeyStore);
+      setBusy(false);
+      if (result.ok && result.key !== null) {
+        setReceipt({ key: result.key, saved: result.saved });
+        setIntent(result.intent);
+      } else if (!result.ok) setError(result);
+      return;
+    }
     const result = await createPaymentIntent(safe, amountEur);
     setBusy(false);
+    setReceipt(null);
     if (result.ok) setIntent(result.intent);
     else setError(result);
   }
@@ -646,6 +667,7 @@ function PayWithIntent({ safe, onPayment }: { safe: Address; onPayment: (p: Pend
       {intent !== null ? (
         <IntentPanel
           intent={intent}
+          receipt={receipt}
           onClose={() => setIntent(null)}
           onPayment={onPayment}
           copyRow={(label, value, copy, mono) => <Row label={label} value={value} copy={copy} mono={mono} />}
@@ -688,6 +710,21 @@ function PayWithIntent({ safe, onPayment }: { safe: Address; onPayment: (p: Pend
           <p className="mt-2 text-xs text-rust">{t("beta.amountInvalid", { max: formatEur(MAX_AMOUNT_EUR * 100) })}</p>
         )}
       </fieldset>
+
+      {receiptFlag && (
+        <label className="mt-4 flex items-start gap-2 text-sm text-ink">
+          <input
+            type="checkbox"
+            checked={wantReceipt}
+            onChange={(e) => setWantReceipt(e.target.checked)}
+            className="mt-0.5 h-4 w-4 accent-forest"
+          />
+          <span>
+            <span className="font-medium">{t("receipt.toggle")}</span>
+            <span className="mt-1 block text-xs text-inkMuted">{t("receipt.toggleHint")}</span>
+          </span>
+        </label>
+      )}
 
       <button
         type="button"

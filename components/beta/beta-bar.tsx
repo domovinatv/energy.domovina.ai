@@ -9,7 +9,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 export function BetaBar() {
   const { t } = useT();
   return (
-    <header className="border-b border-ink/8 bg-cream">
+    <header className="border-b border-ink/8 bg-cream print:hidden">
       <div className="bg-forest text-cream">
         <div className="container-content flex items-center gap-2 py-2 text-xs">
           <span aria-hidden="true" className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-solar" />

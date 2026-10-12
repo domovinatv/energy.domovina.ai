@@ -36,7 +36,7 @@ export interface PaymentIntent {
 
 export type IntentResult =
   | { ok: true; intent: PaymentIntent }
-  | { ok: false; reason: "not_whitelisted" | "invalid_amount" | "network" | "unknown" };
+  | { ok: false; reason: "not_whitelisted" | "invalid_amount" | "sid_conflict" | "network" | "unknown" };
 
 export type IntentStage =
   | "awaiting_payment"
@@ -84,13 +84,26 @@ interface IntentJson {
   error?: string;
 }
 
-export async function createPaymentIntent(target: Address, amountEur: number): Promise<IntentResult> {
+/**
+ * `receiptSid` (docs/16 §3.2): `sid` izveden iz ključa uplatitelja postaje sid
+ * intenta, pa ga `memo` i EPC QR nose u opisu naloga. `409` = taj `sid` već
+ * postoji; pozivatelj napravi novi ključ (`createReceiptIntent`).
+ */
+export async function createPaymentIntent(
+  target: Address,
+  amountEur: number,
+  opts: { receiptSid?: string } = {},
+): Promise<IntentResult> {
   let res: Response;
   try {
     res = await fetch(RAIL_API_BASE, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ target_address: target, amount_eur: amountEur.toFixed(2) }),
+      body: JSON.stringify({
+        target_address: target,
+        amount_eur: amountEur.toFixed(2),
+        ...(opts.receiptSid !== undefined ? { sid: opts.receiptSid } : {}),
+      }),
     });
   } catch {
     return { ok: false, reason: "network" };
@@ -113,6 +126,7 @@ export async function createPaymentIntent(target: Address, amountEur: number): P
       },
     };
   }
+  if (res.status === 409 || b.error === "sid_already_exists") return { ok: false, reason: "sid_conflict" };
   if (b.error === "target_not_whitelisted") return { ok: false, reason: "not_whitelisted" };
   if (b.error === "invalid_amount_eur" || b.error === "amount_out_of_range") return { ok: false, reason: "invalid_amount" };
   return { ok: false, reason: "unknown" };

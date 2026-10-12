@@ -15,7 +15,7 @@ import { useT } from "@/lib/i18n";
 export function SiteFooter() {
   const { t } = useT();
   return (
-    <footer className="mt-16 border-t border-ink/8 bg-sand">
+    <footer className="mt-16 border-t border-ink/8 bg-sand print:hidden">
       <div className="container-content grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <p className="font-display text-base font-semibold text-ink">{BRAND.name}</p>

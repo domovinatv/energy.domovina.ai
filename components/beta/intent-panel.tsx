@@ -21,17 +21,26 @@ import {
   type PaymentIntent,
 } from "@/lib/mpt-intent";
 import type { PendingPayment } from "@/lib/pending-payments";
+import type { ReceiptKey } from "@/lib/receipt-keys";
+import { downloadFile } from "@/lib/download";
 
 /** PDF417 opcije iz HUB3 v6 — bwip-js ih prima, ali njegovi tipovi ih ne navode. */
 const HUB3_PDF417 = { columns: 9, eclevel: 4, rowmult: 3 };
 
 export function IntentPanel({
   intent,
+  receipt,
   onClose,
   onPayment,
   copyRow,
 }: {
   intent: PaymentIntent;
+  /**
+   * Intent s potvrdom o uplati (docs/16): ključ iz kojeg je izveden `intent.sid`.
+   * `saved = false` → preglednik ga nije spremio, pa se QR pokaže tek nakon
+   * preuzimanja datoteke ključa.
+   */
+  receipt: { key: ReceiptKey; saved: boolean } | null;
   onClose: () => void;
   /** Javlja zaprimljenu uplatu (i kasnije hash forwarda) — pribroji se odmah. */
   onPayment: (p: PendingPayment) => void;
@@ -46,18 +55,23 @@ export function IntentPanel({
   });
   const [transport, setTransport] = useState<IntentTransport>("poll");
   const [code, setCode] = useState<"qr" | "hub3">("qr");
+  const [keyDownloaded, setKeyDownloaded] = useState(false);
+  // Bez spremljenog ključa uplata bi nadživjela ključ: QR tek nakon preuzimanja.
+  const qrBlocked = receipt !== null && !receipt.saved && !keyDownloaded;
 
   // HUB3 PDF417 (pokus, pay.domovina.ai docs/research/aircash/05): parametri
   // iz HUB3 v6 specifikacije — 9 stupaca, ECL 4, redak 3× modul. Dart `barcode`
   // paket daje simbol koji zxing ne čita; bwip-js prolazi i zxing i Apple Vision.
+  // U modu s potvrdom HUB3 se ne nudi: opis uplatnice ne nosi `sid`, pa takva
+  // uplata nikad ne dobiva izravnu potvrdu (docs/16 §4.1).
   const hub3Svg = useMemo(() => {
-    if (intent.hub3Data === null) return null;
+    if (intent.hub3Data === null || receipt !== null) return null;
     try {
       return toSVG({ bcid: "pdf417", text: intent.hub3Data, paddingwidth: 4, paddingheight: 4, ...HUB3_PDF417 });
     } catch {
       return null;
     }
-  }, [intent.hub3Data]);
+  }, [intent.hub3Data, receipt]);
 
   // ⚠️ Revolut iOS NE čita gust EPC QR iscrtan sitno: ≥ 320 px, tiha zona 4
   // modula, ECC M (pay.domovina.ai memorija feedback_epc_format). EPC tekst je
@@ -110,7 +124,30 @@ export function IntentPanel({
     <div data-transport={transport} className="mt-4 sm:rounded-sm sm:border sm:border-ink/10 sm:bg-white sm:p-5">
       <StageBanner stage={stage} amount={amount} reviewExpected={status.reviewExpected} />
 
-      {stage === "awaiting_payment" && (
+      {receipt !== null && stage === "awaiting_payment" && (
+        <div className="mt-4 max-w-[320px] rounded-sm border border-forest/30 bg-forest/5 p-3 text-xs text-inkSoft">
+          <p className={receipt.saved ? "" : "font-medium text-rust"}>
+            {receipt.saved ? t("receipt.keySaved") : t("receipt.keyNotSaved")}
+          </p>
+          <p className="mt-1">{t("receipt.keyWarning")}</p>
+          <button
+            type="button"
+            onClick={() => {
+              // Isti oblik kao `keyFileName`/`keyFileJson` u lib/receipt-keys.ts; ovdje
+              // bez importa, da viem ne uđe u paket svake /beta/ stranice.
+              downloadFile(`mpt-kljuc-${receipt.key.sid}.json`, JSON.stringify(receipt.key, null, 2));
+              setKeyDownloaded(true);
+            }}
+            className="mt-2 text-sm font-medium text-forest underline underline-offset-2"
+          >
+            {t("receipt.keyDownload")}
+          </button>
+          {keyDownloaded && <span className="ml-2 text-forest">{t("receipt.keyDownloaded")}</span>}
+          {intent.hub3Data !== null && <p className="mt-2">{t("receipt.hub3Hidden")}</p>}
+        </div>
+      )}
+
+      {stage === "awaiting_payment" && !qrBlocked && (
         <>
           {hub3Svg !== null && (
             <div role="tablist" className="mt-4 flex max-w-[320px] gap-1 text-sm">
@@ -170,12 +207,21 @@ export function IntentPanel({
         </>
       )}
 
+      {receipt !== null && (isReceived(stage) || stage === "settled") && (
+        <a
+          href={`/beta/potvrda/?sid=${encodeURIComponent(intent.sid)}`}
+          className="mt-4 inline-block rounded-sm bg-forest px-4 py-2.5 text-sm font-medium text-cream hover:bg-forest-700"
+        >
+          {t("receipt.open")}
+        </a>
+      )}
+
       {stage === "settled" && status.forwardTxHash !== null && (
         <a
           href={gnosisscanTxUrl(status.forwardTxHash)}
           target="_blank"
           rel="noreferrer"
-          className="mt-3 inline-block text-sm text-forest underline underline-offset-2"
+          className="mt-3 block text-sm text-forest underline underline-offset-2"
         >
           {t("beta.intentTx")}
         </a>
