@@ -82,7 +82,7 @@ export function BetaProjectPage({ slug }: { slug: string }) {
   const project = BETA_PROJECTS.find((p) => p.slug === slug);
   if (project === undefined) return null;
   return (
-    <div className="container-wide py-8 sm:py-12 xl:py-5">
+    <div className="container-wide py-8 sm:py-12 xl:py-3">
       <Link href="/beta/" className="text-sm text-forest underline underline-offset-2">
         {t("beta.backToList")}
       </Link>
@@ -181,16 +181,25 @@ function ProjectSection({ project }: { project: BetaProject }) {
   const pending = usePending(project.safe ?? "");
   // Povećanje odmah ponovno pročita lanac (kad rail javi forward).
   const [refreshKey, setRefreshKey] = useState(0);
+  // Otvoren QR (2xl): uplata dobije dva stupca (QR | podaci) i mjesto HEP stupca; HEP ide ispod.
+  const [paying, setPaying] = useState(false);
   const onPayment = (p: PendingPayment) => {
     if (project.safe === null) return;
     savePending(project.safe, p);
     if (p.txHash !== null) setRefreshKey((k) => k + 1);
   };
   // Desktop bez skrolanja: na xl tri stupca (elektrana | uplate | uplata) i HEP
-  // vodoravno ispod prva dva, na 2xl četiri stupca (HEP dobije svoj). Mobilni i tablet poredak je nepromijenjen:
+  // vodoravno ispod prva dva, na 2xl četiri stupca (HEP dobije svoj). Dok je QR
+  // otvoren, na 2xl uplata uzme HEP-ov stupac i postane dvostupčana. Mobilni i tablet poredak je nepromijenjen:
   // omotač uplata/plaćanja na xl postaje `contents`, pa su njegova djeca stavke mreže.
   return (
-    <section className="rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7 xl:grid xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_400px] xl:grid-rows-[auto_1fr] xl:gap-x-8 2xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(0,1.15fr)_400px] 2xl:grid-rows-1 2xl:gap-x-7">
+    <section
+      className={`rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7 xl:grid xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_400px] xl:grid-rows-[auto_1fr] xl:gap-x-8 2xl:gap-x-7 ${
+        paying
+          ? "2xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(680px,1.6fr)]"
+          : "2xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(0,1.15fr)_400px] 2xl:grid-rows-1"
+      }`}
+    >
       <div className="xl:col-start-1 xl:row-start-1">
         <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-1">
           <div>
@@ -237,8 +246,10 @@ function ProjectSection({ project }: { project: BetaProject }) {
             </p>
           </div>
           {isPayable(project) ? (
-            <div className="xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:self-start 2xl:col-start-4">
-              <PayWithIntent safe={project.safe} onPayment={onPayment} />
+            <div
+              className={`xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:self-start ${paying ? "" : "2xl:col-start-4"}`}
+            >
+              <PayWithIntent safe={project.safe} onPayment={onPayment} onOpenChange={setPaying} />
             </div>
           ) : (
             <div className="rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:self-start 2xl:col-start-4">
@@ -255,8 +266,10 @@ function ProjectSection({ project }: { project: BetaProject }) {
       )}
 
       {BETA_HEP[project.slug] !== undefined && (
-        <div className="xl:col-span-2 xl:col-start-1 xl:row-start-2 2xl:col-span-1 2xl:col-start-3 2xl:row-start-1">
-          <HepMeter hep={BETA_HEP[project.slug]!} />
+        <div
+          className={`xl:col-span-2 xl:col-start-1 xl:row-start-2 ${paying ? "" : "2xl:col-span-1 2xl:col-start-3 2xl:row-start-1"}`}
+        >
+          <HepMeter hep={BETA_HEP[project.slug]!} stacked={!paying} />
         </div>
       )}
     </section>
@@ -341,7 +354,8 @@ function PhotoViewer({ slots, place }: { slots: readonly PhotoSlot[]; place: str
   const slot = slots[selected]!;
   return (
     <figure className="mt-5 hidden xl:block">
-      <div className="relative aspect-video overflow-hidden rounded-sm bg-sandDeep">
+      {/* Fluidna širina: visina slike prati visinu prozora, inače bi stupac gurnuo stranicu u skrolanje. */}
+      <div className="relative aspect-video max-h-[max(15rem,calc(100vh-36rem))] w-full overflow-hidden rounded-sm bg-sandDeep">
         {slot.base === null ? (
           <p className="flex h-full items-center justify-center px-4 text-center text-sm text-inkMuted">{slot.pending}</p>
         ) : (
@@ -730,13 +744,25 @@ function LiveActivity({
  * Iznos se bira ovdje jer je OBAVEZAN u EPC QR-u — bez njega Revolut ne popuni
  * opis plaćanja. QR, opis `mpt:<safe>?sid=` i potvrdu uživo daje rail checkout.
  */
-function PayWithIntent({ safe, onPayment }: { safe: Address; onPayment: (p: PendingPayment) => void }) {
+function PayWithIntent({
+  safe,
+  onPayment,
+  onOpenChange,
+}: {
+  safe: Address;
+  onPayment: (p: PendingPayment) => void;
+  onOpenChange: (open: boolean) => void;
+}) {
   const { t } = useT();
   const [preset, setPreset] = useState<number | null>(DEFAULT_AMOUNT_EUR);
   const [custom, setCustom] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<IntentResult | null>(null);
-  const [intent, setIntent] = useState<PaymentIntent | null>(null);
+  const [intent, setIntentState] = useState<PaymentIntent | null>(null);
+  const setIntent = (i: PaymentIntent | null) => {
+    setIntentState(i);
+    onOpenChange(i !== null);
+  };
   // Potvrda o uplati (docs/16): uključena po zadanom, uplatitelj je može isključiti.
   const [wantReceipt, setWantReceipt] = useState(true);
   const [receipt, setReceipt] = useState<{ key: ReceiptKey; saved: boolean } | null>(null);

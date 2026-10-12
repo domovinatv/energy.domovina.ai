@@ -176,7 +176,7 @@ export function VerifyPage() {
   return (
     // Desktop (xl): lijevo datoteke i ishod, desno koraci u dva stupca — cijela
     // provjera stane na ekran. Ispod xl jedan stupac, kao prije.
-    <div className="container-wide max-w-3xl py-8 xl:max-w-wide xl:grid xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] xl:items-start xl:gap-x-10 xl:py-6">
+    <div className="container-wide max-w-3xl py-8 xl:max-w-none xl:grid xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] xl:items-start xl:gap-x-10 xl:py-6">
       <div>
         <h1 className="font-display text-2xl font-semibold text-ink">{t("verify.title")}</h1>
         <p className="mt-2 text-sm text-inkSoft">{t("verify.intro")}</p>

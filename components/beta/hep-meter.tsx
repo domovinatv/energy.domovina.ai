@@ -19,7 +19,8 @@ import {
  * razdoblja nosi i oblik (puna / blijeda / prugasta traka) i legendu, nikad
  * samo boju.
  */
-export function HepMeter({ hep }: { hep: BetaHep }) {
+/** `stacked`: na 2xl vlastiti uski stupac; inače i na 2xl vodoravno ispod (kao na xl). */
+export function HepMeter({ hep, stacked = true }: { hep: BetaHep; stacked?: boolean }) {
   const { t, locale } = useT();
   const { mjesto } = hep;
   const ocitanje = zadnjeOcitanje(mjesto);
@@ -30,7 +31,11 @@ export function HepMeter({ hep }: { hep: BetaHep }) {
 
   return (
     // xl: vodoravno ispod elektrane i uplata (podaci lijevo, graf desno); 2xl: vlastiti stupac.
-    <div className="mt-8 border-t border-ink/8 pt-6 xl:grid xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] xl:gap-x-8 2xl:mt-0 2xl:block 2xl:border-t-0 2xl:pt-0">
+    <div
+      className={`mt-8 border-t border-ink/8 pt-6 xl:grid xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] xl:gap-x-8 ${
+        stacked ? "2xl:mt-0 2xl:block 2xl:border-t-0 2xl:pt-0" : ""
+      }`}
+    >
       <h3 className="font-medium text-ink xl:col-span-2">{t("beta.hepTitle")}</h3>
       <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-2">
         <HepFact label={t("beta.hepOmm")} value={mjesto.omm} mono />
@@ -57,7 +62,7 @@ export function HepMeter({ hep }: { hep: BetaHep }) {
       </dl>
 
       {godina.length > 0 && (
-        <figure className="mt-6 xl:col-start-2 xl:row-span-3 xl:row-start-2 xl:mt-3 2xl:mt-6">
+        <figure className={`mt-6 xl:col-start-2 xl:row-span-3 xl:row-start-2 xl:mt-3 ${stacked ? "2xl:mt-6" : ""}`}>
           <figcaption className="text-xs uppercase tracking-wide text-inkMuted">
             {t("beta.hepChart")} <span className="normal-case">(kWh)</span>
           </figcaption>

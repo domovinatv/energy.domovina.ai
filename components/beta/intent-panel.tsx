@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 import { toSVG } from "bwip-js/browser";
 import { useT } from "@/lib/i18n";
+import { useMediaQuery } from "@/lib/media-query";
 import { gnosisscanTxUrl } from "@/lib/beta-projects";
 import {
   isReceived,
@@ -57,6 +58,7 @@ export function IntentPanel({
   const [transport, setTransport] = useState<IntentTransport>("poll");
   const [code, setCode] = useState<"qr" | "hub3">("qr");
   const [keyDownloaded, setKeyDownloaded] = useState(false);
+  const wide = useMediaQuery("(min-width: 1536px)");
   // Bez spremljenog ključa uplata bi nadživjela ključ: QR tek nakon preuzimanja.
   const qrBlocked = receipt !== null && !receipt.saved && !keyDownloaded;
 
@@ -119,133 +121,151 @@ export function IntentPanel({
 
   const stage = status.stage;
   const amount = `${intent.amountEur.replace(".", ",")} €`;
+  const showQr = stage === "awaiting_payment" && !qrBlocked;
+  // Široki stupac uplate (2xl, beta-page): QR lijevo, sve ostalo desno — panel ne
+  // mora biti visok koliko QR i podaci zajedno. Ispod 2xl redoslijed je kao prije.
+  const split = wide && showQr;
+
+  const qrBlock = (
+    <>
+      {hub3Svg !== null && (
+        <div role="tablist" className="mt-4 flex max-w-[320px] gap-1 text-sm">
+          {(["qr", "hub3"] as const).map((c) => (
+            <button
+              key={c}
+              type="button"
+              role="tab"
+              aria-selected={code === c}
+              onClick={() => setCode(c)}
+              className={`flex-1 rounded-sm px-3 py-1.5 ${code === c ? "bg-ink text-cream" : "bg-sand text-inkSoft"}`}
+            >
+              {c === "qr" ? t("beta.codeQr") : t("beta.codeHub3")}
+            </button>
+          ))}
+        </div>
+      )}
+      {code === "hub3" && hub3Svg !== null ? (
+        <>
+          <div
+            data-code="hub3"
+            className="mt-4 w-full max-w-[320px] bg-white [&_svg]:h-auto [&_svg]:w-full [&_svg]:[shape-rendering:crispEdges]"
+            dangerouslySetInnerHTML={{ __html: hub3Svg }}
+          />
+          <p className="mt-2 max-w-[320px] text-xs text-inkMuted">{t("beta.hub3Scan")}</p>
+        </>
+      ) : (
+        <>
+          {svg !== null ? (
+            <div
+              className="mt-4 aspect-square w-full max-w-[320px] bg-white [&_svg]:h-full [&_svg]:w-full [&_svg]:[shape-rendering:crispEdges]"
+              dangerouslySetInnerHTML={{ __html: svg }}
+            />
+          ) : (
+            <div className="mt-4 aspect-square w-full max-w-[320px] bg-sand" />
+          )}
+          <p className="mt-2 max-w-[320px] text-xs text-inkMuted">{t("beta.intentScan", { amount })}</p>
+        </>
+      )}
+    </>
+  );
 
   return (
     // Na mobitelu bez vlastitog okvira i paddinga: svaki piksel ide QR-u (≥ 320 px na 414 px ekranu).
-    <div data-transport={transport} className="mt-4 sm:rounded-sm sm:border sm:border-ink/10 sm:bg-white sm:p-5">
-      <StageBanner stage={stage} amount={amount} reviewExpected={status.reviewExpected} />
+    <div
+      data-transport={transport}
+      className={`mt-4 sm:rounded-sm sm:border sm:border-ink/10 sm:bg-white sm:p-5 ${
+        split ? "grid grid-cols-[320px_minmax(0,1fr)] gap-x-6" : ""
+      }`}
+    >
+      {split && <div className="[&>:first-child]:mt-0">{qrBlock}</div>}
+      <div>
+        <StageBanner stage={stage} amount={amount} reviewExpected={status.reviewExpected} />
 
-      {receipt !== null && stage === "awaiting_payment" && (
-        <div className="mt-4 max-w-[320px] rounded-sm border border-forest/30 bg-forest/5 p-3 text-xs text-inkSoft">
-          <p className={receipt.saved ? "" : "font-medium text-rust"}>
-            {receipt.saved ? t("receipt.keySaved") : t("receipt.keyNotSaved")}
-          </p>
-          <p className="mt-1">{t("receipt.keyWarning")}</p>
-          <button
-            type="button"
-            onClick={() => {
-              // Isti oblik kao `keyFileJson` u lib/receipt-keys.ts; ovdje bez importa,
-              // da viem ne uđe u paket svake /beta/ stranice.
-              downloadFile(keyBackupFileName(receipt.key.sid, false), JSON.stringify(receipt.key, null, 2));
-              setKeyDownloaded(true);
-            }}
-            className="mt-2 text-sm font-medium text-forest underline underline-offset-2"
-          >
-            {t("receipt.keyDownload")}
-          </button>
-          {keyDownloaded && <span className="ml-2 text-forest">{t("receipt.keyDownloaded")}</span>}
-          {intent.hub3Data !== null && <p className="mt-2">{t("receipt.hub3Hidden")}</p>}
-        </div>
-      )}
-
-      {stage === "awaiting_payment" && !qrBlocked && (
-        <>
-          {hub3Svg !== null && (
-            <div role="tablist" className="mt-4 flex max-w-[320px] gap-1 text-sm">
-              {(["qr", "hub3"] as const).map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  role="tab"
-                  aria-selected={code === c}
-                  onClick={() => setCode(c)}
-                  className={`flex-1 rounded-sm px-3 py-1.5 ${code === c ? "bg-ink text-cream" : "bg-sand text-inkSoft"}`}
-                >
-                  {c === "qr" ? t("beta.codeQr") : t("beta.codeHub3")}
-                </button>
-              ))}
-            </div>
-          )}
-          {code === "hub3" && hub3Svg !== null ? (
-            <>
-              <div
-                data-code="hub3"
-                className="mt-4 w-full max-w-[320px] bg-white [&_svg]:h-auto [&_svg]:w-full [&_svg]:[shape-rendering:crispEdges]"
-                dangerouslySetInnerHTML={{ __html: hub3Svg }}
-              />
-              <p className="mt-2 max-w-[320px] text-xs text-inkMuted">{t("beta.hub3Scan")}</p>
-            </>
-          ) : (
-            <>
-              {svg !== null ? (
-                <div
-                  className="mt-4 aspect-square w-full max-w-[320px] bg-white [&_svg]:h-full [&_svg]:w-full [&_svg]:[shape-rendering:crispEdges]"
-                  dangerouslySetInnerHTML={{ __html: svg }}
-                />
-              ) : (
-                <div className="mt-4 aspect-square w-full max-w-[320px] bg-sand" />
-              )}
-              <p className="mt-2 max-w-[320px] text-xs text-inkMuted">{t("beta.intentScan", { amount })}</p>
-            </>
-          )}
-          {/* Revolut iOS od 7.10.2026.: kad stanje pokriva iznos, nakon skeniranja otvara
-              ekran „spremno za isplatu" BEZ opisa plaćanja. Format QR-a nije uzrok.
-              Od 8.10. rail takvu uplatu veže uz intent po tenantu, točnom iznosu i
-              vremenu (pay.domovina.ai ADR 0018, prozor 48 h); kad kandidati vode na
-              različite Safeove, parkira je za ručno preusmjeravanje. Zato napomena
-              više nije upozorenje. */}
-          {receipt !== null ? (
-            // Za potvrdu iznos i vrijeme NISU dokaz (rail ADR 0022): sidro nastaje samo kad
-            // opis počinje s `mpt:` i nosi sid (`monerium/sid.ts` extractRoutingTarget).
-            // Sam sid u opisu ne vrijedi — zato se kopira cijela referenca.
-            <div data-receipt-reference className="mt-3 max-w-[320px] rounded-sm border border-solar/60 bg-solar-soft p-3 text-xs text-ink">
-              <p className="text-sm font-medium">{t("receipt.referenceTitle")}</p>
-              <p className="mt-1">{t("receipt.referenceText")}</p>
-              <dl className="mt-2 text-sm">{copyRow(t("beta.reference"), intent.memo, intent.memo, true)}</dl>
-            </div>
-          ) : (
-            <p className="mt-3 max-w-[320px] rounded-sm border border-ink/10 bg-sand p-3 text-xs text-inkSoft">
-              {t("beta.revolutReference")}
+        {receipt !== null && stage === "awaiting_payment" && (
+          <div className="mt-4 max-w-[320px] rounded-sm border border-forest/30 bg-forest/5 p-3 text-xs text-inkSoft">
+            <p className={receipt.saved ? "" : "font-medium text-rust"}>
+              {receipt.saved ? t("receipt.keySaved") : t("receipt.keyNotSaved")}
             </p>
-          )}
-          <dl className="mt-4 space-y-2 text-sm">
-            {copyRow(t("beta.beneficiary"), intent.beneficiaryName)}
-            {copyRow(t("beta.iban"), intent.iban.replace(/(.{4})/g, "$1 ").trim(), intent.iban)}
-            {intent.bic !== null && copyRow(t("beta.bic"), intent.bic)}
-            {copyRow(t("beta.amount"), amount, intent.amountEur)}
-            {copyRow(t("beta.reference"), intent.memo, intent.memo, true)}
-          </dl>
-          <p className="mt-2 text-xs text-inkMuted">{t("beta.referenceExact")}</p>
-        </>
-      )}
+            <p className="mt-1">{t("receipt.keyWarning")}</p>
+            <button
+              type="button"
+              onClick={() => {
+                // Isti oblik kao `keyFileJson` u lib/receipt-keys.ts; ovdje bez importa,
+                // da viem ne uđe u paket svake /beta/ stranice.
+                downloadFile(keyBackupFileName(receipt.key.sid, false), JSON.stringify(receipt.key, null, 2));
+                setKeyDownloaded(true);
+              }}
+              className="mt-2 text-sm font-medium text-forest underline underline-offset-2"
+            >
+              {t("receipt.keyDownload")}
+            </button>
+            {keyDownloaded && <span className="ml-2 text-forest">{t("receipt.keyDownloaded")}</span>}
+            {intent.hub3Data !== null && <p className="mt-2">{t("receipt.hub3Hidden")}</p>}
+          </div>
+        )}
 
-      {receipt !== null && (isReceived(stage) || stage === "settled") && (
-        <a
-          href={`/beta/potvrda/?sid=${encodeURIComponent(intent.sid)}`}
-          className="mt-4 inline-block rounded-sm bg-forest px-4 py-2.5 text-sm font-medium text-cream hover:bg-forest-700"
+        {showQr && (
+          <>
+            {!split && qrBlock}
+            {/* Revolut iOS od 7.10.2026.: kad stanje pokriva iznos, nakon skeniranja otvara
+                ekran „spremno za isplatu" BEZ opisa plaćanja. Format QR-a nije uzrok.
+                Od 8.10. rail takvu uplatu veže uz intent po tenantu, točnom iznosu i
+                vremenu (pay.domovina.ai ADR 0018, prozor 48 h); kad kandidati vode na
+                različite Safeove, parkira je za ručno preusmjeravanje. Zato napomena
+                više nije upozorenje. */}
+            {receipt !== null ? (
+              // Za potvrdu iznos i vrijeme NISU dokaz (rail ADR 0022): sidro nastaje samo kad
+              // opis počinje s `mpt:` i nosi sid (`monerium/sid.ts` extractRoutingTarget).
+              // Sam sid u opisu ne vrijedi — zato se kopira cijela referenca.
+              <div data-receipt-reference className="mt-3 max-w-[320px] rounded-sm border border-solar/60 bg-solar-soft p-3 text-xs text-ink">
+                <p className="text-sm font-medium">{t("receipt.referenceTitle")}</p>
+                <p className="mt-1">{t("receipt.referenceText")}</p>
+                <dl className="mt-2 text-sm">{copyRow(t("beta.reference"), intent.memo, intent.memo, true)}</dl>
+              </div>
+            ) : (
+              <p className="mt-3 max-w-[320px] rounded-sm border border-ink/10 bg-sand p-3 text-xs text-inkSoft">
+                {t("beta.revolutReference")}
+              </p>
+            )}
+            <dl className="mt-4 space-y-2 text-sm">
+              {copyRow(t("beta.beneficiary"), intent.beneficiaryName)}
+              {copyRow(t("beta.iban"), intent.iban.replace(/(.{4})/g, "$1 ").trim(), intent.iban)}
+              {intent.bic !== null && copyRow(t("beta.bic"), intent.bic)}
+              {copyRow(t("beta.amount"), amount, intent.amountEur)}
+              {copyRow(t("beta.reference"), intent.memo, intent.memo, true)}
+            </dl>
+            <p className="mt-2 text-xs text-inkMuted">{t("beta.referenceExact")}</p>
+          </>
+        )}
+
+        {receipt !== null && (isReceived(stage) || stage === "settled") && (
+          <a
+            href={`/beta/potvrda/?sid=${encodeURIComponent(intent.sid)}`}
+            className="mt-4 inline-block rounded-sm bg-forest px-4 py-2.5 text-sm font-medium text-cream hover:bg-forest-700"
+          >
+            {t("receipt.open")}
+          </a>
+        )}
+
+        {stage === "settled" && status.forwardTxHash !== null && (
+          <a
+            href={gnosisscanTxUrl(status.forwardTxHash)}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 block text-sm text-forest underline underline-offset-2"
+          >
+            {t("beta.intentTx")}
+          </a>
+        )}
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-4 block text-sm text-inkSoft underline underline-offset-2"
         >
-          {t("receipt.open")}
-        </a>
-      )}
-
-      {stage === "settled" && status.forwardTxHash !== null && (
-        <a
-          href={gnosisscanTxUrl(status.forwardTxHash)}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-3 block text-sm text-forest underline underline-offset-2"
-        >
-          {t("beta.intentTx")}
-        </a>
-      )}
-
-      <button
-        type="button"
-        onClick={onClose}
-        className="mt-4 block text-sm text-inkSoft underline underline-offset-2"
-      >
-        {isTerminal(stage) || isReceived(stage) ? t("beta.intentNew") : t("beta.intentCancel")}
-      </button>
+          {isTerminal(stage) || isReceived(stage) ? t("beta.intentNew") : t("beta.intentCancel")}
+        </button>
+      </div>
     </div>
   );
 }
