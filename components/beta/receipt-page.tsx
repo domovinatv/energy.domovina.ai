@@ -10,6 +10,7 @@
  * se potvrda traži potpisanim POST-om (vidi i naknadno potvrđene uplate), bez
  * njega javnim GET-om (samo izravna).
  */
+import Link from "next/link";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import QRCode from "qrcode";
 import { useT, type MessageKey } from "@/lib/i18n";
@@ -17,6 +18,8 @@ import { searchStore } from "@/lib/url-state";
 import { formatDateShort, formatEurPrecise } from "@/lib/format";
 import { BETA_PROJECTS, gnosisscanTxUrl } from "@/lib/beta-projects";
 import { downloadFile } from "@/lib/download";
+import { keyBackupFileName } from "@/lib/receipt-index";
+import { loadPdfFonts } from "@/lib/pdf-fonts";
 // Samo tip: sam modul (pdf-lib, fontkit) se učitava dinamički u loadPdfAssets.
 import type * as ReceiptPdf from "@/lib/receipt-pdf";
 import { isReceiptSid } from "@/lib/receipt-sid";
@@ -35,7 +38,6 @@ import {
   encryptKey,
   isKeyFor,
   keyFileJson,
-  keyFileName,
   parseKeyFile,
   RECEIPT_KEY_EVENT,
   RECEIPT_STORE_PREFIX,
@@ -56,22 +58,8 @@ let pdfAssets: Promise<{
 
 function loadPdfAssets() {
   pdfAssets ??= (async () => {
-    const mod = await import("@/lib/receipt-pdf");
-    const load = async (url: string) => {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`font ${res.status}`);
-      return new Uint8Array(await res.arrayBuffer());
-    };
-    const [regular, semibold, display] = await Promise.all([
-      load(mod.RECEIPT_PDF_FONT_URLS.regular),
-      load(mod.RECEIPT_PDF_FONT_URLS.semibold),
-      load(mod.RECEIPT_PDF_FONT_URLS.display),
-    ]);
-    return {
-      buildReceiptPdf: mod.buildReceiptPdf,
-      receiptPdfFileName: mod.receiptPdfFileName,
-      fonts: { regular, semibold, display },
-    };
+    const [mod, fonts] = await Promise.all([import("@/lib/receipt-pdf"), loadPdfFonts()]);
+    return { buildReceiptPdf: mod.buildReceiptPdf, receiptPdfFileName: mod.receiptPdfFileName, fonts };
   })().catch((e: unknown) => {
     pdfAssets = null;
     throw e;
@@ -215,6 +203,7 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
                 formatEur: formatEurPrecise,
                 formatDate: (iso) => formatDateShort(iso, locale),
                 generatedAt: new Date().toLocaleString(locale === "en" ? "en-GB" : "hr-HR"),
+                verifyUrl: `${window.location.origin}/beta/provjera/`,
               });
               downloadFile(receiptPdfFileName(rc.sid), new Uint8Array(bytes), "application/pdf");
               setPdf("idle");
@@ -235,6 +224,9 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
         </button>
       </div>
       {pdf === "error" && <p className="mt-2 text-sm text-rust">{t("receipt.pdfError")}</p>}
+      <Link href="/beta/provjera/" className="mt-3 inline-block text-sm text-forest underline underline-offset-2 print:hidden">
+        {t("receipt.verifyLink")}
+      </Link>
 
       <article className="mt-6 rounded-sm border border-ink/10 bg-white p-4 sm:p-6 print:border-0 print:p-0">
         <p className="text-xs text-inkMuted">MPT · {rc.version}</p>
@@ -460,7 +452,7 @@ function PartB({ receiptKey: key }: { receiptKey: ReceiptKey }) {
         </button>
         <button
           type="button"
-          onClick={() => downloadFile(keyFileName(key.sid), locked ?? keyFileJson(key))}
+          onClick={() => downloadFile(keyBackupFileName(key.sid, locked !== null), locked ?? keyFileJson(key))}
           className="rounded-sm border border-ink/15 bg-white px-3 py-1.5 text-sm text-ink"
         >
           {t("receipt.downloadKey")}

@@ -191,3 +191,34 @@ Riječi: „potvrda o uplati", „ključ potvrde", „naknadno potvrđeno (isti 
   doraditi rail (`receipts/link.ts`, `direct_settle` grana u `monerium/forward.ts`).
 - `kind = rcpt1` na lancu čeka `PaymentRegistry` (`safe-tx/004`); potvrda ne ovisi o tome.
 - 24 riječi + passkey, javni repo checkpointa i verifikator: rail ADR 0023.
+
+## 7. Neovisna provjera potvrde (`/beta/provjera/`, 12. 10. 2026.)
+
+Samostalna stranica na koju se učita PDF i/ili JSON potvrde i po želji ključ (otvoren ili
+zaključan lozinkom). Sve radi u pregledniku; datoteke se ne šalju nikamo.
+
+| # | Korak | Kako |
+|---|---|---|
+| 1 | oblik | `version = mpt-receipt-v1`, `chain_id = 100` |
+| 2 | sid | `deriveReceiptSid(owner, salt)` (§3.1) |
+| 3 | ključ | adresa iz `pk` = vlasnik, sid iz ključa = sid, potpis nasumične poruke vraća adresu |
+| 4 | listovi | rail `leafHash` (abi.encode domena, sid, keccak256(order_id), tx, iznos) |
+| 5 | Merkle | sortirani parovi keccak256 do `anchor.root` |
+| 6 | chain_head | rail `chainHead` (ADR 0023 §2) |
+| 7 | checkpoint | isti `chain_head` u `github.com/domovinatv/mpt-receipts-checkpoints` (raw.githubusercontent.com) |
+| 8 | OTS | `.ots` žigosa sha256(chain_head); stablo se ponovno računa do Bitcoin atestacije |
+| 9 | Bitcoin | header bloka s mempool.space i blockstream.info (moraju se slagati), merkle root = rezultat dokaza, vrijeme ≤ 48 h od sidra |
+| 10 | Gnosis | `eth_getTransactionReceipt`: uspjela i nosi EURe `Transfer` točnog iznosa primatelju |
+
+Formule su kopije raila (`lib/receipt-verify.ts`), a test ih uspoređuje s vrijednostima koje je
+izračunao railov kod. Mrežni izvori (7–10) namjerno nisu rail; svi su u CSP-u (`connect-src`).
+Koraci 5–9 su „čeka" dok redak nije sidren (00:00 UTC) i dok Bitcoin ne atestira; to nije pad.
+
+**PDF potvrde nosi kanonski JSON kao privitak** (`mpt-potvrda-<sid>.json`), pa je ista datoteka
+ispisiva i strojno provjerljiva. PDF napravljen prije 12. 10. 2026. privitka nema: preuzeti ponovno.
+Izvještaj o provjeri preuzima se kao PDF (s privicima: izvještaj u JSON-u i točni bajtovi potvrde)
+ili kao JSON (`domovina-energy-receipt-verify-v1`).
+
+**Datoteka ključa** se zove `mpt-kljuc-<sid>-otkljucan-<YYYYMMDD-HHMMSS>.json` ili
+`…-zakljucan-…`, pa nijedno preuzimanje ne prepiše drugo, a otključana i zaključana kopija se
+ne zamijene. Railov uvoz čita bilo koje ime.

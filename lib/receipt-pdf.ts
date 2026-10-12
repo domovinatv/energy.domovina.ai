@@ -35,11 +35,7 @@ export interface ReceiptPdfFonts {
   display: Uint8Array;
 }
 
-export const RECEIPT_PDF_FONT_URLS = {
-  regular: "/fonts/inter-400.ttf",
-  semibold: "/fonts/inter-600.ttf",
-  display: "/fonts/fraunces-600.ttf",
-} as const;
+export { PDF_FONT_URLS as RECEIPT_PDF_FONT_URLS } from "@/lib/pdf-fonts";
 
 export interface ReceiptPdfText {
   t: (key: MessageKey, vars?: Readonly<Record<string, string | number>>) => string;
@@ -47,25 +43,29 @@ export interface ReceiptPdfText {
   formatDate: (iso: string | null) => string;
   /** Kad je PDF napravljen — ide u podnožje. */
   generatedAt: string;
+  /** Adresa stranice za provjeru (npr. https://energy.domovina.ai/beta/provjera/). */
+  verifyUrl: string;
 }
 
 export const receiptPdfFileName = (sid: string) => `potvrda-o-uplati-${sid}.pdf`;
+/** Ime privitka s kanonskim JSON-om u PDF-u; isto ime kao „Preuzmi potvrdu (JSON)". */
+export const receiptJsonFileName = (sid: string) => `mpt-potvrda-${sid}.json`;
 
 // A4 u točkama, margine 48 pt.
-const W = 595.28;
-const H = 841.89;
-const M = 48;
-const CONTENT_W = W - 2 * M;
+export const W = 595.28;
+export const H = 841.89;
+export const M = 48;
+export const CONTENT_W = W - 2 * M;
 
 // pdf-lib ne čita Tailwind, pa boje dolaze iz iste iznimke kao dijagrami
 // (`lib/diagram-colors.ts`, uz svaku boju piše token).
-const hex = (h: string) => rgb(parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255);
-const INK = hex(INK_HEX);
-const MUTED = hex(INK_MUTED);
-const FOREST = hex(FOREST_HEX);
-const RULE = hex(SAND_DEEP);
+export const hex = (h: string) => rgb(parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255);
+export const INK = hex(INK_HEX);
+export const MUTED = hex(INK_MUTED);
+export const FOREST = hex(FOREST_HEX);
+export const RULE = hex(SAND_DEEP);
 
-class Layout {
+export class Layout {
   page: PDFPage;
   y = H - M;
   constructor(private doc: PDFDocument) {
@@ -152,7 +152,7 @@ export function wrapText(text: string, font: PDFFont, size: number, width: numbe
   return lines;
 }
 
-function paragraph(
+export function paragraph(
   l: Layout,
   text: string,
   font: PDFFont,
@@ -169,7 +169,7 @@ function paragraph(
   }
 }
 
-async function drawQr(page: PDFPage, text: string, x: number, y: number, size: number) {
+export async function drawQr(page: PDFPage, text: string, x: number, y: number, size: number) {
   const qr = QRCode.create(text, { errorCorrectionLevel: "M" });
   const n = qr.modules.size;
   const quiet = 2;
@@ -352,6 +352,11 @@ export async function buildReceiptPdf(
   l.page.drawText(t("receipt.qrNote"), { x: M + qrSize + 12, y: l.y - qrSize / 2, size: 9, font: regular, color: MUTED });
   l.gap(qrSize + 14);
 
+  // ── provjera ──
+  l.ensure(30);
+  paragraph(l, t("receipt.pdfVerify", { url: text.verifyUrl }), regular, 9, { color: FOREST });
+  l.gap(10);
+
   // ── kanonski JSON ──
   l.ensure(40);
   paragraph(l, t("receipt.jsonTitle"), semibold, 12);
@@ -363,6 +368,13 @@ export async function buildReceiptPdf(
   pages.forEach((page, i) => {
     const footer = `${t("receipt.title")} · ${rc.sid} · ${text.generatedAt} · ${i + 1}/${pages.length}`;
     page.drawText(footer, { x: M, y: M - 20, size: 7.5, font: regular, color: MUTED });
+  });
+
+  // Strojno čitljivo: točni bajtovi kanonskog JSON-a kao privitak PDF-a. Stranica
+  // za provjeru ga čita iz PDF-a (lib/pdf-attachments.ts), bez parsiranja teksta.
+  await doc.attach(new TextEncoder().encode(json), receiptJsonFileName(rc.sid), {
+    mimeType: "application/json",
+    description: t("receipt.jsonTitle"),
   });
 
   return doc.save();

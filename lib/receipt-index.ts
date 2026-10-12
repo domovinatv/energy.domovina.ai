@@ -83,6 +83,17 @@ export function rememberReceipt(
   }
 }
 
+/**
+ * Ime datoteke ključa: sufiks kaže je li zaključan lozinkom, a vrijeme
+ * preuzimanja čini svako preuzimanje zasebnom datotekom (ništa se ne prepiše,
+ * a otključana i zaključana kopija se ne zamijene). Rail uvoz čita bilo koje ime.
+ */
+export function keyBackupFileName(sid: string, locked: boolean, now: Date = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  const stamp = `${now.getFullYear()}${p(now.getMonth() + 1)}${p(now.getDate())}-${p(now.getHours())}${p(now.getMinutes())}${p(now.getSeconds())}`;
+  return `mpt-kljuc-${sid}-${locked ? "zakljucan" : "otkljucan"}-${stamp}.json`;
+}
+
 export function browserStorage(): Storage | null {
   try {
     return typeof window === "undefined" ? null : window.localStorage;

@@ -84,7 +84,6 @@ export const receiptKeyStore: ReceiptKeyStore = createLocalKeyStore();
 
 // ---------- datoteka ključa ----------
 
-export const keyFileName = (sid: string) => `mpt-kljuc-${sid}.json`;
 export const keyFileJson = (k: ReceiptKey) => JSON.stringify(k, null, 2);
 
 /**

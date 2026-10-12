@@ -23,7 +23,7 @@ import {
   type ReceiptDeps,
 } from "@/lib/receipt-api";
 import { createPaymentIntent, type IntentResult } from "@/lib/mpt-intent";
-import { fetchPublicReceiptSummary, listLocalReceipts, rememberReceipt } from "@/lib/receipt-index";
+import { fetchPublicReceiptSummary, keyBackupFileName, listLocalReceipts, rememberReceipt } from "@/lib/receipt-index";
 
 /** Zlatni vektor iz railovog testa (docs/16 §3.1) — mora dati bajt-identičan sid. */
 const PK: Hex = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";
@@ -340,5 +340,14 @@ describe("popis potvrda iz preglednika", () => {
     expect(await fetchPublicReceiptSummary(SID, ok)).toEqual({ status: "issued", target: "0xabc", amountCents: 100, directCents: 100 });
     expect(await fetchPublicReceiptSummary(SID, (async () => new Response("{}", { status: 404 })) as typeof fetch)).toBeNull();
     expect(await fetchPublicReceiptSummary(SID, (async () => { throw new Error("net"); }) as typeof fetch)).toBeNull();
+  });
+});
+
+describe("ime datoteke ključa", () => {
+  it("sufiks za zaključan/otključan i vrijeme preuzimanja", () => {
+    const d = new Date(2026, 9, 12, 9, 5, 7);
+    expect(keyBackupFileName(SID, false, d)).toBe(`mpt-kljuc-${SID}-otkljucan-20261012-090507.json`);
+    expect(keyBackupFileName(SID, true, d)).toBe(`mpt-kljuc-${SID}-zakljucan-20261012-090507.json`);
+    expect(keyBackupFileName(SID, true, new Date(2026, 9, 12, 9, 5, 8))).not.toBe(keyBackupFileName(SID, true, d));
   });
 });

@@ -23,6 +23,7 @@ import {
 import type { PendingPayment } from "@/lib/pending-payments";
 import type { ReceiptKey } from "@/lib/receipt-keys";
 import { downloadFile } from "@/lib/download";
+import { keyBackupFileName } from "@/lib/receipt-index";
 
 /** PDF417 opcije iz HUB3 v6 — bwip-js ih prima, ali njegovi tipovi ih ne navode. */
 const HUB3_PDF417 = { columns: 9, eclevel: 4, rowmult: 3 };
@@ -133,9 +134,9 @@ export function IntentPanel({
           <button
             type="button"
             onClick={() => {
-              // Isti oblik kao `keyFileName`/`keyFileJson` u lib/receipt-keys.ts; ovdje
-              // bez importa, da viem ne uđe u paket svake /beta/ stranice.
-              downloadFile(`mpt-kljuc-${receipt.key.sid}.json`, JSON.stringify(receipt.key, null, 2));
+              // Isti oblik kao `keyFileJson` u lib/receipt-keys.ts; ovdje bez importa,
+              // da viem ne uđe u paket svake /beta/ stranice.
+              downloadFile(keyBackupFileName(receipt.key.sid, false), JSON.stringify(receipt.key, null, 2));
               setKeyDownloaded(true);
             }}
             className="mt-2 text-sm font-medium text-forest underline underline-offset-2"

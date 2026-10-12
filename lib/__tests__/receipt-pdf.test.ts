@@ -5,6 +5,10 @@ import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument } from "pdf-lib";
 import { hr } from "@/lib/i18n/hr";
 import { formatDateShort, formatEurPrecise } from "@/lib/format";
+import { pdfAttachments } from "@/lib/pdf-attachments";
+import { asReceipt, verifyReceipt } from "@/lib/receipt-verify";
+import { buildVerifyPdf } from "@/lib/verify-pdf";
+import { canonicalJson, receiptPublicPart } from "@/lib/receipt-api";
 import { buildReceiptPdf, monoSafe, RECEIPT_PDF_FONT_URLS, wrapText, type ReceiptPdfFonts } from "@/lib/receipt-pdf";
 import { StandardFonts } from "pdf-lib";
 import type { Receipt } from "@/lib/receipt-api";
@@ -63,6 +67,7 @@ describe("PDF potvrde", () => {
       formatEur: formatEurPrecise,
       formatDate: (iso) => formatDateShort(iso, "hr"),
       generatedAt: "12. 10. 2026. 09:00",
+      verifyUrl: "https://energy.domovina.ai/beta/provjera/",
     });
     expect(new TextDecoder().decode(bytes.slice(0, 5))).toBe("%PDF-");
     // Podskup: puni Inter je ~325 KB po rezu; PDF mora biti puno manji.
@@ -89,6 +94,7 @@ describe("PDF potvrde", () => {
       formatEur: formatEurPrecise,
       formatDate: (iso) => formatDateShort(iso, "hr"),
       generatedAt: "12. 10. 2026. 09:00",
+      verifyUrl: "https://energy.domovina.ai/beta/provjera/",
     });
     expect(Date.now() - started).toBeLessThan(5_000);
     if (process.env.RECEIPT_PDF_OUT) writeFileSync(process.env.RECEIPT_PDF_OUT, bytes);
@@ -115,11 +121,40 @@ describe("PDF potvrde", () => {
       formatEur: formatEurPrecise,
       formatDate: (iso) => formatDateShort(iso, "hr"),
       generatedAt: "12. 10. 2026. 09:00",
+      verifyUrl: "https://energy.domovina.ai/beta/provjera/",
     });
     expect(bytes.length).toBeGreaterThan(1000);
     // Escapeani JSON je ista vrijednost.
     const json = JSON.stringify({ label: rc.intent.label });
     expect(monoSafe(json)).toMatch(/^[\x20-\x7e]*$/);
     expect(JSON.parse(monoSafe(json))).toEqual({ label: rc.intent.label });
+  });
+
+  it("PDF nosi točne bajtove kanonskog JSON-a kao privitak", async () => {
+    const bytes = await buildReceiptPdf(RC, null, FONTS, {
+      t,
+      formatEur: formatEurPrecise,
+      formatDate: (iso) => formatDateShort(iso, "hr"),
+      generatedAt: "12. 10. 2026. 09:00",
+      verifyUrl: "https://energy.domovina.ai/beta/provjera/",
+    });
+    const att = await pdfAttachments(bytes);
+    expect(att.map((a) => a.name)).toEqual([`mpt-potvrda-${RC.sid}.json`]);
+    expect(new TextDecoder().decode(att[0]!.data)).toBe(canonicalJson(receiptPublicPart(RC, null)));
+  });
+
+  it("izvještaj o provjeri: PDF nosi izvještaj (JSON) i točne bajtove potvrde", async () => {
+    const receiptBytes = new TextEncoder().encode(JSON.stringify(RC));
+    const report = await verifyReceipt(asReceipt(RC)!, { net: null });
+    const bytes = await buildVerifyPdf(report, [{ name: "p.json", sha256: "00" }], receiptBytes, FONTS, {
+      t,
+      formatEur: formatEurPrecise,
+      generatedAt: "12. 10. 2026.",
+      verifyUrl: "https://energy.domovina.ai/beta/provjera/",
+    });
+    const att = await pdfAttachments(bytes);
+    const rep = att.find((a) => a.name.startsWith("provjera-potvrde-"));
+    expect(JSON.parse(new TextDecoder().decode(rep!.data))).toMatchObject({ version: "domovina-energy-receipt-verify-v1", sid: RC.sid, result: report.result });
+    expect(att.find((a) => a.name === `mpt-potvrda-${RC.sid}.json`)?.data).toEqual(receiptBytes);
   });
 });
