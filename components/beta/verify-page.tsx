@@ -138,19 +138,35 @@ export function VerifyPage() {
     try {
       let receipt = receiptFile.receipt;
       let key: ReceiptKey | null = null;
+      // Ključ druge potvrde je ODGOVOR na pitanje „je li ovo moja uplata" (ne), a ne
+      // greška datoteke: provjera se izvede, a korak 3 padne u izvještaju i u PDF-u.
+      let keyMismatch = false;
       if (keyFile?.keyText !== undefined) {
         try {
           key = await parseKeyFile(receipt.sid, keyFile.keyText, password);
         } catch (e) {
-          const msg = e instanceof Error && e.message === "wrong_key" ? t("receipt.importWrongKey") : t("receipt.importBadFile");
-          setError(t("verify.errKey", { error: msg }));
-          setRunning(false);
-          return;
+          if (!(e instanceof Error && e.message === "wrong_key")) {
+            setError(t("verify.errKey", { error: t("receipt.importBadFile") }));
+            setRunning(false);
+            return;
+          }
+          keyMismatch = true;
         }
         // Javna potvrda (GET) nema vlasnika i salt; ključ ih daje.
-        if (receipt.owner === null || receipt.salt === null) receipt = { ...receipt, owner: key.owner.toLowerCase(), salt: key.salt };
+        if (key !== null && (receipt.owner === null || receipt.salt === null)) {
+          receipt = { ...receipt, owner: key.owner.toLowerCase(), salt: key.salt };
+        }
       }
-      setReport(await verifyReceipt(receipt, { key, net: network ? browserVerifyNet() : null }));
+      const result = await verifyReceipt(receipt, { key, net: network ? browserVerifyNet() : null });
+      if (keyMismatch) {
+        // receipt-verify.ts je kopija raila (CLAUDE.md), pa se pali korak dodaje ovdje.
+        const checks = result.checks.map((c) =>
+          c.id === "key" ? { ...c, status: "fail" as const, detail: [`${keyFile?.name}: ključ je za drugu potvrdu, ne za ${receipt.sid}`] } : c,
+        );
+        setReport({ ...result, checks, result: "fail" });
+      } else {
+        setReport(result);
+      }
     } finally {
       setRunning(false);
     }
