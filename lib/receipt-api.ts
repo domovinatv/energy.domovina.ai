@@ -124,26 +124,7 @@ export function recipientLabel(
   return p !== undefined ? p.place : `${target.slice(0, 6)}…${target.slice(-4)}`;
 }
 
-export type ReceiptStatusKey =
-  | "receipt.statusIssued"
-  | "receipt.statusAwaiting"
-  | "receipt.statusSettling"
-  | "receipt.statusUnbound"
-  | "receipt.statusNotDelivered"
-  | "receipt.statusUnknown";
-
-/**
- * `status` → tekst (docs/16 §3.3). Rail vraća i `confirmed` (forward potvrđen,
- * izravni redak još nije upisan) — za korisnika je to isto što i `settling`.
- */
-export function receiptStatusKey(status: string): ReceiptStatusKey {
-  if (status === "issued") return "receipt.statusIssued";
-  if (status === "awaiting_payment") return "receipt.statusAwaiting";
-  if (status === "settling" || status === "confirmed") return "receipt.statusSettling";
-  if (status === "unbound_stray") return "receipt.statusUnbound";
-  if (status.startsWith("not_delivered:")) return "receipt.statusNotDelivered";
-  return "receipt.statusUnknown";
-}
+export { receiptStatusKey, type ReceiptStatusKey } from "@/lib/receipt-index";
 
 /**
  * Kanonski JSON kao rail (`canonical`): ključevi sortirani na svakoj razini,

@@ -24,6 +24,8 @@ import {
 import { fetchSafeActivity, type SafeActivity } from "@/lib/beta-chain";
 import { createPaymentIntent, type IntentResult, type PaymentIntent } from "@/lib/mpt-intent";
 import type { ReceiptKey } from "@/lib/receipt-keys";
+import { browserStorage, rememberReceipt } from "@/lib/receipt-index";
+import { MyReceipts } from "@/components/beta/my-receipts";
 import { IntentPanel } from "@/components/beta/intent-panel";
 import { HepMeter } from "@/components/beta/hep-meter";
 import { BETA_HEP } from "@/lib/beta-hep";
@@ -646,6 +648,8 @@ function PayWithIntent({ safe, onPayment }: { safe: Address; onPayment: (p: Pend
       const result = await createReceiptIntent(safe, amountEur, receiptKeyStore);
       setBusy(false);
       if (result.ok && result.key !== null) {
+        // Za popis „Moje uplate iz ovog preglednika" (lib/receipt-index.ts).
+        rememberReceipt(browserStorage(), result.key.sid, safe, Math.round(amountEur * 100));
         setReceipt({ key: result.key, saved: result.saved });
         setIntent(result.intent);
       } else if (!result.ok) setError(result);
@@ -748,6 +752,7 @@ function PayWithIntent({ safe, onPayment }: { safe: Address; onPayment: (p: Pend
       <dl className="mt-4 text-sm">
         <Row label={t("beta.safe")} value={shortAddress(safe)} copy={safe} mono />
       </dl>
+      <MyReceipts safe={safe} />
     </div>
   );
 }

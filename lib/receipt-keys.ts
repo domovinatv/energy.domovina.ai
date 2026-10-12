@@ -14,6 +14,7 @@
 import { bytesToHex, type Hex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { deriveReceiptSid } from "@/lib/receipt-sid";
+import { browserStorage, RECEIPT_KEY_EVENT, RECEIPT_STORE_PREFIX } from "@/lib/receipt-index";
 
 export interface ReceiptKey {
   v: 1;
@@ -30,10 +31,8 @@ export interface ReceiptKeyStore {
   save(key: ReceiptKey): boolean;
 }
 
-/** Isti prefiks kao rail (`STORE_PREFIX`). */
-export const RECEIPT_STORE_PREFIX = "mpt-receipt:";
-/** Javlja promjenu ključa u istoj kartici (`storage` stiže samo iz drugih). */
-export const RECEIPT_KEY_EVENT = "domovina-energy:receipt-key";
+// Konstante žive u viem-free modulu jer ih treba i popis potvrda na stranici projekta.
+export { RECEIPT_KEY_EVENT, RECEIPT_STORE_PREFIX } from "@/lib/receipt-index";
 
 export function newReceiptKey(nowS: number = Math.floor(Date.now() / 1000)): ReceiptKey {
   const pk = generatePrivateKey();
@@ -79,14 +78,6 @@ export function createLocalKeyStore(storage: () => Storage | null = browserStora
       }
     },
   };
-}
-
-function browserStorage(): Storage | null {
-  try {
-    return typeof window === "undefined" ? null : window.localStorage;
-  } catch {
-    return null;
-  }
 }
 
 export const receiptKeyStore: ReceiptKeyStore = createLocalKeyStore();

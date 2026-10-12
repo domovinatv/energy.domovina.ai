@@ -23,6 +23,7 @@ import {
   type ReceiptDeps,
 } from "@/lib/receipt-api";
 import { createPaymentIntent, type IntentResult } from "@/lib/mpt-intent";
+import { fetchPublicReceiptSummary, listLocalReceipts, rememberReceipt } from "@/lib/receipt-index";
 
 /** Zlatni vektor iz railovog testa (docs/16 §3.1) — mora dati bajt-identičan sid. */
 const PK: Hex = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";
@@ -290,5 +291,54 @@ describe("primatelj retka", () => {
     expect(recipientLabel("0x4f7f1950b2cb6713ccb47b869f30c0ebc01d0173", projects)).toBe("Lukavec");
     expect(recipientLabel("0x6693a7d19486dc45e9f90fd2d515d972bba2d65e", projects)).toBe("0x6693…d65e");
     expect(recipientLabel(undefined, projects)).toBeNull();
+  });
+});
+
+describe("popis potvrda iz preglednika", () => {
+  class FullStorage {
+    map = new Map<string, string>();
+    get length() {
+      return this.map.size;
+    }
+    key(i: number) {
+      return [...this.map.keys()][i] ?? null;
+    }
+    getItem(k: string) {
+      return this.map.get(k) ?? null;
+    }
+    setItem(k: string, v: string) {
+      this.map.set(k, v);
+    }
+  }
+
+  it("popis su ključevi, najnoviji prvi; indeks dodaje primatelja i iznos", () => {
+    const s = new FullStorage();
+    s.setItem("mpt-receipt:r1aaaaaaaaaaaaaaaaaaaaaaaa", JSON.stringify({ created_at: 100 }));
+    s.setItem("mpt-receipt:r1bbbbbbbbbbbbbbbbbbbbbbbb", JSON.stringify({ created_at: 200 }));
+    s.setItem("nesto-drugo", "x");
+    s.setItem("mpt-receipt:pokvaren", "{nije json");
+    const storage = s as unknown as Storage;
+    expect(listLocalReceipts(storage).map((e) => e.sid)).toEqual([
+      "r1bbbbbbbbbbbbbbbbbbbbbbbb",
+      "r1aaaaaaaaaaaaaaaaaaaaaaaa",
+    ]);
+    expect(rememberReceipt(storage, "r1aaaaaaaaaaaaaaaaaaaaaaaa", SAFE.toUpperCase().replace("0X", "0x"), 100)).toBe(true);
+    const a = listLocalReceipts(storage).find((e) => e.sid === "r1aaaaaaaaaaaaaaaaaaaaaaaa");
+    expect(a).toMatchObject({ target: SAFE.toLowerCase(), amountCents: 100, createdAt: 100 });
+    expect(listLocalReceipts(null)).toEqual([]);
+  });
+
+  it("javni sažetak: stanje, primatelj, izravni iznos; greška → null", async () => {
+    const ok = (async () =>
+      new Response(
+        JSON.stringify({
+          status: "issued",
+          intent: { target_address: "0xABC", amount_cents: 100 },
+          payments: [{ kind: "direct", amount_cents: 100 }, { kind: "lazy", amount_cents: 500 }],
+        }),
+      )) as typeof fetch;
+    expect(await fetchPublicReceiptSummary(SID, ok)).toEqual({ status: "issued", target: "0xabc", amountCents: 100, directCents: 100 });
+    expect(await fetchPublicReceiptSummary(SID, (async () => new Response("{}", { status: 404 })) as typeof fetch)).toBeNull();
+    expect(await fetchPublicReceiptSummary(SID, (async () => { throw new Error("net"); }) as typeof fetch)).toBeNull();
   });
 });
