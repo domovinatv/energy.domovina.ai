@@ -19,6 +19,7 @@ import {
   fetchReceipt,
   receiptRequestMessage,
   receiptStatusKey,
+  recipientLabel,
   type ReceiptDeps,
 } from "@/lib/receipt-api";
 import { createPaymentIntent, type IntentResult } from "@/lib/mpt-intent";
@@ -280,5 +281,14 @@ describe("mapiranje statusa i kanonski JSON", () => {
 
   it("kanonski JSON: sortirani ključevi, bez undefined", () => {
     expect(canonicalJson({ b: 1, a: { d: [2, null], c: "x" }, z: undefined })).toBe('{"a":{"c":"x","d":[2,null]},"b":1}');
+  });
+});
+
+describe("primatelj retka", () => {
+  const projects = [{ safe: "0x4f7f1950B2CB6713CcB47b869F30C0ebc01d0173", place: "Lukavec" }, { safe: null, place: "X" }];
+  it("naša elektrana po imenu, tuđi Safe skraćeno, bez polja null", () => {
+    expect(recipientLabel("0x4f7f1950b2cb6713ccb47b869f30c0ebc01d0173", projects)).toBe("Lukavec");
+    expect(recipientLabel("0x6693a7d19486dc45e9f90fd2d515d972bba2d65e", projects)).toBe("0x6693…d65e");
+    expect(recipientLabel(undefined, projects)).toBeNull();
   });
 });

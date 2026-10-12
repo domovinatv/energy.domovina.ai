@@ -15,7 +15,7 @@ import QRCode from "qrcode";
 import { useT, type MessageKey } from "@/lib/i18n";
 import { searchStore } from "@/lib/url-state";
 import { formatDateShort, formatEurPrecise } from "@/lib/format";
-import { gnosisscanTxUrl } from "@/lib/beta-projects";
+import { BETA_PROJECTS, gnosisscanTxUrl } from "@/lib/beta-projects";
 import { downloadFile } from "@/lib/download";
 import { isReceiptSid } from "@/lib/receipt-sid";
 import {
@@ -24,6 +24,7 @@ import {
   otsUrl,
   receiptPublicPart,
   receiptStatusKey,
+  recipientLabel,
   type Receipt,
   type ReceiptAnchor,
   type ReceiptResult,
@@ -153,6 +154,7 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
   ].filter((a: ReceiptAnchor) => a.ots_available);
   const qrText = canonicalJson({ v: 1, sid: rc.sid, owner: pub.owner, salt: pub.salt });
   const statusKey = receiptStatusKey(rc.status);
+  const hasRecipients = rc.payments.some((p) => p.target_address);
   const [pdf, setPdf] = useState<"idle" | "busy" | "error">("idle");
 
   return (
@@ -243,6 +245,7 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
                   <th className="py-1 pr-3 font-normal">{t("receipt.colDate")}</th>
                   <th className="py-1 pr-3 text-right font-normal">{t("receipt.colAmount")}</th>
                   <th className="py-1 pr-3 font-normal">{t("receipt.colKind")}</th>
+                  {hasRecipients && <th className="py-1 pr-3 font-normal">{t("receipt.colRecipient")}</th>}
                   <th className="py-1 pr-3 font-normal">{t("receipt.colTx")}</th>
                   <th className="py-1 font-normal">{t("receipt.colAnchor")}</th>
                 </tr>
@@ -253,6 +256,11 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
                     <td className="py-1.5 pr-3">{formatDateShort(p.placed_at, locale) || "—"}</td>
                     <td className="py-1.5 pr-3 text-right tabular-nums">{formatEurPrecise(p.amount_cents)}</td>
                     <td className="py-1.5 pr-3">{p.kind === "direct" ? t("receipt.kindDirect") : t("receipt.kindLazy")}</td>
+                    {hasRecipients && (
+                      <td className="py-1.5 pr-3" title={p.target_address ?? undefined}>
+                        {recipientLabel(p.target_address, BETA_PROJECTS) ?? "—"}
+                      </td>
+                    )}
                     <td className="py-1.5 pr-3 font-mono text-xs">
                       {p.tx_hash !== null ? (
                         <a href={gnosisscanTxUrl(p.tx_hash)} target="_blank" rel="noreferrer" className="text-forest underline">

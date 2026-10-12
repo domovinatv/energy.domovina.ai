@@ -29,6 +29,12 @@ export interface ReceiptPayment {
   placed_at: string | null;
   leaf_hash: string;
   anchor: ReceiptAnchor | null;
+  /**
+   * Primatelj te uplate. Naknadno povezivanje je puni backfill po IBAN-u (odluka
+   * 12. 10. 2026.), pa retci mogu biti uplate za druge Safeove. Opcionalno dok
+   * rail polje ne šalje.
+   */
+  target_address?: string | null;
 }
 
 export interface Receipt {
@@ -105,6 +111,17 @@ export async function fetchReceipt(
   const b = (await res.json().catch(() => ({}))) as Partial<Receipt> & { error?: string };
   if (res.ok && b.version !== undefined && Array.isArray(b.payments)) return { ok: true, receipt: b as Receipt };
   return { ok: false, error: b.error ?? `http_${res.status}` };
+}
+
+/** Ime naše elektrane za Safe primatelja, inače skraćena adresa; `null` kad rail primatelja ne šalje. */
+export function recipientLabel(
+  target: string | null | undefined,
+  projects: readonly { safe: string | null; place: string }[],
+): string | null {
+  if (!target) return null;
+  const t = target.toLowerCase();
+  const p = projects.find((x) => x.safe !== null && x.safe.toLowerCase() === t);
+  return p !== undefined ? p.place : `${target.slice(0, 6)}…${target.slice(-4)}`;
 }
 
 export type ReceiptStatusKey =

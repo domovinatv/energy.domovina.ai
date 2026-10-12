@@ -35,8 +35,8 @@ const RC: Receipt = {
   forward_tx_hash: null,
   payment_registry: null,
   payments: [
-    { kind: "lazy", order_id: "o1", tx_hash: "0x" + "1".repeat(64), amount_cents: 500, placed_at: "2026-10-05T10:00:00Z", leaf_hash: "0xaa", anchor: { anchor_id: 3, root: "0x" + "ab".repeat(32), proof: [], ots_available: true, anchored_at: 1791500000 } },
-    { kind: "direct", order_id: "o2", tx_hash: "0x" + "2".repeat(64), amount_cents: 100, placed_at: "2026-10-12T08:00:00Z", leaf_hash: "0xbb", anchor: null },
+    { kind: "lazy", order_id: "o1", tx_hash: "0x" + "1".repeat(64), amount_cents: 500, placed_at: "2026-10-05T10:00:00Z", leaf_hash: "0xaa", anchor: { anchor_id: 3, root: "0x" + "ab".repeat(32), proof: [], ots_available: true, anchored_at: 1791500000 }, target_address: "0x6693a7d19486dc45e9f90fd2d515d972bba2d65e" },
+    { kind: "direct", order_id: "o2", tx_hash: "0x" + "2".repeat(64), amount_cents: 100, placed_at: "2026-10-12T08:00:00Z", leaf_hash: "0xbb", anchor: null, target_address: "0x4f7f1950b2cb6713ccb47b869f30c0ebc01d0173" },
   ],
   lazy_included: true,
   owner: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -51,8 +51,8 @@ describe("PDF potvrde", () => {
     };
     const diacritics = "ČčĆćĐđŠšŽž";
     // Inter nosi sav tekst (i „‖" iz uputa za provjeru); Fraunces samo naslov.
-    expect(has(FONTS.regular, diacritics + "„“”‖€…—·")).toEqual([]);
-    expect(has(FONTS.semibold, diacritics + "„“”‖€…—·")).toEqual([]);
+    expect(has(FONTS.regular, diacritics + "„“”‖€…—·→")).toEqual([]);
+    expect(has(FONTS.semibold, diacritics + "„“”‖€…—·→")).toEqual([]);
     expect(has(FONTS.display, diacritics)).toEqual([]);
   });
 

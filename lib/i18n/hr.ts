@@ -954,6 +954,7 @@ export const hr = {
   "receipt.colAmount": "Iznos",
   "receipt.colKind": "Vrsta",
   "receipt.colTx": "Gnosis tx",
+  "receipt.colRecipient": "Primatelj",
   "receipt.colAnchor": "Sidro",
   "receipt.kindDirect": "Izravna (ključ u referenci)",
   "receipt.kindLazy": "Naknadno potvrđeno (isti IBAN)",

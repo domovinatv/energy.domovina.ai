@@ -916,6 +916,7 @@ export const en: Catalog = {
   "receipt.colAmount": "Amount",
   "receipt.colKind": "Kind",
   "receipt.colTx": "Gnosis tx",
+  "receipt.colRecipient": "Recipient",
   "receipt.colAnchor": "Anchor",
   "receipt.kindDirect": "Direct (key in the reference)",
   "receipt.kindLazy": "Confirmed retroactively (same IBAN)",

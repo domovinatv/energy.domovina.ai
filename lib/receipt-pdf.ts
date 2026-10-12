@@ -15,8 +15,10 @@
 import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFPage } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import QRCode from "qrcode";
+import { BETA_PROJECTS } from "@/lib/beta-projects";
 import {
   canonicalJson,
+  recipientLabel,
   otsUrl,
   receiptPublicPart,
   receiptStatusKey,
@@ -220,7 +222,10 @@ export async function buildReceiptPdf(
     }
     l.gap(14);
     for (const p of rc.payments) {
-      const kind = p.kind === "direct" ? t("receipt.kindDirect") : t("receipt.kindLazy");
+      const recipient = recipientLabel(p.target_address, BETA_PROJECTS);
+      const kind =
+        (p.kind === "direct" ? t("receipt.kindDirect") : t("receipt.kindLazy")) +
+        (recipient !== null ? `\n→ ${recipient}` : "");
       const kindLines = wrapText(kind, regular, 9, C.kind.w);
       const rowH = Math.max(1, kindLines.length) * 12 + 6;
       l.ensure(rowH);
