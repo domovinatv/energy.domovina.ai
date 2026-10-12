@@ -60,10 +60,16 @@ sid    = "r1" + base32(digest)[0:24]
 | privatni ključ | `0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d` |
 | owner | `0x70997970C51812dc3A010C7d01b50e0d17dc79C8` |
 | salt | `0x000102030405060708090a0b0c0d0e0f` |
-| **sid** | **`r19bab3qr4ccc4gjuny754x93s`** |
+| **sid** | **`r183ns4pcpn659hd2z3xtaqiwq`** |
 
 Kod: kopirati `pay.domovina.ai/backend/src/receipts/sid.ts` (≈80 linija, ovisi samo o `viem`) u
 `lib/receipt-sid.ts`, uz komentar s izvorom i commitom. Nikad ne pisati vlastitu varijantu.
+
+⚠️ Kopirati verziju **s ispravkom iz pay.domovina.ai grane `feat/receipts-0023-faze-1-3`**
+(12. 10. 2026.). Prva verzija je `viem.concat` davala mješavinu `Uint8Array` i hex stringova,
+pa su slova a–f adrese i salta postajala 0. Ispravno: sva tri dijela kao bajtovi
+(`hexToBytes`), ukupno 50 bajtova. Gornji vektor je ispravan i isti u Python verifikatoru
+(`pay.domovina.ai/scripts/mpt_receipt_verify.py`).
 
 ### 3.2 Stvaranje intenta s potvrdom
 
