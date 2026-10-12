@@ -69,6 +69,7 @@ export function isTerminal(stage: IntentStage): boolean {
 
 interface IntentJson {
   sid?: string;
+  target_address?: string;
   amount_eur?: string;
   memo?: string;
   iban?: string;
@@ -109,27 +110,41 @@ export async function createPaymentIntent(
     return { ok: false, reason: "network" };
   }
   const b = (await res.json().catch(() => ({}))) as IntentJson;
-  if (res.ok && b.sid && b.epc_qr_data && b.status_url && b.memo && b.iban && b.beneficiary_name) {
-    return {
-      ok: true,
-      intent: {
-        sid: b.sid,
-        amountEur: b.amount_eur ?? amountEur.toFixed(2),
-        memo: b.memo,
-        iban: b.iban,
-        beneficiaryName: b.beneficiary_name,
-        bic: b.bic ?? null,
-        epcQrData: b.epc_qr_data,
-        hub3Data: b.hub3_data ?? null,
-        statusUrl: b.status_url,
-        expiresAt: b.expires_at ?? "",
-      },
-    };
-  }
+  const intent = res.ok ? intentFromJson(b, amountEur.toFixed(2)) : null;
+  if (intent !== null) return { ok: true, intent };
   if (res.status === 409 || b.error === "sid_already_exists") return { ok: false, reason: "sid_conflict" };
   if (b.error === "target_not_whitelisted") return { ok: false, reason: "not_whitelisted" };
   if (b.error === "invalid_amount_eur" || b.error === "amount_out_of_range") return { ok: false, reason: "invalid_amount" };
   return { ok: false, reason: "unknown" };
+}
+
+/** Intent iz railova odgovora (POST ili `GET /api/intents/<sid>`, isti oblik); `null` kad nije potpun. */
+export function intentFromJson(b: IntentJson, fallbackAmountEur: string): PaymentIntent | null {
+  if (!(b.sid && b.epc_qr_data && b.status_url && b.memo && b.iban && b.beneficiary_name)) return null;
+  return {
+    sid: b.sid,
+    amountEur: b.amount_eur ?? fallbackAmountEur,
+    memo: b.memo,
+    iban: b.iban,
+    beneficiaryName: b.beneficiary_name,
+    bic: b.bic ?? null,
+    epcQrData: b.epc_qr_data,
+    hub3Data: b.hub3_data ?? null,
+    statusUrl: b.status_url,
+    expiresAt: b.expires_at ?? "",
+  };
+}
+
+/**
+ * Postojeći intent po sidu — za `?uplata=<sid>` u adresi, da osvježavanje stranice
+ * ne traži novi intent. `null` kad ga nema ili ne ide na `target` (tuđi Safe).
+ */
+export async function fetchIntent(sid: string, target: Address, signal?: AbortSignal): Promise<PaymentIntent | null> {
+  const res = await fetch(`${RAIL_API_BASE}/${encodeURIComponent(sid)}`, { signal });
+  if (!res.ok) return null;
+  const b = (await res.json()) as IntentJson;
+  if (typeof b.target_address !== "string" || b.target_address.toLowerCase() !== target.toLowerCase()) return null;
+  return intentFromJson(b, "");
 }
 
 /**

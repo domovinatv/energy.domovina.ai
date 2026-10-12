@@ -144,3 +144,19 @@
 .maplibregl-ctrl-attrib.maplibregl-compact {
   font-size: 10px;
 }
+
+/*
+ * View Transitions (lib/view-transition.ts) — /beta/ stupci pri otvaranju QR-a.
+ * Snimke se ne rastežu na novu veličinu stupca (zadano bi tekst razvuklo), nego
+ * stoje uz gornji lijevi kut i pretope se dok okvir mijenja veličinu.
+ */
+::view-transition-group(*) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+  height: 100%;
+  object-fit: none;
+  object-position: left top;
+}

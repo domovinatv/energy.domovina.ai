@@ -31,7 +31,8 @@ import { HepMeter } from "@/components/beta/hep-meter";
 import { BETA_HEP } from "@/lib/beta-hep";
 import { justArrivedRemainingMs, unconfirmedCents, type PendingPayment } from "@/lib/pending-payments";
 import { removePending, savePending, usePending } from "@/lib/pending-store";
-import { fetchIntentStatus } from "@/lib/mpt-intent";
+import { fetchIntent, fetchIntentStatus } from "@/lib/mpt-intent";
+import { withViewTransition } from "@/lib/view-transition";
 
 const RECENT_COUNT = 5;
 /** Koliko često se lanac ponovno čita dok je kartica vidljiva. */
@@ -200,7 +201,7 @@ function ProjectSection({ project }: { project: BetaProject }) {
           : "2xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(0,1.15fr)_400px] 2xl:grid-rows-1"
       }`}
     >
-      <div className="xl:col-start-1 xl:row-start-1">
+      <div className="[view-transition-name:beta-plant] xl:col-start-1 xl:row-start-1">
         <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-1">
           <div>
             <p className="inline-block rounded-full bg-forest/10 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-forest">
@@ -231,7 +232,7 @@ function ProjectSection({ project }: { project: BetaProject }) {
       {hasVerifiedSafe(project) ? (
         <div className="mt-6 grid gap-6 lg:grid-cols-2 xl:contents">
           <PendingWatcher safe={project.safe} pending={pending} onSettled={() => setRefreshKey((k) => k + 1)} />
-          <div className="xl:col-start-2 xl:row-start-1">
+          <div className="[view-transition-name:beta-activity] xl:col-start-2 xl:row-start-1">
             <LiveActivity
               safe={project.safe}
               goalCents={project.goalCents}
@@ -247,7 +248,7 @@ function ProjectSection({ project }: { project: BetaProject }) {
           </div>
           {isPayable(project) ? (
             <div
-              className={`xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:self-start ${paying ? "" : "2xl:col-start-4"}`}
+              className={`[view-transition-name:beta-pay] xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:self-start ${paying ? "" : "2xl:col-start-4"}`}
             >
               <PayWithIntent safe={project.safe} onPayment={onPayment} onOpenChange={setPaying} />
             </div>
@@ -267,7 +268,7 @@ function ProjectSection({ project }: { project: BetaProject }) {
 
       {BETA_HEP[project.slug] !== undefined && (
         <div
-          className={`xl:col-span-2 xl:col-start-1 xl:row-start-2 ${paying ? "" : "2xl:col-span-1 2xl:col-start-3 2xl:row-start-1"}`}
+          className={`[view-transition-name:beta-hep] xl:col-span-2 xl:col-start-1 xl:row-start-2 ${paying ? "" : "2xl:col-span-1 2xl:col-start-3 2xl:row-start-1"}`}
         >
           <HepMeter hep={BETA_HEP[project.slug]!} stacked={!paying} />
         </div>
@@ -759,14 +760,43 @@ function PayWithIntent({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<IntentResult | null>(null);
   const [intent, setIntentState] = useState<PaymentIntent | null>(null);
+  // Otvaranje i zatvaranje QR-a mijenja raspored stupaca — kao animacija, ne skok.
+  // Sid ide u adresu (`?uplata=`), pa osvježavanje vrati isti intent umjesto novog.
   const setIntent = (i: PaymentIntent | null) => {
-    setIntentState(i);
-    onOpenChange(i !== null);
+    withViewTransition(() => {
+      setIntentState(i);
+      onOpenChange(i !== null);
+    });
+    setIntentParam(i?.sid ?? null);
   };
   // Potvrda o uplati (docs/16): uključena po zadanom, uplatitelj je može isključiti.
   const [wantReceipt, setWantReceipt] = useState(true);
   const [receipt, setReceipt] = useState<{ key: ReceiptKey; saved: boolean } | null>(null);
   const amountEur = preset ?? parseAmountEur(custom);
+
+  // `?uplata=<sid>` pri učitavanju: isti intent s raila (i ključ potvrde iz ovog
+  // preglednika, ako ga ima). Tuđi ili nepostojeći sid samo se makne iz adrese.
+  useEffect(() => {
+    const sid = new URLSearchParams(window.location.search).get(INTENT_PARAM);
+    if (sid === null) return;
+    const controller = new AbortController();
+    Promise.all([fetchIntent(sid, safe, controller.signal), import("@/lib/receipt-keys")]).then(
+      ([restored, { receiptKeyStore }]) => {
+        if (restored === null) {
+          setIntentParam(null);
+          return;
+        }
+        const key = receiptKeyStore.load(restored.sid);
+        setReceipt(key === null ? null : { key, saved: true });
+        setIntentState(restored);
+        onOpenChange(true);
+      },
+      () => undefined,
+    );
+    return () => controller.abort();
+    // Samo pri učitavanju stranice.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function pay() {
     if (amountEur === null || busy) return;
@@ -888,6 +918,16 @@ function PayWithIntent({
       <MyReceipts safe={safe} />
     </div>
   );
+}
+
+const INTENT_PARAM = "uplata";
+
+/** Sid otvorenog intenta u adresi, bez novog unosa u povijest (Natrag ne vrti QR). */
+function setIntentParam(sid: string | null) {
+  const url = new URL(window.location.href);
+  if (sid === null) url.searchParams.delete(INTENT_PARAM);
+  else url.searchParams.set(INTENT_PARAM, sid);
+  window.history.replaceState(window.history.state, "", url);
 }
 
 function Row({ label, value, copy, mono }: { label: string; value: string; copy?: string; mono?: boolean }) {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createPaymentIntent,
+  fetchIntent,
   intentStreamUrl,
   POLL_MS,
   statusFromJson,
@@ -264,5 +265,49 @@ describe("createPaymentIntent — hub3_data", () => {
   it("stari rail bez polja → null, panel nudi samo QR", async () => {
     const r = await withFetch(base);
     expect(r.ok && r.intent.hub3Data).toBeNull();
+  });
+});
+
+describe("fetchIntent — ?uplata=<sid> nakon osvježavanja", () => {
+  const SAFE = "0x00000000000000000000000000000000000000Aa" as const;
+  const body = {
+    sid: "abc123",
+    target_address: SAFE.toLowerCase(),
+    amount_eur: "5.00",
+    memo: "mpt:0xaa?sid=abc123",
+    iban: "EE707777000162921128",
+    beneficiary_name: "ITalk d.o.o.",
+    epc_qr_data: "BCD",
+    status_url: INTENT.statusUrl,
+  };
+  const withFetch = async (status: number, json: object, target: `0x${string}` = SAFE) => {
+    const orig = globalThis.fetch;
+    let url = "";
+    globalThis.fetch = (async (u: string) => {
+      url = u;
+      return new Response(JSON.stringify(json), { status });
+    }) as typeof fetch;
+    try {
+      return { intent: await fetchIntent("abc123", target), url };
+    } finally {
+      globalThis.fetch = orig;
+    }
+  };
+
+  it("vrati isti intent s raila, adresa bez obzira na velika slova", async () => {
+    const { intent, url } = await withFetch(200, body);
+    expect(url).toBe("https://mpt.domovina.ai/api/intents/abc123");
+    expect(intent?.amountEur).toBe("5.00");
+    expect(intent?.statusUrl).toBe(INTENT.statusUrl);
+  });
+
+  it("intent na tuđi Safe → null (ne prikazuje se QR druge elektrane)", async () => {
+    const { intent } = await withFetch(200, body, "0x0000000000000000000000000000000000000001");
+    expect(intent).toBeNull();
+  });
+
+  it("nepostojeći sid (404) → null", async () => {
+    const { intent } = await withFetch(404, { error: "intent_not_found" });
+    expect(intent).toBeNull();
   });
 });
