@@ -172,6 +172,9 @@ export function VerifyPage() {
   }
 
   const pendingAny = report?.checks.some((c) => c.status === "pending") ?? false;
+  // Vlasništvo je ono što korisnik zapravo pita („otključava li ključ potvrdu"),
+  // pa stoji u ishodu, a ne samo kao 3. od deset koraka.
+  const keyStatus = report?.checks.find((c) => c.id === "key")?.status ?? "skip";
 
   return (
     // Desktop (xl): lijevo datoteke i ishod, desno koraci u dva stupca — cijela
@@ -284,6 +287,18 @@ export function VerifyPage() {
             </p>
             {report.payments === 0 && <p className="mt-1 text-sm font-medium text-ink">{t("verify.resultEmpty")}</p>}
             {pendingAny && <p className="mt-1 text-sm text-inkSoft">{t("verify.resultPending")}</p>}
+            <p
+              data-owner={keyStatus}
+              className={`mt-2 text-sm ${
+                keyStatus === "ok" ? "font-medium text-forest" : keyStatus === "fail" ? "font-medium text-rust" : "text-inkSoft"
+              }`}
+            >
+              {keyStatus === "ok"
+                ? t("verify.ownerOk", { owner: report.owner ?? "—" })
+                : keyStatus === "fail"
+                  ? t("verify.ownerFail")
+                  : t("verify.ownerSkip")}
+            </p>
             <div className="xl:flex xl:items-end xl:justify-between xl:gap-6">
               <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
                 <dt className="text-xs uppercase tracking-wide text-inkMuted">{t("receipt.sid")}</dt>

@@ -227,12 +227,21 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
         </button>
       </div>
       {pdf === "error" && <p className="mt-2 text-sm text-rust xl:col-start-1">{t("receipt.pdfError")}</p>}
-      <Link
-        href="/beta/provjera/"
-        className="mt-3 inline-block justify-self-start text-sm text-forest underline underline-offset-2 xl:col-start-1 print:hidden"
-      >
-        {t("receipt.verifyLink")}
-      </Link>
+      {/* Javni PDF i tajni ključ izgledaju kao dvije „potvrde"; bez ovoga nije jasno
+          što se smije pokazati, a što na provjeri dokazuje vlasništvo. */}
+      <section className="mt-4 rounded-sm border border-ink/10 bg-white/60 p-3 text-xs text-inkSoft xl:col-start-1 print:hidden">
+        <h2 className="text-sm font-medium text-ink">{t("receipt.filesTitle")}</h2>
+        <ul className="mt-1.5 space-y-1">
+          <li>{t("receipt.filesPublic")}</li>
+          <li>{t("receipt.filesKey")}</li>
+        </ul>
+        <p className="mt-1.5">
+          {t("receipt.filesVerify")}{" "}
+          <Link href="/beta/provjera/" className="text-forest underline underline-offset-2">
+            {t("receipt.verifyLink")}
+          </Link>
+        </p>
+      </section>
 
       {/* 2xl: podaci i uplate lijevo, provjera, QR i JSON desno. */}
       <article className="mt-6 rounded-sm border border-ink/10 bg-white p-4 sm:p-6 xl:col-start-2 xl:row-[1/-1] xl:mt-0 2xl:grid 2xl:grid-cols-2 2xl:gap-x-10 print:block print:border-0 print:p-0">
@@ -394,6 +403,7 @@ function ImportKey({ sid }: { sid: string }) {
     <section className="mt-6 rounded-sm border border-ink/10 bg-sand p-4 xl:col-start-1 print:hidden">
       <h2 className="font-medium text-ink">{t("receipt.importTitle")}</h2>
       <p className="mt-1 text-sm text-inkSoft">{t("receipt.importText")}</p>
+      <p className="mt-1 text-xs text-inkMuted">{t("receipt.importOtherDevice")}</p>
       <input
         type="password"
         value={password}
