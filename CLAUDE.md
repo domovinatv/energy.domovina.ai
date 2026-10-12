@@ -182,6 +182,10 @@ Iz **ovog repoa** (`docs/2026-09-15-dnevnik-izvedbe.md`):
 - **Deploy je `npm run deploy`** (verify + `wrangler deploy`), ne push. Nova vanjska
   domena u kodu ide i u CSP u `public/_headers`, inače je preglednik tiho blokira
   (`docs/12` §7).
+- **Nikad `immutable` na `/_next/static/*` u `public/_headers`.** Cloudflare
+  zaglavlje stavlja i na 404; zahtjev za novi chunk prije nego se deploy raširi do
+  ruba zapamti 404 na godinu dana → `ChunkLoadError` i „This page couldn't load"
+  dok korisnik ne očisti cache (12.10.2026.).
 - **ESLint ostaje na 9** dok `eslint-config-next` ne osvježi `eslint-plugin-react`
   (na 10 puca s `contextOrFilename.getFilename is not a function`).
 

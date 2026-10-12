@@ -166,7 +166,7 @@ etiketu kasnije (`docs/10` §5).
 | Izvor | `out/` iz `next build` (`output: "export"`) |
 | Naredba | **`npm run deploy`** = `npm run verify` + `wrangler deploy` |
 | 404 | `not_found_handling: "404-page"` → `out/404.html` |
-| Zaglavlja | `public/_headers` — CSP, `X-Robots-Tag: noindex`, `immutable` za `/_next/static/` |
+| Zaglavlja | `public/_headers` — CSP, `X-Robots-Tag: noindex`, `max-age=0, must-revalidate` za `/_next/static/` (ne `immutable` — Cloudflare ga stavlja i na 404, CLAUDE.md §Naučene zamke) |
 | Repo | javni `github.com/domovinatv/energy.domovina.ai`, MIT (od 8.10.2026.; razlog u README-u „Zašto je kod javan") |
 | Rollback | `wrangler rollback` ili prethodna verzija u CF nadzornoj ploči |
 

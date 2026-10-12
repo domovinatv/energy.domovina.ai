@@ -15,5 +15,9 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   X-Robots-Tag: noindex, nofollow
 
+# NE `immutable`: Cloudflare ovo zaglavlje stavlja i na 404. Preglednik koji
+# zatraži novi chunk prije nego se deploy raširi do njegovog ruba zapamti 404 na
+# godinu dana i stranica mu ostane srušena (ChunkLoadError, 12.10.2026.).
+# Hashirana imena + ETag: revalidacija je jeftin 304, a 404 se ne pamti.
 /_next/static/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=0, must-revalidate
