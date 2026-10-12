@@ -109,8 +109,11 @@ export function ReceiptPage() {
 function Shell({ children }: { children: React.ReactNode }) {
   const { t } = useT();
   return (
-    <div className="container-content max-w-3xl py-8 print:max-w-none print:py-0">
-      <h1 className="font-display text-2xl font-semibold text-ink">{t("receipt.title")}</h1>
+    // Desktop (xl): lijevo naslov, preuzimanja i ključ, desno potvrda preko svih
+    // redaka (zadnji red je 1fr, pa lijeve stavke ne dobiju razmake). Ispis i
+    // mobitel: jedan stupac, kao prije.
+    <div className="container-wide max-w-3xl py-8 xl:grid xl:max-w-none xl:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] xl:grid-rows-[repeat(5,auto)_1fr] xl:items-start xl:gap-x-10 xl:py-6 print:block print:max-w-none print:py-0">
+      <h1 className="font-display text-2xl font-semibold text-ink xl:col-start-1">{t("receipt.title")}</h1>
       {children}
     </div>
   );
@@ -148,9 +151,9 @@ function ReceiptView({ sid }: { sid: string }) {
   return (
     <Shell>
       {result === null ? (
-        <p className="mt-4 text-sm text-inkSoft">{t("receipt.loading")}</p>
+        <p className="mt-4 text-sm text-inkSoft xl:col-start-1">{t("receipt.loading")}</p>
       ) : !result.ok ? (
-        <div className="mt-4">
+        <div className="mt-4 xl:col-start-1">
           <p className="text-sm text-rust">{t("receipt.error", { error: result.error })}</p>
           <button
             type="button"
@@ -189,7 +192,7 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
 
   return (
     <>
-      <div className="mt-4 flex flex-wrap gap-3 print:hidden">
+      <div className="mt-4 flex flex-wrap gap-3 xl:col-start-1 print:hidden">
         <button
           type="button"
           disabled={pdf === "busy"}
@@ -223,123 +226,131 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
           {t("receipt.downloadJson")}
         </button>
       </div>
-      {pdf === "error" && <p className="mt-2 text-sm text-rust">{t("receipt.pdfError")}</p>}
-      <Link href="/beta/provjera/" className="mt-3 inline-block text-sm text-forest underline underline-offset-2 print:hidden">
+      {pdf === "error" && <p className="mt-2 text-sm text-rust xl:col-start-1">{t("receipt.pdfError")}</p>}
+      <Link
+        href="/beta/provjera/"
+        className="mt-3 inline-block justify-self-start text-sm text-forest underline underline-offset-2 xl:col-start-1 print:hidden"
+      >
         {t("receipt.verifyLink")}
       </Link>
 
-      <article className="mt-6 rounded-sm border border-ink/10 bg-white p-4 sm:p-6 print:border-0 print:p-0">
-        <p className="text-xs text-inkMuted">MPT · {rc.version}</p>
-        <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
-          <Field label={t("receipt.sid")}>
-            <code className="break-all font-mono text-xs">{rc.sid}</code>
-          </Field>
-          <Field label={t("receipt.label")}>{rc.intent.label ?? "—"}</Field>
-          <Field label={t("receipt.target")}>
-            <code className="break-all font-mono text-xs">{rc.intent.target_address}</code>
-          </Field>
-          {/* Bez potvrđenih redaka „0,00 €" bi izgledalo kao da uplata nije stigla;
-              stanje ispod kaže što se dogodilo (npr. uplata bez reference). */}
-          {rc.payments.length > 0 && (
-            <Field label={t("receipt.total")}>
-              <strong>{formatEurPrecise(total)}</strong>
+      {/* 2xl: podaci i uplate lijevo, provjera, QR i JSON desno. */}
+      <article className="mt-6 rounded-sm border border-ink/10 bg-white p-4 sm:p-6 xl:col-start-2 xl:row-[1/-1] xl:mt-0 2xl:grid 2xl:grid-cols-2 2xl:gap-x-10 print:block print:border-0 print:p-0">
+        <div>
+          <p className="text-xs text-inkMuted">MPT · {rc.version}</p>
+          <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
+            <Field label={t("receipt.sid")}>
+              <code className="break-all font-mono text-xs">{rc.sid}</code>
             </Field>
-          )}
-          <Field label={t("receipt.owner")}>
-            <code className="break-all font-mono text-xs">{pub.owner ?? t("receipt.ownerMissing")}</code>
-          </Field>
-        </dl>
-
-        <p
-          data-status={rc.status}
-          className={
-            rc.status === "issued"
-              ? "mt-4 text-sm text-forest"
-              : `mt-4 rounded-sm border p-3 text-sm font-medium ${statusKey === "receipt.statusNotDelivered" ? "border-rust/40 bg-rust/5 text-rust" : "border-solar/50 bg-solar-soft text-ink"}`
-          }
-        >
-          {t(statusKey as MessageKey, { status: rc.status })}
-        </p>
-
-        {rc.payments.length > 0 && (
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full min-w-[520px] text-left text-sm">
-              <thead className="text-xs uppercase tracking-wide text-inkMuted">
-                <tr>
-                  <th className="py-1 pr-3 font-normal">{t("receipt.colDate")}</th>
-                  <th className="py-1 pr-3 text-right font-normal">{t("receipt.colAmount")}</th>
-                  <th className="py-1 pr-3 font-normal">{t("receipt.colKind")}</th>
-                  {hasRecipients && <th className="py-1 pr-3 font-normal">{t("receipt.colRecipient")}</th>}
-                  <th className="py-1 pr-3 font-normal">{t("receipt.colTx")}</th>
-                  <th className="py-1 font-normal">{t("receipt.colAnchor")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rc.payments.map((p) => (
-                  <tr key={p.leaf_hash} data-kind={p.kind} className="border-t border-ink/8">
-                    <td className="py-1.5 pr-3">{formatDateShort(p.placed_at, locale) || "—"}</td>
-                    <td className="py-1.5 pr-3 text-right tabular-nums">{formatEurPrecise(p.amount_cents)}</td>
-                    <td className="py-1.5 pr-3">{p.kind === "direct" ? t("receipt.kindDirect") : t("receipt.kindLazy")}</td>
-                    {hasRecipients && (
-                      <td className="py-1.5 pr-3" title={p.target_address ?? undefined}>
-                        {recipientLabel(p.target_address, BETA_PROJECTS) ?? "—"}
-                      </td>
-                    )}
-                    <td className="py-1.5 pr-3 font-mono text-xs">
-                      {p.tx_hash !== null ? (
-                        <a href={gnosisscanTxUrl(p.tx_hash)} target="_blank" rel="noreferrer" className="text-forest underline">
-                          {p.tx_hash.slice(0, 12)}…
-                        </a>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="py-1.5">{p.anchor !== null ? `#${p.anchor.anchor_id}` : t("receipt.anchorPending")}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {rc.payments.some((p) => p.anchor === null) && (
-              <p className="mt-2 text-xs text-inkMuted">{t("receipt.anchorNote")}</p>
+            <Field label={t("receipt.label")}>{rc.intent.label ?? "—"}</Field>
+            <Field label={t("receipt.target")}>
+              <code className="break-all font-mono text-xs">{rc.intent.target_address}</code>
+            </Field>
+            {/* Bez potvrđenih redaka „0,00 €" bi izgledalo kao da uplata nije stigla;
+                stanje ispod kaže što se dogodilo (npr. uplata bez reference). */}
+            {rc.payments.length > 0 && (
+              <Field label={t("receipt.total")}>
+                <strong>{formatEurPrecise(total)}</strong>
+              </Field>
             )}
-          </div>
-        )}
-        {!rc.lazy_included && <p className="mt-3 text-xs text-inkMuted">{t("receipt.lazyOwnerOnly")}</p>}
+            <Field label={t("receipt.owner")}>
+              <code className="break-all font-mono text-xs">{pub.owner ?? t("receipt.ownerMissing")}</code>
+            </Field>
+          </dl>
 
-        <section className="mt-6">
-          <h2 className="font-medium text-ink">{t("receipt.verifyTitle")}</h2>
-          <ol className="mt-2 list-decimal space-y-1 pl-5 text-xs text-inkSoft">
-            <li>{t("receipt.verify1")}</li>
-            <li>{t("receipt.verify2")}</li>
-            <li>{t("receipt.verify3")}</li>
-            <li>{t("receipt.verify4")}</li>
-          </ol>
-          {anchors.length > 0 && (
-            <ul className="mt-2 space-y-1 text-xs">
-              {anchors.map((a) => (
-                <li key={a.anchor_id}>
-                  <a href={otsUrl(a.anchor_id)} className="text-forest underline">
-                    {t("receipt.anchorLink", { id: a.anchor_id })}
-                  </a>{" "}
-                  {t("receipt.anchorRoot")} <code className="break-all font-mono">{a.root}</code>
-                </li>
-              ))}
-            </ul>
+          <p
+            data-status={rc.status}
+            className={
+              rc.status === "issued"
+                ? "mt-4 text-sm text-forest"
+                : `mt-4 rounded-sm border p-3 text-sm font-medium ${statusKey === "receipt.statusNotDelivered" ? "border-rust/40 bg-rust/5 text-rust" : "border-solar/50 bg-solar-soft text-ink"}`
+            }
+          >
+            {t(statusKey as MessageKey, { status: rc.status })}
+          </p>
+
+          {rc.payments.length > 0 && (
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full min-w-[520px] text-left text-sm">
+                <thead className="text-xs uppercase tracking-wide text-inkMuted">
+                  <tr>
+                    <th className="py-1 pr-3 font-normal">{t("receipt.colDate")}</th>
+                    <th className="py-1 pr-3 text-right font-normal">{t("receipt.colAmount")}</th>
+                    <th className="py-1 pr-3 font-normal">{t("receipt.colKind")}</th>
+                    {hasRecipients && <th className="py-1 pr-3 font-normal">{t("receipt.colRecipient")}</th>}
+                    <th className="py-1 pr-3 font-normal">{t("receipt.colTx")}</th>
+                    <th className="py-1 font-normal">{t("receipt.colAnchor")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rc.payments.map((p) => (
+                    <tr key={p.leaf_hash} data-kind={p.kind} className="border-t border-ink/8">
+                      <td className="py-1.5 pr-3">{formatDateShort(p.placed_at, locale) || "—"}</td>
+                      <td className="py-1.5 pr-3 text-right tabular-nums">{formatEurPrecise(p.amount_cents)}</td>
+                      <td className="py-1.5 pr-3">{p.kind === "direct" ? t("receipt.kindDirect") : t("receipt.kindLazy")}</td>
+                      {hasRecipients && (
+                        <td className="py-1.5 pr-3" title={p.target_address ?? undefined}>
+                          {recipientLabel(p.target_address, BETA_PROJECTS) ?? "—"}
+                        </td>
+                      )}
+                      <td className="py-1.5 pr-3 font-mono text-xs">
+                        {p.tx_hash !== null ? (
+                          <a href={gnosisscanTxUrl(p.tx_hash)} target="_blank" rel="noreferrer" className="text-forest underline">
+                            {p.tx_hash.slice(0, 12)}…
+                          </a>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td className="py-1.5">{p.anchor !== null ? `#${p.anchor.anchor_id}` : t("receipt.anchorPending")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {rc.payments.some((p) => p.anchor === null) && (
+                <p className="mt-2 text-xs text-inkMuted">{t("receipt.anchorNote")}</p>
+              )}
+            </div>
           )}
-          <p className="mt-2 break-all font-mono text-xs text-inkSoft">salt: {pub.salt ?? "—"}</p>
-        </section>
+          {!rc.lazy_included && <p className="mt-3 text-xs text-inkMuted">{t("receipt.lazyOwnerOnly")}</p>}
+        </div>
 
-        <section className="mt-6 flex items-center gap-4 print:break-inside-avoid">
-          <Qr text={qrText} className="w-40 shrink-0" />
-          <p className="text-xs text-inkMuted">{t("receipt.qrNote")}</p>
-        </section>
+        <div>
+          <section className="mt-6 2xl:mt-0">
+            <h2 className="font-medium text-ink">{t("receipt.verifyTitle")}</h2>
+            <ol className="mt-2 list-decimal space-y-1 pl-5 text-xs text-inkSoft">
+              <li>{t("receipt.verify1")}</li>
+              <li>{t("receipt.verify2")}</li>
+              <li>{t("receipt.verify3")}</li>
+              <li>{t("receipt.verify4")}</li>
+            </ol>
+            {anchors.length > 0 && (
+              <ul className="mt-2 space-y-1 text-xs">
+                {anchors.map((a) => (
+                  <li key={a.anchor_id}>
+                    <a href={otsUrl(a.anchor_id)} className="text-forest underline">
+                      {t("receipt.anchorLink", { id: a.anchor_id })}
+                    </a>{" "}
+                    {t("receipt.anchorRoot")} <code className="break-all font-mono">{a.root}</code>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-2 break-all font-mono text-xs text-inkSoft">salt: {pub.salt ?? "—"}</p>
+          </section>
 
-        <section className="mt-6">
-          <h2 className="font-medium text-ink">{t("receipt.jsonTitle")}</h2>
-          <pre className="mt-2 whitespace-pre-wrap break-all rounded-sm bg-sand p-3 font-mono text-[11px] text-ink">
-            {json}
-          </pre>
-        </section>
+          <section className="mt-6 flex items-center gap-4 print:break-inside-avoid">
+            <Qr text={qrText} className="w-40 shrink-0" />
+            <p className="text-xs text-inkMuted">{t("receipt.qrNote")}</p>
+          </section>
+
+          <section className="mt-6">
+            <h2 className="font-medium text-ink">{t("receipt.jsonTitle")}</h2>
+            <pre className="mt-2 whitespace-pre-wrap break-all rounded-sm bg-sand p-3 font-mono text-[11px] text-ink">
+              {json}
+            </pre>
+          </section>
+        </div>
       </article>
     </>
   );
@@ -380,7 +391,7 @@ function ImportKey({ sid }: { sid: string }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   return (
-    <section className="mt-6 rounded-sm border border-ink/10 bg-sand p-4 print:hidden">
+    <section className="mt-6 rounded-sm border border-ink/10 bg-sand p-4 xl:col-start-1 print:hidden">
       <h2 className="font-medium text-ink">{t("receipt.importTitle")}</h2>
       <p className="mt-1 text-sm text-inkSoft">{t("receipt.importText")}</p>
       <input
@@ -424,7 +435,7 @@ function PartB({ receiptKey: key }: { receiptKey: ReceiptKey }) {
   const [short, setShort] = useState(false);
   const secret = locked ?? JSON.stringify(key);
   return (
-    <article className="mt-8 rounded-sm border border-rust/30 bg-white p-4 sm:p-6 print:break-before-page print:border-0 print:p-0">
+    <article className="mt-8 rounded-sm border border-rust/30 bg-white p-4 sm:p-6 xl:col-start-1 xl:mt-6 print:break-before-page print:border-0 print:p-0">
       <h2 className="font-display text-xl font-semibold text-ink">{t("receipt.partBTitle")}</h2>
       <p className="mt-2 text-sm font-medium text-rust">{t("receipt.partBWarning")}</p>
       <div className="mt-3 flex flex-wrap items-center gap-2 print:hidden">
@@ -459,7 +470,7 @@ function PartB({ receiptKey: key }: { receiptKey: ReceiptKey }) {
         </button>
       </div>
       {short && <p className="mt-2 text-sm text-rust">{t("receipt.lockShort")}</p>}
-      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
+      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start xl:flex-col">
         <Qr text={secret} className="w-48 shrink-0" />
         <div className="min-w-0">
           <pre className="whitespace-pre-wrap break-all rounded-sm bg-sand p-3 font-mono text-[11px] text-ink">{secret}</pre>
