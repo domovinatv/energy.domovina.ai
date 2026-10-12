@@ -956,3 +956,74 @@ stranicu projekta. `/beta/provjera/` 434 KB gz (generator izvještaja u pozadini
 - Rečenica „Tko ima ovaj ključ, ima i pravo iz potvrde" (docs/16 §4.1) — „pravo" je pravno
   nejasno uz „Uplata nije ulaganje"; nije pregledano.
 - PDF-ovi preuzeti prije `baf0c16` nemaju JSON privitak.
+
+## 18. Desktop raspored /beta/, ?uplata= u adresi i jasno vlasništvo potvrde (12.10.2026.)
+
+Mobile-first izgled je ostao netaknut; sve ispod vrijedi od `xl` (≥ 1280 px). Commiti
+`c1c0ea1`…`405427c`.
+
+### 18.1 Raspored bez skrolanja — mjerenja
+
+`.container-wide` (`app/globals.css`) je do `xl` isto što i `container-content`, a od `xl`
+fluidan (`max-w-none`). `/beta/` traka, popis, elektrana, potvrda i provjera ga koriste.
+
+| stranica, prozor | prije | poslije |
+|---|---|---|
+| `/beta/lukavec/`, 1920×887 | 2257 px | 817 px (kraj sekcije) |
+| `/beta/lukavec/` s otvorenim QR-om, 1920×831 | stupac se skrolao | prvi red 802 px |
+| `/beta/potvrda/` bez ključa, 1920×831 | 1785 px | 751 px |
+| `/beta/potvrda/` s dijelom B, 1920×831 | — | dio B do 819 px |
+| `/beta/provjera/` s ishodom, 1920×887 | jedan stupac | 873 px |
+
+Ne stane: 1280–1535 px (HEP i potvrda ispod ruba), 1536×730 (Windows 125 %) ~170 px viška.
+
+- **Elektrana:** `xl` tri stupca (elektrana | uplate | uplata) + HEP vodoravno ispod;
+  `2xl` četiri (HEP svoj stupac). Omotač uplata/plaćanja je na `xl` `contents`, pa
+  mobilni redoslijed DOM-a ostaje isti. Fotografije na desktopu: velika + tri sličice
+  (`PhotoViewer`), visina `max(15rem, 100vh − 36rem)`.
+- **Otvoren QR na `2xl`:** uplata uzme HEP-ov stupac i postane dvostupčana (QR | podaci),
+  `useMediaQuery("(min-width: 1536px)")` u `intent-panel.tsx`. Ispod 2xl panel je kao prije —
+  QR od 320 px i podaci jedno uz drugo ne stanu u ~400 px.
+- **HEP u uskom srednjem stupcu** (prvi pokušaj na `xl`) narastao je na ~750 px i gurnuo
+  stranicu na 1410 px pri 1280×720 — odbačeno, HEP je na `xl` vodoravno ispod.
+- **`sticky` stupci odbačeni:** stupac viši od prozora (otvoren QR, lijevi stupac provjere)
+  sa `sticky` sakrije donji dio.
+- **Potvrda:** desna kolona preko svih redaka (`grid-rows-[repeat(5,auto)_1fr]`,
+  `row-[1/-1]`), inače spanning element razvuče lijeve retke. Ispis ostaje `print:block`.
+
+### 18.2 `?uplata=<sid>` i animacija
+
+- Otvoren intent upisuje `?uplata=<sid>` (`replaceState`, Natrag ne vrti QR). Osvježavanje
+  zove `fetchIntent` → `GET mpt.domovina.ai/api/intents/<sid>` (isti oblik kao POST, s
+  IBAN-om i EPC-om); intent na **tuđi Safe** ili nepostojeći sid samo se makne iz adrese.
+  Ključ potvrde vraća se iz `localStorage` ako postoji. Provjereno na `r1dw2…` (settled).
+- Prijelaz bez/s QR-om: View Transitions (`lib/view-transition.ts`, `flushSync`), imena
+  `beta-plant/-activity/-pay/-hep`. Snimke `object-fit: none` (inače se tekst razvuče).
+  **Korisnik: „bolje, ali nije maksimalno lijepo, prebrzo"** — ostavljeno zasad (380 ms u
+  `globals.css`). Animaciju nisam vidio: kartica pod automatizacijom je u pozadini i
+  preglednik prekine tranziciju („Document hidden"), kao kod canvasa.
+
+### 18.3 Vlasništvo: „ključ otključava potvrdu"
+
+`/beta/provjera/` je već primala potvrdu + ključ, ali ishod to nije govorio. Sada redak
+`data-owner` u ishodu: ok / fail / skip. **Tuđi ključ** je prije prekidao provjeru
+(`parseKeyFile` baca `wrong_key`); sada se provjera izvede bez ključa, a korak 3 se na
+stranici prepiše u `fail` i ishod u „NIJE ispravna" — `receipt-verify.ts` je kopija raila
+i nije diran. `/beta/potvrda/` ima blok „Dvije datoteke, dvije uloge".
+
+### 18.4 Cloudflare kešira 404 kao `immutable`
+
+`public/_headers` je imao `/_next/static/* immutable, max-age=1 god`. Cloudflare to
+zaglavlje stavlja **i na 404**. Preglednik koji zatraži novi chunk prije nego se deploy
+raširi do njegovog ruba zapamti 404 na godinu dana → `ChunkLoadError`, „This page couldn't
+load", i nakon što chunk vraća 200 (`curl` 200, preglednik i dalje 404 iz cachea).
+Sad `max-age=0, must-revalidate`. Pokvaren preglednik se popravi s
+`fetch(url, { cache: "reload" })` ili brisanjem cachea. Tko je otvorio `/beta/potvrda/`
+u tom prozoru (~1 min, 12.10. oko 13:58) i dalje može imati zapamćen 404.
+
+### 18.5 Ostalo
+
+- `wrangler deploy` jednom pao s „Received a malformed response from the API"; ponovljen
+  `npx wrangler deploy` prošao.
+- Za lokalni test toka plaćanja bez raila: podmetni `window.fetch` (POST intenta → lažni
+  odgovor, `status_url` → `awaiting_payment`) i `window.EventSource = undefined`.
