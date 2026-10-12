@@ -1,0 +1,4 @@
+inter-400.ttf, inter-600.ttf — Inter (The Inter Project Authors), SIL Open Font License 1.1
+fraunces-600.ttf — Fraunces (The Fraunces Project Authors), SIL Open Font License 1.1
+Statične instance s fonts.googleapis.com (12. 10. 2026.). Ugrađuju se u PDF potvrde o uplati
+(lib/receipt-pdf.ts). Tekst licence: https://openfontlicense.org

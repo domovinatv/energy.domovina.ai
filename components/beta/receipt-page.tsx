@@ -153,16 +153,44 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
   ].filter((a: ReceiptAnchor) => a.ots_available);
   const qrText = canonicalJson({ v: 1, sid: rc.sid, owner: pub.owner, salt: pub.salt });
   const statusKey = receiptStatusKey(rc.status);
+  const [pdf, setPdf] = useState<"idle" | "busy" | "error">("idle");
 
   return (
     <>
       <div className="mt-4 flex flex-wrap gap-3 print:hidden">
         <button
           type="button"
-          onClick={() => window.print()}
-          className="rounded-sm bg-forest px-4 py-2 text-sm font-medium text-cream hover:bg-forest-700"
+          disabled={pdf === "busy"}
+          onClick={async () => {
+            setPdf("busy");
+            try {
+              // pdf-lib, fontkit i fontovi (~0,8 MB) tek na klik, ne pri otvaranju stranice.
+              const { buildReceiptPdf, receiptPdfFileName, RECEIPT_PDF_FONT_URLS } = await import("@/lib/receipt-pdf");
+              const load = async (url: string) => {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`font ${res.status}`);
+                return new Uint8Array(await res.arrayBuffer());
+              };
+              const [regular, semibold, display] = await Promise.all([
+                load(RECEIPT_PDF_FONT_URLS.regular),
+                load(RECEIPT_PDF_FONT_URLS.semibold),
+                load(RECEIPT_PDF_FONT_URLS.display),
+              ]);
+              const bytes = await buildReceiptPdf(rc, key, { regular, semibold, display }, {
+                t,
+                formatEur: formatEurPrecise,
+                formatDate: (iso) => formatDateShort(iso, locale),
+                generatedAt: new Date().toLocaleString(locale === "en" ? "en-GB" : "hr-HR"),
+              });
+              downloadFile(receiptPdfFileName(rc.sid), new Uint8Array(bytes), "application/pdf");
+              setPdf("idle");
+            } catch {
+              setPdf("error");
+            }
+          }}
+          className="rounded-sm bg-forest px-4 py-2 text-sm font-medium text-cream hover:bg-forest-700 disabled:opacity-50"
         >
-          {t("receipt.print")}
+          {pdf === "busy" ? t("receipt.pdfBusy") : t("receipt.downloadPdf")}
         </button>
         <button
           type="button"
@@ -172,6 +200,7 @@ function ReceiptDocument({ receipt: rc, receiptKey: key }: { receipt: Receipt; r
           {t("receipt.downloadJson")}
         </button>
       </div>
+      {pdf === "error" && <p className="mt-2 text-sm text-rust">{t("receipt.pdfError")}</p>}
 
       <article className="mt-6 rounded-sm border border-ink/10 bg-white p-4 sm:p-6 print:border-0 print:p-0">
         <p className="text-xs text-inkMuted">MPT · {rc.version}</p>

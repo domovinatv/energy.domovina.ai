@@ -969,7 +969,9 @@ export const hr = {
   "receipt.anchorRoot": "korijen",
   "receipt.qrNote": "QR: referenca, vlasnik i salt.",
   "receipt.jsonTitle": "Potvrda (kanonski JSON)",
-  "receipt.print": "Spremi kao PDF",
+  "receipt.downloadPdf": "Preuzmi PDF",
+  "receipt.pdfBusy": "Pripremam PDF…",
+  "receipt.pdfError": "PDF nije napravljen. Pokušaj ponovno.",
   "receipt.downloadJson": "Preuzmi potvrdu (JSON)",
   "receipt.importTitle": "Ključ nije u ovom pregledniku",
   "receipt.importText":
