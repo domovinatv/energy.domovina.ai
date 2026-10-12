@@ -214,6 +214,18 @@ Iz /beta/ (dnevnik §13, 6.10.2026.):
   pokriva iznos** — novi ekran „spremno za isplatu". Format QR-a NIJE uzrok (~45
   varijanti provjereno); ne „popravljati" `buildEpcText`. Dnevnik §14.
 
+Iz potvrde o uplati (dnevnik §17, 12.10.2026.):
+- **viem `concat` ne miješati `Uint8Array` i hex stringove** — string se kopira znak po
+  znak i `a`–`f` postanu 0. Sve kao bajtove (`hexToBytes`).
+- **PDF iz pdf-lib provjeri iscrtavanjem** (`pdftoppm -png`), ne čitanjem teksta: podskup
+  fonta u fontkitu 1.1.1 gubi glifove Intera, a tekstualni sloj ostaje ispravan. Inter
+  `subset: false`; ugrađeni Courier samo kroz `monoSafe` (WinAnsi baca na „č").
+- **Prelamanje teksta mora biti linearno** — kanonski JSON velike potvrde je ~30 KB bez
+  razmaka; O(n²) je zaledio karticu.
+- **Kriptografija potvrde je kopija raila** (`lib/receipt-sid.ts`, `lib/receipt-verify.ts`);
+  izmjena ide na rail pa kopijom, a test drži railove zlatne vrijednosti.
+- Za potvrdu se ručno lijepi **cijela** referenca `mpt:…?sid=…`, ne samo sid.
+
 Iz `pinka-finance/app`:
 - Statički export → `script-src` mora imati `'unsafe-inline'` (inline RSC bez
   nonce-a). Dobitak traži u `frame-ancestors`, origin-pin, `object-src 'none'`.

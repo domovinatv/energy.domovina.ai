@@ -882,3 +882,74 @@ HUB3 je u praksi vezan uz hrvatski IBAN primatelja. Format nije problem.
   IBAN ako postoji, ili partner — pay.domovina.ai `docs/research/aircash/04`).
 - RBA „Generiraj uplatnicu" dijeli HUB3 kao **QR**, ne PDF417 — HR aplikacije prihvaćaju
   HRVHUB30 i u QR-u. Za uski mobilni ekran to je bolji oblik od širokog PDF417.
+
+## 17. Potvrda o uplati — izvedba, test s 1 € i provjera (12.10.2026.)
+
+Specifikacija je `docs/16`; ovdje je ono što se pokazalo tek u izvedbi. Rail strana:
+pay.domovina.ai PR #92 (sid), #94 (primatelj po retku, batch upis), #95 (offline PDF).
+
+### 17.1 Bug u railovom `sid`-u (viem `concat`)
+
+`concat([toBytes(domena), getAddress(owner), salt])` miješa `Uint8Array` i hex stringove;
+viem tada string kopira znak po znak, a `a`–`f` postanu 0 (90 bajtova umjesto 50). Sid se
+tako nije poklapao sa specifikacijom, pa bi „provjeri bez nas" svakome palo. Uhvaćeno
+testom: salt `…0e00` i `…0e0f` dali su **isti** sid (a ujedno i railovim Python
+verifikatorom). Ispravak: `hexToBytes` za oba. Zlatni vektor je sad
+`r183ns4pcpn659hd2z3xtaqiwq`. Na railu je bilo 0 `r1` intenta, pa migracije nije trebalo.
+
+### 17.2 Test s pravim novcem: Revolut i referenca
+
+| uplata | opis kod Moneriuma | ishod |
+|---|---|---|
+| 1 € `r1q3…` | prazan | `unbound_stray` (vezano po iznosu i vremenu) |
+| 1 € `r1dw2…` | prazan | `unbound_stray` |
+| 1 € `r1dbx…` | `mpt:0x4f7f…?sid.r1dbx…` (ručno zalijepljen) | `issued` + 73 naknadne |
+
+- Revolut ispušta opis u određenom toku plaćanja (na railu 9 od 98 uplata), ne uvijek.
+- **Ručno treba zalijepiti cijelu referencu `mpt:…`**: rail sidro priznaje samo opis koji
+  počinje s `mpt:` (`monerium/sid.ts`). Sam sid nije dovoljan.
+- SEPA je `=` pretvorio u `.` (`?sid.r1…`); railov parser to prihvaća.
+- Iznos i vrijeme **nisu dokaz** za potvrdu (ADR 0022), pa uplata bez reference ne dobiva
+  izravnu potvrdu; pokrije je naknadno sljedeća s istog IBAN-a.
+- **Odluka (Matija): puni backfill po IBAN-u**, bez datuma i bez filtra po primatelju. Prva
+  potvrda s njegovog Revoluta pokupila je 73 uplate od 21. 5. prema desetak Safeova, zato
+  potvrda ima stupac „Primatelj" (rail šalje `target_address` po retku).
+
+### 17.3 PDF u pregledniku — tri zamke
+
+- **Podskup fonta u `@pdf-lib/fontkit` 1.1.1 gubi glifove Intera.** Tekstualni sloj je
+  ispravan, pa ga test koji čita tekst NE hvata — vidi se samo iscrtavanjem
+  (`pdftoppm -png`). Inter se ugrađuje cijeli (PDF ~360 KB); Fraunces kao podskup radi.
+- **Ugrađeni Courier je WinAnsi** i baca na „č". Sve što ide u Courier prolazi kroz
+  `monoSafe` (`\uXXXX`); za JSON je to ista vrijednost.
+- **O(n²) prelamanje zaledilo je karticu**: kanonski JSON potvrde sa 74 retka je ~30 KB bez
+  razmaka, a `wrapText` je predugu riječ skraćivao znak po znak i mjerio cijeli ostatak.
+  Sad jedan prolaz; test sa 74 retka mora završiti ispod 5 s (prije >60 s).
+- Fontovi i pdf-lib učitavaju se **pri otvaranju** stranice, ne na klik → PDF radi offline.
+- PDF nosi kanonski JSON kao **privitak** (`doc.attach`), pa je strojno provjerljiv.
+
+### 17.4 Veličina paketa
+
+viem (~76 KB gz) i pdf-lib se učitavaju dinamički: `/beta/<slug>/` je ostao 481→487 KB gz
+(popis „Moje uplate" +3 KB). `lib/receipt-index.ts` mora ostati bez viema — ide u svaku
+stranicu projekta. `/beta/provjera/` 434 KB gz (generator izvještaja u pozadini; prije 771).
+
+### 17.5 Sitnice koje su koštale vremena
+
+- Localhost ne može zvati rail (CORS pušta samo `energy.domovina.ai`): tok s intentom se
+  lokalno ne može proći; prikaz potvrde provjeren podmetnutim odgovorom.
+- Odmah nakon `wrangler deploy` nova ruta je u pregledniku dala 404, minutu kasnije 200
+  (širenje deploya), nije greška u buildu.
+- Na railu je `receipt_leaves` prazan dok se potvrda prvi put ne zatraži potpisano: tada
+  `linkNow` upisuje naknadne retke (prvo otvaranje sporije; batch upis od #94).
+
+### 17.6 Otvoreno
+
+- Prvo sidro: 00:00 UTC 13. 10. Koraci 5–6 na `/beta/provjera/` trebali bi proći odmah,
+  7–9 (checkpoint, OTS, Bitcoin) tek ~dan kasnije (javni repo `ots upgrade` u 00:40 UTC,
+  Worker povlači svakih 6 h). Logika sidra/OTS/Bitcoina dosad testirana samo sintetički.
+- Jedinstveni iznos po otvorenom intentu (druga razina vezanja bez reference) — prijedlog
+  pay.domovina.ai sesije, čeka Matijinu odluku; energy tok se dotad ne mijenja.
+- Rečenica „Tko ima ovaj ključ, ima i pravo iz potvrde" (docs/16 §4.1) — „pravo" je pravno
+  nejasno uz „Uplata nije ulaganje"; nije pregledano.
+- PDF-ovi preuzeti prije `baf0c16` nemaju JSON privitak.

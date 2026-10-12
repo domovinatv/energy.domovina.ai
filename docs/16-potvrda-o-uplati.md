@@ -1,8 +1,9 @@
 # 16 — Potvrda o uplati (rail ADR 0022) u beta toku plaćanja
 
-**Stanje 12. 10. 2026.:** rail strana je **deployana** (`mpt.domovina.ai`, Worker verzija
-`660ceae6`, PR pay.domovina.ai#91). U ovom repou još **ništa nije napravljeno**. Ovaj dokument je
-specifikacija za izvedbu.
+**Stanje 12. 10. 2026. (navečer):** izvedeno i **live za sve** (bez zastavice, §4). Test s pravim
+novcem prošao: potvrda `r1dbxtrxtdnn8rcnzgu5bz8b6g` = 1 izravna + 73 naknadne uplate (80,93 €).
+Neovisna provjera je na `/beta/provjera/` (§7). Zamke i tijek izvedbe: dnevnik izvedbe §17.
+Otvoreno: prvo sidro (00:00 UTC 13. 10.) još nije provjereno na stvarnim podacima.
 
 Izvor istine za kriptografiju i pravila je rail:
 
