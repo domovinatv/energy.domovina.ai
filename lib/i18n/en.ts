@@ -815,7 +815,7 @@ export const en: Catalog = {
   "beta.codeQr": "QR code",
   "beta.codeHub3": "Payment slip barcode",
   "beta.hub3Scan": "Scan the barcode as you would a utility bill, e.g. in Aircash (Scan & Pay) or a Croatian banking app. This is an experiment: the recipient has an Estonian IBAN, so some apps may refuse it, and the payment arrives by the next working day at the latest. The payment description is not carried over, so we match the payment by its exact amount and time. Do not change the amount.",
-  "beta.revolutReference": "Revolut sometimes drops the payment reference after a scan. The payment still reaches the plant: we match it by the exact amount and time. So do not change the amount, and pay within 48 hours. In rare cases, such as two identical payments at the same time for different plants, we route the payment by hand and it arrives later.",
+  "beta.revolutReference": "After a QR scan Revolut leaves the Reference field empty. Before sending, copy the reference (button below) and paste it in full into Reference. Without it the payment does not go straight to the plant: we receive it, but it reaches the plant only after a manual transfer.",
   "beta.intentAwaiting": "Waiting for a payment of {amount}. This page notices on its own when it arrives.",
   "beta.intentReceived": "Payment of {amount} received",
   "beta.intentReceivedSub":
@@ -892,7 +892,7 @@ export const en: Catalog = {
     "The payment slip (barcode) carries no receipt; you will get one retroactively once you pay by QR from the same account.",
   "receipt.referenceTitle": "For a receipt, check the payment description before sending",
   "receipt.referenceText":
-    "The description must contain the full reference below, from “mpt:” to the end. Some apps leave it out (Revolut when the balance covers the amount). Then copy it and paste it into the description by hand, in full and unchanged; the part after “sid=” alone is not enough. The money reaches the plant without the reference too, but only a payment whose reference arrives in the description gets a receipt.",
+    "The description must contain the full reference below, from start to end. Revolut leaves it out after a scan. Then copy it and paste it into the description by hand, in full and unchanged; the sid alone is not enough. Without the reference the payment does not go straight to the plant (only after a manual transfer) and gets no receipt; only a payment whose reference arrives in the description gets a receipt.",
   "receipt.mineTitle": "My payments from this browser",
   "receipt.mineNote": "This list and the receipt keys exist only in this browser, nowhere else.",
   "receipt.shortIssued": "Receipt issued",

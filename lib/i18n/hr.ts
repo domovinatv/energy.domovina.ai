@@ -853,7 +853,7 @@ export const hr = {
   "beta.codeQr": "QR kod",
   "beta.codeHub3": "Barkod uplatnice",
   "beta.hub3Scan": "Skeniraj barkod kao račun za režije, npr. u Aircashu (Slikaj i plati) ili u aplikaciji hrvatske banke. Ovo je pokus: primatelj ima estonski IBAN pa ga neke aplikacije možda neće prihvatiti, a uplata stiže najkasnije sljedeći radni dan. Opis plaćanja se ne prenosi, pa uplatu prepoznajemo po točnom iznosu i vremenu. Zato ne mijenjaj iznos.",
-  "beta.revolutReference": "Revolut nakon skeniranja ponekad izostavi opis plaćanja. Uplata tada ipak stiže do elektrane: prepoznajemo je po točnom iznosu i vremenu. Zato ne mijenjaj iznos i plati unutar 48 sati. U rijetkim slučajevima, npr. dvije jednake uplate u isto vrijeme za različite elektrane, uplatu usmjeravamo ručno pa stigne kasnije.",
+  "beta.revolutReference": "Revolut nakon skeniranja QR-a ostavi polje Reference prazno. Prije slanja kopiraj referencu (gumb ispod) i zalijepi je cijelu u Reference. Bez nje uplata ne stiže izravno u elektranu: zaprimimo je, ali u elektranu stiže tek nakon ručnog prijenosa.",
   "beta.intentAwaiting": "Čekam uplatu od {amount}. Ova stranica sama prepozna kad stigne.",
   "beta.intentReceived": "Uplata od {amount} je stigla",
   "beta.intentReceivedSub":
@@ -930,7 +930,7 @@ export const hr = {
     "Uplatnica (barkod) nema potvrdu o uplati; dobit ćeš je naknadno kad jednom platiš QR-om s istog računa.",
   "receipt.referenceTitle": "Za potvrdu provjeri opis plaćanja prije slanja",
   "receipt.referenceText":
-    "U opisu mora pisati cijela referenca ispod, od „mpt:” do kraja. Neke aplikacije je izostave (Revolut kad stanje pokriva iznos). Tada je kopiraj i zalijepi u opis ručno, cijelu i bez izmjena; sam dio iza „sid=” nije dovoljan. Novac na elektranu stiže i bez reference, ali potvrdu dobiva samo uplata kojoj referenca stigne u opisu.",
+    "U opisu mora pisati cijela referenca ispod, od početka do kraja. Revolut je nakon skeniranja izostavi. Tada je kopiraj i zalijepi u opis ručno, cijelu i bez izmjena; sam sid nije dovoljan. Bez reference uplata ne stiže izravno u elektranu (tek nakon ručnog prijenosa) i ne dobiva potvrdu; potvrdu dobiva samo uplata kojoj referenca stigne u opisu.",
   "receipt.mineTitle": "Moje uplate iz ovog preglednika",
   "receipt.mineNote": "Popis i ključevi potvrda postoje samo u ovom pregledniku, nigdje drugdje.",
   "receipt.shortIssued": "Potvrda izdana",

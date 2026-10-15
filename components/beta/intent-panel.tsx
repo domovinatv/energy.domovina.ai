@@ -207,15 +207,14 @@ export function IntentPanel({
         {showQr && (
           <>
             {!split && qrBlock}
-            {/* Revolut iOS od 7.10.2026.: kad stanje pokriva iznos, nakon skeniranja otvara
-                ekran „spremno za isplatu" BEZ opisa plaćanja. Format QR-a nije uzrok.
-                Od 8.10. rail takvu uplatu veže uz intent po tenantu, točnom iznosu i
-                vremenu (pay.domovina.ai ADR 0018, prozor 48 h); kad kandidati vode na
-                različite Safeove, parkira je za ručno preusmjeravanje. Zato napomena
-                više nije upozorenje. */}
+            {/* Revolut nakon skeniranja QR-a ostavlja Reference prazno (format QR-a nije
+                uzrok). Od 15.10.2026. rail je u izravnom načinu (pay.domovina.ai ADR 0025):
+                opis `gnosis:<Safe> sid:<sid>` je ono što Moneriumu kaže da minta ravno u
+                Safe elektrane. Bez opisa novac sleti na glavni Safe i do elektrane stiže
+                tek nakon ručnog 2/3 prijenosa, pa je napomena opet upozorenje. */}
             {receipt !== null ? (
               // Za potvrdu iznos i vrijeme NISU dokaz (rail ADR 0022): sidro nastaje samo kad
-              // opis počinje s `mpt:` i nosi sid (`monerium/sid.ts` extractRoutingTarget).
+              // opis platitelja nosi sid (`mpt:`, a od ADR 0025 i `gnosis:`; receipts/link.ts).
               // Sam sid u opisu ne vrijedi — zato se kopira cijela referenca.
               <div data-receipt-reference className="mt-3 max-w-[320px] rounded-sm border border-solar/60 bg-solar-soft p-3 text-xs text-ink">
                 <p className="text-sm font-medium">{t("receipt.referenceTitle")}</p>
@@ -223,7 +222,7 @@ export function IntentPanel({
                 <dl className="mt-2 text-sm">{copyRow(t("beta.reference"), intent.memo, intent.memo, true)}</dl>
               </div>
             ) : (
-              <p className="mt-3 max-w-[320px] rounded-sm border border-ink/10 bg-sand p-3 text-xs text-inkSoft">
+              <p data-revolut-reference className="mt-3 max-w-[320px] rounded-sm border border-solar/60 bg-solar-soft p-3 text-xs text-ink">
                 {t("beta.revolutReference")}
               </p>
             )}
