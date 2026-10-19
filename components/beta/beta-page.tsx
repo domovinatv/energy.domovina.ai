@@ -191,13 +191,14 @@ function ProjectSection({ project }: { project: BetaProject }) {
   };
   const hep = BETA_HEP[project.slug];
   const yearKwh = hep === undefined ? null : hepYearKwh(hep);
-  // Desktop bez skrolanja: na xl tri stupca (elektrana | uplate | uplata). Dok je QR
+  // Desktop bez skrolanja: na xl tri stupca (elektrana | uplate | uplata). Prvi stupac
+  // je širok koliko slika 16:9 koja stane u visinu prozora (PhotoViewer). Dok je QR
   // otvoren, na 2xl uplata dobije širi stupac i postane dvostupčana. Mobilni i tablet
   // poredak je nepromijenjen: omotač uplata/plaćanja na xl postaje `contents`, pa su
   // njegova djeca stavke mreže.
   return (
     <section
-      className={`rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7 xl:grid xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_400px] xl:gap-x-8 2xl:gap-x-10 ${
+      className={`rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7 xl:grid xl:grid-cols-[min(calc(max(15rem,100vh_-_36rem)*16/9),calc(100%_-_400px_-_18rem_-_5rem))_minmax(0,1fr)_400px] xl:gap-x-8 2xl:gap-x-10 ${
         paying ? "2xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(680px,1.6fr)]" : ""
       }`}
     >
@@ -293,8 +294,9 @@ function PhotoViewer({ photos, place }: { photos: BetaPhotos; place: string }) {
   const slot = slots[selected]!;
   return (
     <figure className="mt-5">
-      {/* Fluidna širina: visina slike prati visinu prozora, inače bi stupac gurnuo stranicu u skrolanje. */}
-      <div className="relative aspect-video w-full xl:max-h-[max(15rem,calc(100vh-35rem))] overflow-hidden rounded-sm bg-sandDeep">
+      {/* Visina prati visinu prozora (inače bi stupac gurnuo stranicu u skrolanje), ali se ograničava
+          ŠIRINA (visina × 16/9), ne visina: s max-h bi široki stupac (QR zatvoren) odrezao vrh i dno. */}
+      <div className="relative aspect-video w-full overflow-hidden rounded-sm bg-sandDeep xl:max-w-[calc(max(15rem,100vh_-_36rem)*16/9)]">
         {slot.base === null ? (
           <p className="flex h-full items-center justify-center px-4 text-center text-sm text-inkMuted">{slot.pending}</p>
         ) : (
