@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { BRAND } from "@/lib/brand";
-import { formatDateShort, formatEur, formatEurPrecise, formatPercent, shortAddress } from "@/lib/format";
+import { formatDateShort, formatEur, formatEurPrecise, formatNumber, formatPercent } from "@/lib/format";
 import {
   BETA_PROJECTS,
   DEFAULT_AMOUNT_EUR,
@@ -27,7 +27,7 @@ import type { ReceiptKey } from "@/lib/receipt-keys";
 import { browserStorage, rememberReceipt } from "@/lib/receipt-index";
 import { MyReceipts } from "@/components/beta/my-receipts";
 import { IntentPanel } from "@/components/beta/intent-panel";
-import { HepMeter } from "@/components/beta/hep-meter";
+import { HepMeter, hepYearKwh } from "@/components/beta/hep-meter";
 import { BETA_HEP } from "@/lib/beta-hep";
 import { justArrivedRemainingMs, unconfirmedCents, type PendingPayment } from "@/lib/pending-payments";
 import { removePending, savePending, usePending } from "@/lib/pending-store";
@@ -189,48 +189,46 @@ function ProjectSection({ project }: { project: BetaProject }) {
     savePending(project.safe, p);
     if (p.txHash !== null) setRefreshKey((k) => k + 1);
   };
-  // Desktop bez skrolanja: na xl tri stupca (elektrana | uplate | uplata) i HEP
-  // vodoravno ispod prva dva, na 2xl četiri stupca (HEP dobije svoj). Dok je QR
-  // otvoren, na 2xl uplata uzme HEP-ov stupac i postane dvostupčana. Mobilni i tablet poredak je nepromijenjen:
-  // omotač uplata/plaćanja na xl postaje `contents`, pa su njegova djeca stavke mreže.
+  const hep = BETA_HEP[project.slug];
+  const yearKwh = hep === undefined ? null : hepYearKwh(hep);
+  // Desktop bez skrolanja: na xl tri stupca (elektrana | uplate | uplata). Dok je QR
+  // otvoren, na 2xl uplata dobije širi stupac i postane dvostupčana. Mobilni i tablet
+  // poredak je nepromijenjen: omotač uplata/plaćanja na xl postaje `contents`, pa su
+  // njegova djeca stavke mreže.
   return (
     <section
-      className={`rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7 xl:grid xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_400px] xl:grid-rows-[auto_1fr] xl:gap-x-8 2xl:gap-x-7 ${
-        paying
-          ? "2xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(680px,1.6fr)]"
-          : "2xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(0,1.15fr)_400px] 2xl:grid-rows-1"
+      className={`rounded-md border border-ink/8 bg-white/60 p-4 sm:p-7 xl:grid xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_400px] xl:gap-x-8 2xl:gap-x-10 ${
+        paying ? "2xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(680px,1.6fr)]" : ""
       }`}
     >
       <div className="[view-transition-name:beta-plant] xl:col-start-1 xl:row-start-1">
-        <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-1">
-          <div>
-            <p className="inline-block rounded-full bg-forest/10 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-forest">
-              {t("beta.campaign")}
-            </p>
-            <h1 className="mt-2 font-display text-display-md font-semibold text-ink">{project.place}</h1>
-            <p className="mt-1 text-sm text-inkSoft">{project.address}</p>
-          </div>
-          <p className="text-sm text-inkMuted">{project.county}</p>
-      </div>
+        <h1 className="font-display text-display-md font-semibold text-ink">{project.place}</h1>
+        <p className="mt-1 text-sm text-inkSoft">{project.address}</p>
 
-      <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-4">
-        <Fact label={t("beta.power")} value={`${project.powerKw} kW`} />
-        <Fact label={t("beta.goal")} value={project.goalCents === null ? "—" : formatEur(project.goalCents)} />
-        <p className="col-span-2 text-inkSoft sm:self-end">
-          {t("beta.connections", { count: project.connections })}
-          {project.gnosisNode ? ` · ${t("beta.node")}` : ""}
+        <dl className="mt-4 flex flex-wrap justify-between gap-x-4 gap-y-3 text-sm sm:justify-start sm:gap-x-12">
+          <Fact label={t("beta.power")} value={`${project.powerKw} kW`} />
+          <Fact label={t("beta.goal")} value={project.goalCents === null ? "—" : formatEur(project.goalCents)} />
+          {yearKwh !== null && <Fact label={t("beta.yearUse")} value={`${formatNumber(yearKwh)} kWh`} />}
+        </dl>
+        {project.goalCents === null && <p className="mt-2 text-xs text-inkMuted">{t("beta.goalPending")}</p>}
+        {isPayable(project) && (
+          <a
+            href="#uplata"
+            className="mt-5 block rounded-sm bg-forest px-4 py-2.5 text-center text-sm font-medium text-cream hover:bg-forest-700 xl:hidden"
+          >
+            {t("beta.payJump")}
+          </a>
+        )}
+
+        {project.photos !== null && <PhotoViewer photos={project.photos} place={project.place} />}
+        {hep !== undefined && <HepMeter hep={hep} />}
+        <p className="mt-6 hidden text-xs text-inkMuted xl:block">
+          {t("beta.notInvestment", { brand: BRAND.name })}
         </p>
-      </dl>
-      {project.goalCents === null && <p className="mt-2 text-xs text-inkMuted">{t("beta.goalPending")}</p>}
-
-      {project.photos !== null && <ProjectPhotos photos={project.photos} place={project.place} />}
-      <p className="mt-6 hidden text-xs text-inkMuted xl:block">
-        {t("beta.notInvestment", { brand: BRAND.name })}
-      </p>
       </div>
 
       {hasVerifiedSafe(project) ? (
-        <div className="mt-6 grid gap-6 lg:grid-cols-2 xl:contents">
+        <div className="mt-8 grid gap-8 lg:grid-cols-2 xl:contents">
           <PendingWatcher safe={project.safe} pending={pending} onSettled={() => setRefreshKey((k) => k + 1)} />
           <div className="[view-transition-name:beta-activity] xl:col-start-2 xl:row-start-1">
             <LiveActivity
@@ -248,12 +246,13 @@ function ProjectSection({ project }: { project: BetaProject }) {
           </div>
           {isPayable(project) ? (
             <div
-              className={`[view-transition-name:beta-pay] xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:self-start ${paying ? "" : "2xl:col-start-4"}`}
+              id="uplata"
+              className="scroll-mt-4 [view-transition-name:beta-pay] xl:col-start-3 xl:row-start-1 xl:self-start"
             >
               <PayWithIntent safe={project.safe} onPayment={onPayment} onOpenChange={setPaying} />
             </div>
           ) : (
-            <div className="rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:self-start 2xl:col-start-4">
+            <div className="rounded-sm bg-sandDeep px-4 py-3 text-sm text-inkSoft xl:col-start-3 xl:row-start-1 xl:self-start">
               <p>{t("beta.payPending")}</p>
               <p className="mt-2 text-xs text-inkMuted">{t("beta.safe")}</p>
               <p className="break-all font-mono text-xs text-ink">{project.safe}</p>
@@ -265,75 +264,7 @@ function ProjectSection({ project }: { project: BetaProject }) {
           {t("beta.pending")}
         </p>
       )}
-
-      {BETA_HEP[project.slug] !== undefined && (
-        <div
-          className={`[view-transition-name:beta-hep] xl:col-span-2 xl:col-start-1 xl:row-start-2 ${paying ? "" : "2xl:col-span-1 2xl:col-start-3 2xl:row-start-1"}`}
-        >
-          <HepMeter hep={BETA_HEP[project.slug]!} stacked={!paying} />
-        </div>
-      )}
     </section>
-  );
-}
-
-/**
- * Prije · vizualizacija · poslije. Oznaka „AI vizualizacija" stoji NA slici, ne
- * u potpisu — potpis se na mobitelu lako preskoči, a render pokraj prave snimke
- * bez oznake bio bi obmana (CLAUDE.md, pravilo 3).
- */
-function ProjectPhotos({ photos, place }: { photos: BetaPhotos; place: string }) {
-  const { t } = useT();
-  const slots = [
-    { key: "before", base: photos.before, caption: t("beta.photoBefore"), pending: t("beta.photoBeforePending") },
-    { key: "render", base: photos.render, caption: t("beta.photoRender"), pending: t("beta.photoRenderPending") },
-    { key: "after", base: photos.after, caption: t("beta.photoAfter"), pending: t("beta.photoAfterPending") },
-  ] as const;
-  return (
-    <>
-      <ol className="mt-6 grid gap-4 sm:grid-cols-3 xl:hidden">
-        {slots.map((slot, i) => (
-          <li key={slot.key}>
-            <figure>
-              <div className="relative aspect-video overflow-hidden rounded-sm bg-sandDeep">
-                {slot.base === null ? (
-                  <p className="flex h-full items-center justify-center px-4 text-center text-sm text-inkMuted">
-                    {slot.pending}
-                  </p>
-                ) : (
-                  <a href={`${slot.base}-1600.webp`} target="_blank" rel="noreferrer" className="block h-full">
-                    {/* Statički export: next/image ovdje ne optimizira (images.unoptimized), pa običan img sa srcset. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`${slot.base}-800.webp`}
-                      srcSet={PHOTO_WIDTHS.map((w) => `${slot.base}-${w}.webp ${w}w`).join(", ")}
-                      sizes="(min-width: 640px) 33vw, 100vw"
-                      alt={t(`beta.photoAlt.${slot.key}`, { place })}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover"
-                    />
-                  </a>
-                )}
-                {slot.key === "render" && slot.base !== null && (
-                  <span className="absolute left-2 top-2 rounded-full bg-ink/80 px-2.5 py-0.5 text-xs font-medium text-cream">
-                    {t("beta.photoRenderBadge")}
-                  </span>
-                )}
-              </div>
-              <figcaption className="mt-2 text-sm text-inkSoft">
-                <span className="text-inkMuted">{i + 1}. </span>
-                {slot.caption}
-              </figcaption>
-              {slot.key === "render" && slot.base !== null && (
-                <p className="mt-1 text-xs text-inkMuted">{t("beta.photoRenderNote")}</p>
-              )}
-            </figure>
-          </li>
-        ))}
-      </ol>
-      <PhotoViewer slots={slots} place={place} />
-    </>
   );
 }
 
@@ -345,18 +276,25 @@ type PhotoSlot = {
 };
 
 /**
- * Desktop (xl): jedna velika slika i tri sličice umjesto tri slike u redu — ista
- * visina nosi veću sliku. Oznaka „AI vizualizacija" stoji i na velikoj slici i na
- * sličici, iz istog razloga kao u ProjectPhotos.
+ * Prije · vizualizacija · poslije: jedna velika slika i tri sličice, na svim
+ * širinama (na mobitelu tri slike jedna ispod druge guraju uplatu daleko dolje).
+ * Oznaka „AI vizualizacija" stoji NA slici i na sličici, ne u potpisu — potpis se
+ * na mobitelu lako preskoči, a render pokraj prave snimke bez oznake bio bi
+ * obmana (CLAUDE.md, pravilo 3).
  */
-function PhotoViewer({ slots, place }: { slots: readonly PhotoSlot[]; place: string }) {
+function PhotoViewer({ photos, place }: { photos: BetaPhotos; place: string }) {
   const { t } = useT();
+  const slots: readonly PhotoSlot[] = [
+    { key: "before", base: photos.before, caption: t("beta.photoBefore"), pending: t("beta.photoBeforePending") },
+    { key: "render", base: photos.render, caption: t("beta.photoRender"), pending: t("beta.photoRenderPending") },
+    { key: "after", base: photos.after, caption: t("beta.photoAfter"), pending: t("beta.photoAfterPending") },
+  ];
   const [selected, setSelected] = useState(() => Math.max(0, slots.findIndex((s) => s.base !== null)));
   const slot = slots[selected]!;
   return (
-    <figure className="mt-5 hidden xl:block">
+    <figure className="mt-5">
       {/* Fluidna širina: visina slike prati visinu prozora, inače bi stupac gurnuo stranicu u skrolanje. */}
-      <div className="relative aspect-video max-h-[max(15rem,calc(100vh-36rem))] w-full overflow-hidden rounded-sm bg-sandDeep">
+      <div className="relative aspect-video w-full xl:max-h-[max(15rem,calc(100vh-35rem))] overflow-hidden rounded-sm bg-sandDeep">
         {slot.base === null ? (
           <p className="flex h-full items-center justify-center px-4 text-center text-sm text-inkMuted">{slot.pending}</p>
         ) : (
@@ -366,7 +304,7 @@ function PhotoViewer({ slots, place }: { slots: readonly PhotoSlot[]; place: str
               key={slot.base}
               src={`${slot.base}-800.webp`}
               srcSet={PHOTO_WIDTHS.map((w) => `${slot.base}-${w}.webp ${w}w`).join(", ")}
-              sizes="40vw"
+              sizes="(min-width: 1280px) 40vw, 100vw"
               alt={t(`beta.photoAlt.${slot.key}`, { place })}
               decoding="async"
               className="h-full w-full object-cover"
@@ -386,7 +324,7 @@ function PhotoViewer({ slots, place }: { slots: readonly PhotoSlot[]; place: str
           <span className="mt-0.5 block text-xs text-inkMuted">{t("beta.photoRenderNote")}</span>
         )}
       </figcaption>
-      <ol className="mt-3 grid grid-cols-3 gap-3">
+      <ol className="mt-3 grid grid-cols-3 gap-3 xl:grid-cols-[repeat(3,7rem)]">
         {slots.map((s, i) => (
           <li key={s.key}>
             <button
@@ -580,7 +518,7 @@ function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <dt className="text-xs uppercase tracking-wide text-inkMuted">{label}</dt>
-      <dd className="mt-0.5 font-display text-xl font-semibold text-ink">{value}</dd>
+      <dd className="mt-0.5 whitespace-nowrap font-display text-lg font-semibold text-ink sm:text-xl">{value}</dd>
     </div>
   );
 }
@@ -662,17 +600,20 @@ function LiveActivity({
           <dl className="grid grid-cols-2 gap-x-6 gap-y-3">
             <div>
               <dt className="text-xs uppercase tracking-wide text-inkMuted">{t("beta.received")}</dt>
-              <dd className="mt-0.5 font-display text-xl font-semibold text-ink">
+              <dd className="mt-0.5 font-display text-3xl font-semibold text-ink">
                 {state.data.truncated ? "≥ " : ""}
                 <AnimatedEur cents={receivedCents} />
               </dd>
             </div>
-            <div>
-              <dt className="text-xs uppercase tracking-wide text-inkMuted">{t("beta.balance")}</dt>
-              <dd className="mt-0.5 font-display text-xl font-semibold text-ink">
-                <AnimatedEur cents={state.data.balanceCents} />
-              </dd>
-            </div>
+            {/* Saldo se razlikuje od uplaćenog tek nakon isplate; dotad bi samo ponovio isti broj. */}
+            {state.data.balanceCents !== state.data.receivedCents && (
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-inkMuted">{t("beta.balance")}</dt>
+                <dd className="mt-0.5 font-display text-3xl font-semibold text-ink">
+                  <AnimatedEur cents={state.data.balanceCents} />
+                </dd>
+              </div>
+            )}
           </dl>
           {goalCents !== null && goalCents > 0 && (
             <GoalProgress receivedCents={receivedCents} goalCents={goalCents} />
@@ -920,9 +861,6 @@ function PayWithIntent({
       </>
       )}
 
-      <dl className="mt-4 text-sm">
-        <Row label={t("beta.safe")} value={shortAddress(safe)} copy={safe} mono />
-      </dl>
       <MyReceipts safe={safe} />
     </div>
   );

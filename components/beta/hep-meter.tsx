@@ -10,6 +10,12 @@ import {
   type VrstaRazdoblja,
 } from "@/lib/moja-mreza";
 
+/** Potrošnja lokacije zadnjih 12 mjeseci (kWh); `null` bez razdoblja. */
+export function hepYearKwh(hep: BetaHep): number | null {
+  const godina = zadnjih12Mjeseci(hep.mjesto);
+  return godina.length === 0 ? null : godina.reduce((s, p) => s + p.ukupno_kwh, 0);
+}
+
 /**
  * Mjerno mjesto HEP ODS-a na lokaciji elektrane: OMM, brojilo, adresa kako je
  * vodi HEP i potrošnja zadnjih 12 mjeseci (Moja mreža, lib/moja-mreza.ts).
@@ -18,9 +24,12 @@ import {
  * zbrajanjem bi se izgubilo koji je broj procjena, a koji korekcija. Vrsta
  * razdoblja nosi i oblik (puna / blijeda / prugasta traka) i legendu, nikad
  * samo boju.
+ *
+ * Na stranici kampanje sklopljeno: uplatitelju je dovoljna godišnja potrošnja
+ * (stoji među činjenicama elektrane), a brojilo, očitanja i graf su dokaz za
+ * onoga tko ga želi provjeriti.
  */
-/** `stacked`: na 2xl vlastiti uski stupac; inače i na 2xl vodoravno ispod (kao na xl). */
-export function HepMeter({ hep, stacked = true }: { hep: BetaHep; stacked?: boolean }) {
+export function HepMeter({ hep }: { hep: BetaHep }) {
   const { t, locale } = useT();
   const { mjesto } = hep;
   const ocitanje = zadnjeOcitanje(mjesto);
@@ -30,14 +39,9 @@ export function HepMeter({ hep, stacked = true }: { hep: BetaHep; stacked?: bool
   const vrste = new Set(godina.map((p) => p.vrsta));
 
   return (
-    // xl: vodoravno ispod elektrane i uplata (podaci lijevo, graf desno); 2xl: vlastiti stupac.
-    <div
-      className={`mt-8 border-t border-ink/8 pt-6 xl:grid xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] xl:gap-x-8 ${
-        stacked ? "2xl:mt-0 2xl:block 2xl:border-t-0 2xl:pt-0" : ""
-      }`}
-    >
-      <h3 className="font-medium text-ink xl:col-span-2">{t("beta.hepTitle")}</h3>
-      <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-2">
+    <details className="mt-5 border-t border-ink/8 pt-4 text-sm">
+      <summary className="cursor-pointer text-forest underline underline-offset-2">{t("beta.hepTitle")}</summary>
+      <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3">
         <HepFact label={t("beta.hepOmm")} value={mjesto.omm} mono />
         <HepFact label={t("beta.hepMeter")} value={mjesto.broj_brojila} mono />
         <HepFact label={t("beta.hepAddress")} value={mjesto.adresa} />
@@ -62,11 +66,11 @@ export function HepMeter({ hep, stacked = true }: { hep: BetaHep; stacked?: bool
       </dl>
 
       {godina.length > 0 && (
-        <figure className={`mt-6 xl:col-start-2 xl:row-span-3 xl:row-start-2 xl:mt-3 ${stacked ? "2xl:mt-6" : ""}`}>
+        <figure className="mt-6">
           <figcaption className="text-xs uppercase tracking-wide text-inkMuted">
             {t("beta.hepChart")} <span className="normal-case">(kWh)</span>
           </figcaption>
-          <ol className="mt-3 flex h-40 items-end xl:h-32 gap-1 sm:gap-1.5" aria-label={t("beta.hepChart")}>
+          <ol className="mt-3 flex h-32 items-end gap-1 sm:gap-1.5" aria-label={t("beta.hepChart")}>
             {godina.map((p) => (
               <li
                 key={p.od}
@@ -108,7 +112,7 @@ export function HepMeter({ hep, stacked = true }: { hep: BetaHep; stacked?: bool
         </figure>
       )}
 
-      <details className="mt-4 text-sm">
+      <details className="mt-4">
         <summary className="cursor-pointer text-forest underline underline-offset-2">{t("beta.hepTable")}</summary>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[28rem] text-left tabular-nums">
@@ -141,7 +145,7 @@ export function HepMeter({ hep, stacked = true }: { hep: BetaHep; stacked?: bool
       <p className="mt-4 text-xs text-inkMuted">
         {t("beta.hepSource", { date: formatDate(hep.dohvaceno, locale) })}
       </p>
-    </div>
+    </details>
   );
 }
 

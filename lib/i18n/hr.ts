@@ -823,11 +823,10 @@ export const hr = {
   "beta.who":
     "Elektrane financiraju vlasnik lokacija i ljudi koje osobno poznaje. Ovo nije javno prikupljanje.",
   "beta.prototypeLink": "Kako će izgledati cijela platforma: prototip",
-  "beta.campaign": "Kampanja",
   "beta.progress": "Prikupljeno {received} od {goal} ({percent})",
   "beta.power": "Snaga",
-  "beta.connections": "Priključaka HEP-ODS: {count}",
-  "beta.node": "Na lokaciji radi Gnosis node",
+  "beta.yearUse": "Potrošnja / god.",
+  "beta.payJump": "Uplati za ovu elektranu",
   "beta.goal": "Cilj",
   "beta.goalPending": "Cilj se određuje prema ponudi izvođača",
   "beta.received": "Uplaćeno ukupno",
@@ -935,7 +934,7 @@ export const hr = {
   // ── Potvrda o uplati (docs/16, pay.domovina.ai ADR 0022) ──────────────────
   "receipt.toggle": "Želim potvrdu o uplati",
   "receipt.toggleHint":
-    "Preglednik napravi ključ potvrde i iz njega referencu plaćanja. Kad uplata stigne, ključem dokazuješ da si baš ti platio, bez računa i bez prijave. Ranije uplate s istog IBAN-a dobiju potvrdu naknadno.",
+    "Dokaz da si baš ti platio, bez računa i bez prijave. Ranije uplate s istog IBAN-a dobiju potvrdu naknadno.",
   "receipt.keySaved":
     "Ključ potvrde postoji samo u ovom pregledniku, lokalno (offline). Nije poslan ni spremljen nigdje drugdje, ni kod nas. Potvrdu preuzmi na ovom uređaju ili sačuvaj rezervnu kopiju.",
   "receipt.keyNotSaved":

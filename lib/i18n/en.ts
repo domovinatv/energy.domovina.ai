@@ -785,11 +785,10 @@ export const en: Catalog = {
   "beta.who":
     "The plants are funded by the owner of the sites and people he knows personally. This is not a public fundraiser.",
   "beta.prototypeLink": "What the full platform will look like: prototype",
-  "beta.campaign": "Campaign",
   "beta.progress": "Raised {received} of {goal} ({percent})",
   "beta.power": "Capacity",
-  "beta.connections": "Grid connections: {count}",
-  "beta.node": "A Gnosis node runs on this site",
+  "beta.yearUse": "Use / year",
+  "beta.payJump": "Contribute to this plant",
   "beta.goal": "Goal",
   "beta.goalPending": "The goal will be set from the installer's quote",
   "beta.received": "Received in total",
@@ -897,7 +896,7 @@ export const en: Catalog = {
   // ── Payment receipt (docs/16, pay.domovina.ai ADR 0022) ───────────────────
   "receipt.toggle": "I want a payment receipt",
   "receipt.toggleHint":
-    "Your browser creates a receipt key and derives the payment reference from it. Once the payment arrives, the key proves that you made it, with no account and no sign-in. Earlier payments from the same IBAN are confirmed retroactively.",
+    "Proof that you made the payment, with no account and no sign-in. Earlier payments from the same IBAN are confirmed retroactively.",
   "receipt.keySaved":
     "The receipt key exists only in this browser, stored locally (offline). It is not sent or stored anywhere else, not even with us. Get the receipt on this device or keep a backup copy.",
   "receipt.keyNotSaved":
