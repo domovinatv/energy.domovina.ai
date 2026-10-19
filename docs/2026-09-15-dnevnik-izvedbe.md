@@ -1066,3 +1066,49 @@ Otvoreno:
 Pouka: rail polje koje UI ne čita (`forward_error`) ne smije se pretvoriti u generički
 tekst „za nekoliko sekundi". Svaka nova vrijednost `forward_error` treba svoju poruku ili
 barem neutralnu, a ne optimističnu.
+
+## 20. Koraci uplate iz railovog streama, prerani `settled` i kratka referenca (19.–20.10.2026.)
+
+### 20.1 Mjerenje: Revolut uplata bez reference, Lukavec 1,00 €
+
+Intent `r1npbnemiw3r44yczzu95m3qn8`, praćen u Braveu instrumentiranim `fetch`/`EventSource`:
+
+| UTC | događaj | od Send |
+|---|---|---|
+| 21:14:36 | `payment.at` (Monerium placedAt) | 0 s |
+| 21:14:37 | SSE `received_processing` | +1 s |
+| 21:14:45 | mint na **glavni** MPT Safe | +9 s |
+| 21:14:46 | SSE `settled` — **prerano** | +10 s |
+| 21:14:52 | ProjectRouter forward na Safe Lukavca | +16 s |
+| 21:14:53 | RPC `balanceOf` pomaknut | +17 s |
+| 21:14:56 | Gnosisscan popis „Zadnje uplate” | +20 s |
+
+Status je stizao SSE-om, a ne pollingom. Dojam sporosti dolazio je od toga što ~15 s ništa
+na ekranu nije pokazivalo napredak, i od 20-sekundnog ciklusa čitanja lanca.
+
+### 20.2 Što je promijenjeno
+
+- **Panel crta railove `status.steps`** (`lib/mpt-intent.ts` `parseSteps`, `intent-panel.tsx`
+  `RailSteps`): 5 koraka. Svaki ima vrijeme iz Moneriuma ili lanca i „+N s” od zaprimanja,
+  tekući korak ima brojač, mint i forward imaju link na Gnosisscan, a ispod koraka piše
+  tko u tom trenutku drži novac. Stariji rail bez `steps` dobiva stara 3 koraka (`FallbackSteps`).
+- **Watcher ne staje na `settled` bez forward hasha**, nego prati još `SETTLED_GRACE_MS`
+  (2 min). Rail na terminalnoj fazi zatvara stream, a `onerror` vraća polling.
+- **Rail PR #133:** `computeStage` je iz praznog opisa zaključio `forward_expected=false` i
+  javio `settled` 6 s prije forwarda. Sad samo goli `0x` memo znači mint bez forwarda.
+- **Copy `beta.revolutReference`:** uplata bez reference stiže automatski (ProjectRouter).
+  Referenca je preporuka; za potvrdu o uplati ostaje obavezna.
+
+### 20.3 Paralelne uplate istog iznosa bez reference
+
+Stray resolver (rail ADR 0018) uparuje samo po tenantu, iznosu i vremenu. Kod 100 × 1 € u istoj
+minuti novac stigne na pravi Safe ako svi kandidati vode na isti Safe, ali je **pripisivanje
+proizvoljno**: uzima se najnoviji nezauzet intent. Kad kandidati vode na različite Safeove,
+nalog **parkira** dok ga netko ručno ne preusmjeri.
+
+**Odbačeno:** jedinstven iznos po intentu (1,00 → 1,01). Odluka vlasnika, zapisana u
+CLAUDE.md oba repoa; ne predlaže se ponovno.
+
+**Prihvaćeno:** kratka referenca intenta, 3 znamenke + 1 kontrolna (Damm), pa 4 + 1 kad se
+bazen potroši. Jedinstvena je među živim intentima tenanta i kruži.
+pay.domovina.ai ADR 0028 (#134, #135). Implementacija slijedi na railu, zatim prikaz u panelu.
