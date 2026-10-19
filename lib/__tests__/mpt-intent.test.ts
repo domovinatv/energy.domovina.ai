@@ -4,6 +4,7 @@ import {
   fetchIntent,
   intentStreamUrl,
   POLL_MS,
+  SETTLED_GRACE_MS,
   statusFromJson,
   watchIntentStatus,
   type IntentStatus,
@@ -16,6 +17,7 @@ const INTENT = { sid: "abc123", statusUrl: "https://mpt.domovina.ai/api/intents/
 
 const st = (stage: IntentStatus["stage"], forwardTxHash: string | null = null): IntentStatus => ({
   stage,
+  steps: [],
   forwardTxHash,
   reviewExpected: null,
   forwardOwed: false,
@@ -56,6 +58,7 @@ function harness(withStream: boolean) {
   const stream = new FakeStream();
   const opened: string[] = [];
   let visible: (() => void) | null = null;
+  let clock = 0;
   const deps: WatchDeps = {
     onVisible: (fn) => {
       visible = fn;
@@ -81,6 +84,7 @@ function harness(withStream: boolean) {
     clearTimeout: (id) => {
       timers.delete(id);
     },
+    now: () => clock,
   };
   const seen: IntentStatus[] = [];
   const transports: IntentTransport[] = [];
@@ -94,6 +98,9 @@ function harness(withStream: boolean) {
     timers,
     get pollCount() {
       return pollCount;
+    },
+    advance(ms: number) {
+      clock += ms;
     },
     /** Kartica opet vidljiva (povratak iz aplikacije banke). */
     becomeVisible() {
@@ -121,7 +128,27 @@ describe("statusFromJson", () => {
   it("čita fazu i hash iz `status` (oblik SSE eventa)", () => {
     expect(
       statusFromJson({ state: "paid", status: { stage: "settled", forward_tx_hash: "0xabc", review_expected: false } }),
-    ).toEqual({ stage: "settled", forwardTxHash: "0xabc", reviewExpected: false, forwardOwed: false });
+    ).toEqual({ stage: "settled", steps: [], forwardTxHash: "0xabc", reviewExpected: false, forwardOwed: false });
+  });
+
+  it("čita railove korake s vremenom i hashevima, nepoznate preskače", () => {
+    const s = statusFromJson({
+      status: {
+        stage: "settled",
+        steps: [
+          { key: "payment", status: "proven", at: 100 },
+          { key: "minted", status: "proven", at: 109, tx_hashes: ["0xm"] },
+          { key: "forwarding", status: "proven", at: 116, tx_hash: "0xf" },
+          { key: "teleport", status: "proven", at: 1 },
+          { key: "settled", status: "maybe", at: 1 },
+        ],
+      },
+    });
+    expect(s.steps).toEqual([
+      { key: "payment", status: "proven", at: 100, txHashes: [] },
+      { key: "minted", status: "proven", at: 109, txHashes: ["0xm"] },
+      { key: "forwarding", status: "proven", at: 116, txHashes: ["0xf"] },
+    ]);
   });
 
   it("hash na vrhu (oblik `GET status_url`) ima prednost", () => {
@@ -147,11 +174,11 @@ describe("statusFromJson", () => {
 describe("watchIntentStatus", () => {
   it("povratak na karticu odmah dohvaća status, i kad stream čeka ponovno spajanje", async () => {
     const h = harness(true);
-    await h.answer({ stage: "awaiting_payment", forwardTxHash: null, reviewExpected: null, forwardOwed: false });
+    await h.answer({ stage: "awaiting_payment", steps: [], forwardTxHash: null, reviewExpected: null, forwardOwed: false });
     const before = h.pollCount;
     h.becomeVisible();
     expect(h.pollCount).toBe(before + 1);
-    await h.answer({ stage: "received_processing", forwardTxHash: null, reviewExpected: null, forwardOwed: false });
+    await h.answer({ stage: "received_processing", steps: [], forwardTxHash: null, reviewExpected: null, forwardOwed: false });
     expect(h.seen.at(-1)?.stage).toBe("received_processing");
   });
 
@@ -233,6 +260,28 @@ describe("watchIntentStatus", () => {
     expect(h.seen.map((s) => s.stage)).toEqual(["awaiting_payment", "expired"]);
     expect(h.timers.size).toBe(0);
     expect(POLL_MS).toBe(2_000);
+  });
+
+  it("`settled` bez forwarda (Revolut bez reference) prati dalje dok ne stigne hash", async () => {
+    const h = harness(true);
+    h.stream.emit(sse("settled"));
+    expect(h.stream.closed).toBe(false);
+    h.stream.fail(2); // rail zatvori stream na završnoj fazi → polling
+    await h.answer(st("settled"));
+    h.tick();
+    await h.answer(st("settled", "0xf0"));
+    expect(h.seen.map((s) => s.forwardTxHash)).toEqual([null, "0xf0"]);
+    expect(h.timers.size).toBe(0);
+  });
+
+  it("`settled` bez forwarda (direktan mint) staje nakon roka", async () => {
+    const h = harness(false);
+    await h.answer(st("settled"));
+    h.advance(SETTLED_GRACE_MS);
+    h.tick();
+    await h.answer(st("settled"));
+    expect(h.timers.size).toBe(0);
+    expect(h.seen).toHaveLength(1);
   });
 
   it("nakon gašenja ništa ne javlja", async () => {

@@ -864,6 +864,13 @@ export const hr = {
   "beta.stepMinted": "EURe izdan na Gnosis Chainu",
   "beta.stepSettled": "Na Safeu elektrane",
   "beta.stepForwarding": "Prijenos na Safe elektrane",
+  "beta.stepProcessing": "Monerium izdaje EURe",
+  "beta.stepProcessed": "Monerium obradio uplatu",
+  "beta.stepTx": "transakcija",
+  "beta.stepRunning": "traje {duration}",
+  "beta.stepHintProcessing": "Novac je kod Moneriuma, licencirane institucije za e-novac. Za tvoj euro izdaje jedan EURe na Gnosis Chainu.",
+  "beta.stepHintForwarding": "EURe je izdan na zbirni Safe primatelja. Automatski prijenos ga sad prebacuje na Safe elektrane.",
+  "beta.intentWaitingFor": "Čekam već {duration}.",
   "beta.stepOwed": "Prijenos na Safe elektrane čeka potpise vlasnika",
   "beta.intentOwedSub":
     "EURe je izdan, ali na zbirni račun primatelja, ne izravno na Safe elektrane. Na Safe elektrane ga prebacuju vlasnici (2 od 3 potpisa), pa to traje dulje od nekoliko sekundi. Uplata je zaprimljena; ne plaćaj ponovo.",

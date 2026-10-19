@@ -18,12 +18,14 @@ import {
   isTerminal,
   watchIntentStatus,
   type IntentStatus,
+  type IntentStep,
   type IntentTransport,
   type PaymentIntent,
 } from "@/lib/mpt-intent";
 import type { PendingPayment } from "@/lib/pending-payments";
 import type { ReceiptKey } from "@/lib/receipt-keys";
 import { downloadFile } from "@/lib/download";
+import { formatDuration, formatTimeOfDay } from "@/lib/format";
 import { keyBackupFileName } from "@/lib/receipt-index";
 
 /** PDF417 opcije iz HUB3 v6 — bwip-js ih prima, ali njegovi tipovi ih ne navode. */
@@ -52,6 +54,7 @@ export function IntentPanel({
   const [svg, setSvg] = useState<string | null>(null);
   const [status, setStatus] = useState<IntentStatus>({
     stage: "awaiting_payment",
+    steps: [],
     forwardTxHash: null,
     reviewExpected: null,
     forwardOwed: false,
@@ -181,12 +184,7 @@ export function IntentPanel({
     >
       {split && <div className="[&>:first-child]:mt-0">{qrBlock}</div>}
       <div>
-        <StageBanner
-          stage={stage}
-          amount={amount}
-          reviewExpected={status.reviewExpected}
-          forwardOwed={status.forwardOwed}
-        />
+        <StageBanner status={status} amount={amount} />
 
         {receipt !== null && stage === "awaiting_payment" && (
           <div className="mt-4 max-w-[320px] rounded-sm border border-forest/30 bg-forest/5 p-3 text-xs text-inkSoft">
@@ -253,7 +251,8 @@ export function IntentPanel({
           </a>
         )}
 
-        {stage === "settled" && status.forwardTxHash !== null && (
+        {/* S railovim koracima link na forward stoji uz korak „Prijenos na Safe". */}
+        {stage === "settled" && status.forwardTxHash !== null && status.steps.length === 0 && (
           <a
             href={gnosisscanTxUrl(status.forwardTxHash)}
             target="_blank"
@@ -279,35 +278,40 @@ export function IntentPanel({
 /**
  * Trenutak „blagajne": rail javi „zaprimljeno" ~1 s nakon „Send" u banci (i za
  * uplatu bez opisa — pay.domovina.ai ADR 0018, `sid_resolved`), a novac stigne
- * na Safe ~15 s kasnije. Zato je uspjeh odmah velik i zelen, a ostatak puta se
+ * na Safe ~10 s kasnije. Zato je uspjeh odmah velik i zelen, a ostatak puta se
  * vidi kao koraci koji se sami odrade.
+ *
+ * Koraci su railovi (`status.steps`, SSE): svaki nosi vrijeme iz Moneriuma ili
+ * lanca i hash transakcije, pa uplatitelj vidi gdje mu je novac i koliko koji
+ * korak traje — umjesto deset sekundi tišine. Stariji rail bez `steps` dobiva
+ * prijašnja tri koraka.
  */
-function StageBanner({
-  stage,
-  amount,
-  reviewExpected,
-  forwardOwed,
-}: {
-  stage: IntentStatus["stage"];
-  amount: string;
-  reviewExpected: boolean | null;
-  forwardOwed: boolean;
-}) {
+function StageBanner({ status, amount }: { status: IntentStatus; amount: string }) {
   const { t } = useT();
+  const { stage } = status;
+  // Sat za „traje 5 s" / „čekam već 42 s"; staje kad više nema što čekati.
+  const now = useNow(!isTerminal(stage));
+  const [mountedAt] = useState(() => Date.now());
   if (stage === "awaiting_payment") {
-    return <p className="text-sm font-medium text-ink">{t("beta.intentAwaiting", { amount })}</p>;
+    const waited = (now - mountedAt) / 1000;
+    return (
+      <div>
+        <p className="text-sm font-medium text-ink">{t("beta.intentAwaiting", { amount })}</p>
+        {waited >= 5 && (
+          <p className="mt-1 flex items-center gap-2 text-xs text-inkMuted">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-forest" />
+            {t("beta.intentWaitingFor", { duration: formatDuration(waited) })}
+          </p>
+        )}
+      </div>
+    );
   }
   if (stage === "rejected") return <p className="text-sm font-medium text-rust">{t("beta.intentRejected")}</p>;
   if (stage === "expired") return <p className="text-sm font-medium text-inkSoft">{t("beta.intentExpired")}</p>;
-  // received_processing → 1, minted / forwarding → 2, settled → 3 gotova koraka.
-  const doneSteps = stage === "received_processing" ? 1 : stage === "settled" ? 3 : 2;
-  // Treći korak dok nije gotov ne smije glasiti kao činjenica („Na Safeu elektrane").
-  const owed = forwardOwed && stage !== "settled";
-  const steps = [
-    t("beta.stepReceived"),
-    t("beta.stepMinted"),
-    stage === "settled" ? t("beta.stepSettled") : owed ? t("beta.stepOwed") : t("beta.stepForwarding"),
-  ];
+  const owed = status.forwardOwed && stage !== "settled";
+  const forwarding = status.steps.find((s) => s.key === "forwarding");
+  const midForward = stage !== "settled" && forwarding !== undefined && !owed &&
+    status.steps.some((s) => s.key === "minted" && s.status === "proven");
   return (
     <div role="status" className="animate-fade-in rounded-sm bg-forest/10 px-4 py-4">
       <div className="flex items-center gap-3">
@@ -316,31 +320,152 @@ function StageBanner({
           {t("beta.intentReceived", { amount })}
         </p>
       </div>
-      <ol className="mt-3 space-y-1.5 text-sm">
-        {steps.map((label, i) => {
-          const done = i < doneSteps;
-          const current = i === doneSteps;
-          return (
-            <li key={label} className={`flex items-center gap-2 ${done ? "text-ink" : "text-inkMuted"}`}>
+      {status.steps.length > 0 ? (
+        <RailSteps steps={status.steps} stage={stage} owed={owed} now={now} />
+      ) : (
+        <FallbackSteps stage={stage} owed={owed} />
+      )}
+      <p className="mt-3 text-xs text-inkSoft">
+        {stage === "settled"
+          ? t("beta.intentSettledSub")
+          : owed
+            ? t("beta.intentOwedSub")
+            : stage === "received_processing"
+              ? t("beta.stepHintProcessing")
+              : midForward
+                ? t("beta.stepHintForwarding")
+                : t("beta.intentReceivedSub")}
+      </p>
+      {stage === "received_processing" && status.reviewExpected === true && (
+        <p className="mt-2 text-xs text-inkSoft">{t("beta.intentReviewNote")}</p>
+      )}
+    </div>
+  );
+}
+
+/** Trenutno vrijeme u ms, osvježava se svake sekunde dok je `active`. */
+function useNow(active: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!active) return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [active]);
+  return now;
+}
+
+function RailSteps({
+  steps,
+  stage,
+  owed,
+  now,
+}: {
+  steps: readonly IntentStep[];
+  stage: IntentStatus["stage"];
+  owed: boolean;
+  now: number;
+}) {
+  const { t, locale } = useT();
+  const start = steps.find((s) => s.key === "payment")?.at ?? null;
+  // Korak koji se upravo odvija: rail ga označi `in_progress`, a kad ne zna
+  // (forward još nije krenuo), to je prvi `waiting` iza dokazanog.
+  const currentIdx = steps.findIndex((s, i) =>
+    s.status === "in_progress" || (s.status === "waiting" && i > 0 && steps[i - 1]!.status === "proven"));
+  const label = (s: IntentStep) => {
+    switch (s.key) {
+      case "payment":
+        return t("beta.stepReceived");
+      case "processing":
+        return s.status === "proven" ? t("beta.stepProcessed") : t("beta.stepProcessing");
+      case "minted":
+        return t("beta.stepMinted");
+      case "forwarding":
+        return owed ? t("beta.stepOwed") : t("beta.stepForwarding");
+      case "settled":
+        return t("beta.stepSettled");
+    }
+  };
+  return (
+    <ol className="mt-3 space-y-1.5 text-sm">
+      {steps.map((s, i) => {
+        const done = s.status === "proven";
+        const current = i === currentIdx && stage !== "settled";
+        // Trajanje tekućeg koraka mjeri se od zadnjeg dokazanog, po satu preglednika.
+        const prevAt = steps.slice(0, i).reverse().find((p) => p.at !== null)?.at ?? null;
+        const tx = s.key === "minted" || s.key === "forwarding" ? s.txHashes.at(-1) : undefined;
+        return (
+          <li key={s.key} data-step={s.key} data-step-status={s.status} className={done ? "text-ink" : "text-inkMuted"}>
+            <div className="flex items-center gap-2">
               {done ? (
                 <CheckCircle className="h-4 w-4 shrink-0 text-forest" />
+              ) : s.status === "failed" ? (
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+                  <span className="h-2 w-2 rounded-full bg-rust" />
+                </span>
               ) : (
                 <span className="flex h-4 w-4 shrink-0 items-center justify-center">
                   <span className={`h-2 w-2 rounded-full ${current ? "animate-pulse bg-forest" : "border border-ink/30"}`} />
                 </span>
               )}
-              {label}
-            </li>
-          );
-        })}
-      </ol>
-      <p className="mt-3 text-xs text-inkSoft">
-        {stage === "settled" ? t("beta.intentSettledSub") : owed ? t("beta.intentOwedSub") : t("beta.intentReceivedSub")}
-      </p>
-      {stage === "received_processing" && reviewExpected === true && (
-        <p className="mt-2 text-xs text-inkSoft">{t("beta.intentReviewNote")}</p>
-      )}
-    </div>
+              <span className="min-w-0 flex-1">{label(s)}</span>
+              {done && s.at !== null && (
+                <span className="shrink-0 font-mono text-xs tabular-nums text-inkMuted">
+                  {formatTimeOfDay(s.at, locale)}
+                  {start !== null && s.key !== "payment" && s.at > start && ` · +${formatDuration(s.at - start)}`}
+                </span>
+              )}
+              {current && prevAt !== null && !owed && (
+                <span className="shrink-0 text-xs tabular-nums text-inkMuted">
+                  {t("beta.stepRunning", { duration: formatDuration(now / 1000 - prevAt) })}
+                </span>
+              )}
+            </div>
+            {tx !== undefined && (
+              <a
+                href={gnosisscanTxUrl(tx)}
+                target="_blank"
+                rel="noreferrer"
+                className="ml-6 text-xs text-forest underline underline-offset-2"
+              >
+                {t("beta.stepTx")} {tx.slice(0, 10)}…
+              </a>
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/** Rail bez `status.steps`: received_processing → 1, minted / forwarding → 2, settled → 3. */
+function FallbackSteps({ stage, owed }: { stage: IntentStatus["stage"]; owed: boolean }) {
+  const { t } = useT();
+  const doneSteps = stage === "received_processing" ? 1 : stage === "settled" ? 3 : 2;
+  // Treći korak dok nije gotov ne smije glasiti kao činjenica („Na Safeu elektrane").
+  const steps = [
+    t("beta.stepReceived"),
+    t("beta.stepMinted"),
+    stage === "settled" ? t("beta.stepSettled") : owed ? t("beta.stepOwed") : t("beta.stepForwarding"),
+  ];
+  return (
+    <ol className="mt-3 space-y-1.5 text-sm">
+      {steps.map((label, i) => {
+        const done = i < doneSteps;
+        const current = i === doneSteps;
+        return (
+          <li key={label} className={`flex items-center gap-2 ${done ? "text-ink" : "text-inkMuted"}`}>
+            {done ? (
+              <CheckCircle className="h-4 w-4 shrink-0 text-forest" />
+            ) : (
+              <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+                <span className={`h-2 w-2 rounded-full ${current ? "animate-pulse bg-forest" : "border border-ink/30"}`} />
+              </span>
+            )}
+            {label}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 

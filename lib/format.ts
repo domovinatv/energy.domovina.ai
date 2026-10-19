@@ -99,6 +99,24 @@ export function formatDateShort(iso: string | null, locale: DateLocale = "hr"): 
   }).format(d);
 }
 
+/** Unix sekunda → 21:14:36 (vrijeme koraka uplate). */
+export function formatTimeOfDay(unixSeconds: number, locale: DateLocale = "hr"): string {
+  return new Intl.DateTimeFormat(DATE_LOCALE[locale], {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(new Date(unixSeconds * 1000));
+}
+
+/** Trajanje u sekundama → „9 s", „2 min 5 s", „3 h 10 min". Jedinice su iste u HR i EN. */
+export function formatDuration(seconds: number): string {
+  const s = Math.max(0, Math.round(seconds));
+  if (s < 60) return `${s} s`;
+  if (s < 3600) return s % 60 === 0 ? `${s / 60} min` : `${Math.floor(s / 60)} min ${s % 60} s`;
+  const m = Math.floor((s % 3600) / 60);
+  return m === 0 ? `${Math.floor(s / 3600)} h` : `${Math.floor(s / 3600)} h ${m} min`;
+}
+
 /** Skraćena `0x…` adresa za prikaz. Puna adresa ide u `title`/copy gumb. */
 export function shortAddress(address: string): string {
   if (address.length <= 14) return address;

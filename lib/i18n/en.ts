@@ -826,6 +826,13 @@ export const en: Catalog = {
   "beta.stepMinted": "EURe issued on Gnosis Chain",
   "beta.stepSettled": "On the plant's Safe",
   "beta.stepForwarding": "Transfer to the plant's Safe",
+  "beta.stepProcessing": "Monerium is issuing EURe",
+  "beta.stepProcessed": "Processed by Monerium",
+  "beta.stepTx": "transaction",
+  "beta.stepRunning": "running for {duration}",
+  "beta.stepHintProcessing": "The money is with Monerium, a licensed e-money institution. It issues one EURe on Gnosis Chain for each euro.",
+  "beta.stepHintForwarding": "EURe was issued to the recipient's pooled Safe. An automatic transfer is now moving it to the plant's Safe.",
+  "beta.intentWaitingFor": "Waiting for {duration}.",
   "beta.stepOwed": "Transfer to the plant's Safe awaits the owners' signatures",
   "beta.intentOwedSub":
     "EURe has been issued, but to the recipient's pooled account rather than directly to the plant's Safe. The owners move it to the plant's Safe (2 of 3 signatures), so this takes longer than a few seconds. Your payment has been received; do not pay again.",

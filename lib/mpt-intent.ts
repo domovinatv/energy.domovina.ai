@@ -47,8 +47,25 @@ export type IntentStage =
   | "rejected"
   | "expired";
 
+/**
+ * Railov korak (`intents/stage.ts` `StageStep`): tko drži novac i kad je korak
+ * dokazan. `at` je Unix sekunda iz Moneriuma ili lanca, ne vrijeme preglednika.
+ */
+export type IntentStepKey = "payment" | "processing" | "minted" | "forwarding" | "settled";
+export type IntentStepStatus = "proven" | "in_progress" | "waiting" | "failed";
+
+export interface IntentStep {
+  key: IntentStepKey;
+  status: IntentStepStatus;
+  at: number | null;
+  /** Mint može imati više transakcija; forward i settled jednu. */
+  txHashes: string[];
+}
+
 export interface IntentStatus {
   stage: IntentStage;
+  /** Prazno dok rail ne pošalje `status.steps` (stariji rail) — tada panel crta zamjenske korake. */
+  steps: IntentStep[];
   forwardTxHash: string | null;
   /**
    * Railova procjena (`status.review_expected`): vjerojatno prva uplata s tog
@@ -89,6 +106,7 @@ interface IntentJson {
   forward_tx_hash?: string | null;
   status?: {
     stage?: IntentStage;
+    steps?: { key?: string; status?: string; at?: number | null; tx_hash?: string | null; tx_hashes?: string[] }[];
     review_expected?: boolean | null;
     forward_tx_hash?: string | null;
     forward_error?: string | null;
@@ -168,10 +186,33 @@ export function statusFromJson(b: IntentJson): IntentStatus {
     b.status?.stage ?? (b.state === "paid" ? "settled" : b.state === "expired" ? "expired" : "awaiting_payment");
   return {
     stage,
+    steps: parseSteps(b.status?.steps),
     forwardTxHash: b.forward_tx_hash ?? b.status?.forward_tx_hash ?? null,
     reviewExpected: b.status?.review_expected ?? null,
     forwardOwed: b.status?.forward_error === "direct_owed",
   };
+}
+
+const STEP_KEYS: readonly string[] = ["payment", "processing", "minted", "forwarding", "settled"];
+const STEP_STATUSES: readonly string[] = ["proven", "in_progress", "waiting", "failed"];
+
+function parseSteps(raw: NonNullable<IntentJson["status"]>["steps"]): IntentStep[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((r) =>
+    r && typeof r.key === "string" && STEP_KEYS.includes(r.key) && typeof r.status === "string" &&
+    STEP_STATUSES.includes(r.status)
+      ? [
+          {
+            key: r.key as IntentStepKey,
+            status: r.status as IntentStepStatus,
+            at: typeof r.at === "number" ? r.at : null,
+            txHashes: [...(r.tx_hashes ?? []), ...(r.tx_hash ? [r.tx_hash] : [])].filter(
+              (h): h is string => typeof h === "string" && h.length > 0,
+            ),
+          },
+        ]
+      : [],
+  );
 }
 
 export async function fetchIntentStatus(statusUrl: string, signal: AbortSignal): Promise<IntentStatus> {
@@ -198,6 +239,7 @@ export interface WatchDeps {
   fetchStatus: (statusUrl: string, signal: AbortSignal) => Promise<IntentStatus>;
   setTimeout: (fn: () => void, ms: number) => number;
   clearTimeout: (id: number) => void;
+  now: () => number;
   /**
    * Javlja povratak na stranicu (kartica opet vidljiva). Vraća odjavu.
    * Na istom mobitelu uplatitelj iz Revoluta skoči natrag tek nakon „Send";
@@ -216,6 +258,7 @@ function browserDeps(): WatchDeps {
     fetchStatus: fetchIntentStatus,
     setTimeout: (fn, ms) => window.setTimeout(fn, ms),
     clearTimeout: (id) => window.clearTimeout(id),
+    now: () => Date.now(),
     onVisible: (fn) => {
       const h = () => {
         if (document.visibilityState === "visible") fn();
@@ -226,9 +269,23 @@ function browserDeps(): WatchDeps {
   };
 }
 
+const sameSteps = (a: readonly IntentStep[], b: readonly IntentStep[]) =>
+  a.length === b.length &&
+  a.every((s, i) => s.key === b[i]!.key && s.status === b[i]!.status && s.at === b[i]!.at &&
+    s.txHashes.join() === b[i]!.txHashes.join());
+
 const sameStatus = (a: IntentStatus, b: IntentStatus) =>
   a.stage === b.stage && a.forwardTxHash === b.forwardTxHash && a.reviewExpected === b.reviewExpected &&
-  a.forwardOwed === b.forwardOwed;
+  a.forwardOwed === b.forwardOwed && sameSteps(a.steps, b.steps);
+
+/**
+ * Koliko se još prati `settled` bez hasha forwarda. Rail uplatu bez reference
+ * (Revolut) proglasi `settled` čim Monerium minta na glavni Safe, jer iz praznog
+ * opisa zaključi da forwarda nema — a ProjectRouter je prebaci na Safe elektrane
+ * tek nekoliko sekundi kasnije (izmjereno 19.10.2026.: 6 s). Bez ovoga panel ne
+ * dobije hash forwarda, a stranica ne zna kad ponovno pročitati lanac.
+ */
+export const SETTLED_GRACE_MS = 120_000;
 
 /**
  * Prati status intenta dok ne dođe do završne faze. Obrazac je railov checkout
@@ -251,6 +308,7 @@ export function watchIntentStatus(
   let polling = false;
   let done = false;
   let last: IntentStatus | null = null;
+  let settledAt: number | null = null;
   let stream: StreamSource | null = null;
   const cleanups: (() => void)[] = [];
 
@@ -268,7 +326,13 @@ export function watchIntentStatus(
       last = s;
       onStatus(s);
     }
-    if (isTerminal(s.stage)) stop();
+    if (!isTerminal(s.stage)) return;
+    if (s.stage !== "settled" || s.forwardTxHash !== null) return stop();
+    // `settled` bez forwarda: stream se na railu zatvorio (onerror → polling), još
+    // malo slušamo hoće li stići forward. Direktan mint ga nikad nema — zato rok.
+    const now = deps.now();
+    settledAt ??= now;
+    if (now - settledAt >= SETTLED_GRACE_MS) stop();
   };
 
   const poll = () => {
