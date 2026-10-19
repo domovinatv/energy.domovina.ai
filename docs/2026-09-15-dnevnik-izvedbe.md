@@ -1112,3 +1112,19 @@ CLAUDE.md oba repoa; ne predlaže se ponovno.
 **Prihvaćeno:** kratka referenca intenta, 3 znamenke + 1 kontrolna (Damm), pa 4 + 1 kad se
 bazen potroši. Jedinstvena je među živim intentima tenanta i kruži.
 pay.domovina.ai ADR 0028 (#134, #135). Implementacija slijedi na railu, zatim prikaz u panelu.
+
+### 20.4 Kratka referenca u panelu (20.10.2026.)
+
+Rail PR #136 (ADR 0028) je deployan. `short_ref` stoji na vrhu JSON-a intenta (POST, GET
+`status_url`, list): samo znamenke, 4 znaka (3 + 1 Damm), a 5 i više kad se bazen potroši.
+`null` znači da dodjela nije uspjela ili da je intent stariji od rail migracije 0031.
+Kratki kod **ne daje** potvrdu o uplati (rail: `rcpt1-unbound`).
+
+Energy (`lib/mpt-intent.ts` `shortRef`, `intent-panel.tsx` `data-short-ref`) prikazuje kod
+veliko uz QR: „Revolut ostavio Reference prazno? Upiši u Reference samo ovaj broj”. Prikazuje
+ga i u modu s potvrdom, uz napomenu da ne daje potvrdu, jer je potvrda po zadanom uključena
+pa ga inače nitko ne bi vidio. Sve što nije niz od najmanje 4 znamenke panel ignorira.
+Provjereno u Braveu podmetnutim `short_ref`. **Prava uplata s upisanim kratkim kodom još nije
+napravljena.**
+
+Primjer: kontrolna znamenka za `007` je 6, pa je važeći kod `0076`, a ne `0071`.
