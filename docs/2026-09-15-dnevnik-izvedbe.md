@@ -1027,3 +1027,42 @@ u tom prozoru (~1 min, 12.10. oko 13:58) i dalje može imati zapamćen 404.
   `npx wrangler deploy` prošao.
 - Za lokalni test toka plaćanja bez raila: podmetni `window.fetch` (POST intenta → lažni
   odgovor, `status_url` → `awaiting_payment`) i `window.EventSource = undefined`.
+
+## 19. Uplata u stanju `direct_owed` — UI više ne obećava „par sekundi" (19.10.2026.)
+
+Uplata 1,00 € za Lukavec (intent `r1neietii5ycpi7bg9en7z6ukx`, Monerium order
+`5ae90d3c-cbf3-11f1-b77f-e6a7b06ba621`, 19.10. 21:28). Rail ju je pet i više minuta
+držao na `stage: forwarding` s `status.forward_error: "direct_owed"`. Mint tx
+`0x0a1d5fb3…0d04` je, provjereno na lancu, poslao 1,00 EURe na **glavni MPT Safe**
+`0x449a…af2e`, ne na Safe Lukavca.
+
+`direct_owed` (rail `forwardStates.ts`, D4) znači sljedeće: rail ne potpisuje, a redak
+se zatvara na jedan od dva načina. Ili 2/3 vlasnika ručno prebace točno taj iznos, ili
+ga preuzme ProjectRouter (`router_claim`, ADR 0026). Router na produkciji još nije
+uključen (`PROJECT_ROUTER_ROLE_KEY = ""`), a testiran je samo na Chiadu.
+
+Stranica je istodobno tvrdila tri stvari koje se ne slažu:
+- panel: „EURe izdan" ✓, „Na Safeu elektrane" kao činjenica, i „obično za nekoliko sekundi";
+- redak u popisu: „zaprimljeno, čeka EURe", jer je odlučivao samo po `txHash === null`;
+- napomena uz ukupni iznos: „pojavi se kad se izda EURe".
+
+Popravak:
+- `IntentStatus.forwardOwed` čita se iz `status.forward_error === "direct_owed"`. Treći
+  korak glasi „Prijenos na Safe elektrane" dok nije gotov, a kod `direct_owed` piše
+  „…čeka potpise vlasnika" i podnaslov objašnjava zbirni račun i 2-od-3.
+- `PendingPayment.minted` je opcionalno polje, jer ga stari zapisi u localStorageu nemaju.
+  Ide samo naprijed: kasniji odgovor bez minta ga ne briše. Redak tada piše „EURe izdan,
+  čeka prijenos na Safe", a napomena `beta.includesMinted` stoji kad su sve nepotvrđene
+  uplate mintane.
+
+Otvoreno:
+- Uključiti ProjectRouter na produkciji (batch `009`). Handoff:
+  `~/.claude/handoffs/pay.domovina.ai/2026-10-19-2150-project-router-italk-prod.md`.
+- Zašto je uplata pala u D4 iako je opis bio `gnosis:<Safe Lukavca> sid:…` (ADR 0025
+  izravni način). Moja lista na stranici kaže „Stigla bez reference". Mogući uzroci:
+  Revolut je ispustio referencu, ili Safe Lukavca nije povezana adresa na Monerium
+  profilu. Utvrđuje se iz Moneriumovog naloga.
+
+Pouka: rail polje koje UI ne čita (`forward_error`) ne smije se pretvoriti u generički
+tekst „za nekoliko sekundi". Svaka nova vrijednost `forward_error` treba svoju poruku ili
+barem neutralnu, a ne optimističnu.
