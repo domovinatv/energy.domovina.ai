@@ -215,8 +215,10 @@ export function IntentPanel({
             {/* Revolut nakon skeniranja QR-a ostavlja Reference prazno (format QR-a nije
                 uzrok). Od 15.10.2026. rail je u izravnom načinu (pay.domovina.ai ADR 0025):
                 opis `gnosis:<Safe> sid:<sid>` je ono što Moneriumu kaže da minta ravno u
-                Safe elektrane. Bez opisa novac sleti na glavni Safe i do elektrane stiže
-                tek nakon ručnog 2/3 prijenosa, pa je napomena opet upozorenje. */}
+                Safe elektrane. Bez opisa novac sleti na glavni Safe, stray resolver ga veže
+                po iznosu i vremenu, a ProjectRouter (rail ADR 0026, na produkciji od
+                19.10.2026.) ga prebaci na Safe elektrane za ~6 s. Referenca je zato
+                preporuka, ne uvjet — osim za potvrdu o uplati (gore). */}
             {receipt !== null ? (
               // Za potvrdu iznos i vrijeme NISU dokaz (rail ADR 0022): sidro nastaje samo kad
               // opis platitelja nosi sid (`mpt:`, a od ADR 0025 i `gnosis:`; receipts/link.ts).

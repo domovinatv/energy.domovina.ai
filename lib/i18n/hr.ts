@@ -853,7 +853,7 @@ export const hr = {
   "beta.codeQr": "QR kod",
   "beta.codeHub3": "Barkod uplatnice",
   "beta.hub3Scan": "Skeniraj barkod kao račun za režije, npr. u Aircashu (Slikaj i plati) ili u aplikaciji hrvatske banke. Ovo je pokus: primatelj ima estonski IBAN pa ga neke aplikacije možda neće prihvatiti, a uplata stiže najkasnije sljedeći radni dan. Opis plaćanja se ne prenosi, pa uplatu prepoznajemo po točnom iznosu i vremenu. Zato ne mijenjaj iznos.",
-  "beta.revolutReference": "Revolut nakon skeniranja QR-a ostavi polje Reference prazno. Prije slanja kopiraj referencu (gumb ispod) i zalijepi je cijelu u Reference. Bez nje uplata ne stiže izravno u elektranu: zaprimimo je, ali u elektranu stiže tek nakon ručnog prijenosa.",
+  "beta.revolutReference": "Revolut nakon skeniranja QR-a ostavi polje Reference prazno. Uplata svejedno stiže: prepoznamo je po točnom iznosu i vremenu, a automatski prijenos je za desetak sekundi prebaci na Safe elektrane. Najsigurnije je ipak kopirati referencu (gumb ispod) i zalijepiti je cijelu u Reference, jer tada uplatu ne treba prepoznavati.",
   "beta.intentAwaiting": "Čekam uplatu od {amount}. Ova stranica sama prepozna kad stigne.",
   "beta.intentReceived": "Uplata od {amount} je stigla",
   "beta.intentReceivedSub":
