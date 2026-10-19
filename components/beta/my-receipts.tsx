@@ -20,6 +20,8 @@ import {
 
 /** Koliko najnovijih uplata dohvaća stanje (javni GET po uplati). */
 const MAX_SHOWN = 20;
+/** Sklopljeno: stupac uplate ne smije rasti sa svakom uplatom iz ovog preglednika. */
+const COLLAPSED = 3;
 
 function subscribe(onChange: () => void): () => void {
   window.addEventListener("storage", onChange);
@@ -39,6 +41,7 @@ export function MyReceipts({ safe }: { safe: string }) {
   const all = useMemo(() => (JSON.parse(raw) as ReturnType<typeof listLocalReceipts>).slice(0, MAX_SHOWN), [raw]);
   const sidsKey = all.map((e) => e.sid).join(",");
 
+  const [expanded, setExpanded] = useState(false);
   const [summaries, setSummaries] = useState<Record<string, PublicReceiptSummary | null>>({});
   useEffect(() => {
     if (sidsKey === "") return;
@@ -72,7 +75,7 @@ export function MyReceipts({ safe }: { safe: string }) {
       <h4 className="text-sm font-medium text-ink">{t("receipt.mineTitle")}</h4>
       <p className="mt-1 text-xs text-inkMuted">{t("receipt.mineNote")}</p>
       <ul className="mt-2 divide-y divide-ink/8 text-sm">
-        {mine.map((e) => {
+        {(expanded ? mine : mine.slice(0, COLLAPSED)).map((e) => {
           const s = summaries[e.sid];
           const cents = e.amountCents ?? s?.amountCents ?? null;
           const statusKey = s ? (receiptStatusKey(s.status).replace("receipt.status", "receipt.short") as MessageKey) : null;
@@ -94,6 +97,15 @@ export function MyReceipts({ safe }: { safe: string }) {
           );
         })}
       </ul>
+      {!expanded && mine.length > COLLAPSED && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="mt-1 text-sm text-forest underline underline-offset-2"
+        >
+          {t("common.showMore")} ({mine.length - COLLAPSED})
+        </button>
+      )}
     </section>
   );
 }
