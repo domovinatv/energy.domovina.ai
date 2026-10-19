@@ -31,7 +31,7 @@ export interface PaymentIntent {
    */
   hub3Data: string | null;
   /**
-   * Kratka referenca intenta (rail ADR 0028): 3 znamenke + Damm kontrolna, npr. „0071".
+   * Kratka referenca intenta (rail ADR 0028): 3 znamenke + Damm kontrolna, npr. „0076".
    * Kad Revolut ispusti dugi opis, uplatitelj upiše samo nju. `null` dok rail polje ne šalje.
    */
   shortRef: string | null;

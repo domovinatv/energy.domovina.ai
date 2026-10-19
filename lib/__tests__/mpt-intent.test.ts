@@ -320,8 +320,8 @@ describe("createPaymentIntent — hub3_data", () => {
   });
 
   it("kratka referenca (rail ADR 0028): samo znamenke, inače null", async () => {
-    const ok = await withFetch({ ...base, short_ref: "0071" });
-    expect(ok.ok && ok.intent.shortRef).toBe("0071");
+    const ok = await withFetch({ ...base, short_ref: "0076" });
+    expect(ok.ok && ok.intent.shortRef).toBe("0076");
     const bad = await withFetch({ ...base, short_ref: "<b>1</b>" });
     expect(bad.ok && bad.intent.shortRef).toBe(null);
     const old = await withFetch(base);
