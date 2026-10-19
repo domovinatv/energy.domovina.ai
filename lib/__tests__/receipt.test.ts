@@ -175,6 +175,7 @@ describe("createReceiptIntent", () => {
       bic: null,
       epcQrData: "",
       hub3Data: null,
+      shortRef: null,
       statusUrl: "",
       expiresAt: "",
     },

@@ -219,6 +219,16 @@ export function IntentPanel({
                 po iznosu i vremenu, a ProjectRouter (rail ADR 0026, na produkciji od
                 19.10.2026.) ga prebaci na Safe elektrane za ~6 s. Referenca je zato
                 preporuka, ne uvjet — osim za potvrdu o uplati (gore). */}
+            {intent.shortRef !== null && (
+              // Rail ADR 0028: kratki kod se čita i sa screenshota ili ekrana računala —
+              // kopiranje dugog opisa između dva uređaja ne radi.
+              <div data-short-ref className="mt-3 max-w-[320px] rounded-sm border border-forest/40 bg-forest/5 p-3 text-ink">
+                <p className="text-sm font-medium">{t("beta.shortRefTitle")}</p>
+                <p className="mt-1 text-xs">{t("beta.shortRefText")}</p>
+                <p className="mt-2 font-mono text-3xl font-semibold tracking-[0.3em] text-forest">{intent.shortRef}</p>
+                {receipt !== null && <p className="mt-2 text-xs text-inkSoft">{t("beta.shortRefReceipt")}</p>}
+              </div>
+            )}
             {receipt !== null ? (
               // Za potvrdu iznos i vrijeme NISU dokaz (rail ADR 0022): sidro nastaje samo kad
               // opis platitelja nosi sid (`mpt:`, a od ADR 0025 i `gnosis:`; receipts/link.ts).
@@ -239,6 +249,7 @@ export function IntentPanel({
               {intent.bic !== null && copyRow(t("beta.bic"), intent.bic)}
               {copyRow(t("beta.amount"), amount, intent.amountEur)}
               {copyRow(t("beta.reference"), intent.memo, intent.memo, true)}
+              {intent.shortRef !== null && copyRow(t("beta.shortRef"), intent.shortRef, intent.shortRef, true)}
             </dl>
             <p className="mt-2 text-xs text-inkMuted">{t("beta.referenceExact")}</p>
           </>

@@ -319,6 +319,15 @@ describe("createPaymentIntent — hub3_data", () => {
     expect(r.ok && r.intent.hub3Data).toBe("HRVHUB30\nEUR\n");
   });
 
+  it("kratka referenca (rail ADR 0028): samo znamenke, inače null", async () => {
+    const ok = await withFetch({ ...base, short_ref: "0071" });
+    expect(ok.ok && ok.intent.shortRef).toBe("0071");
+    const bad = await withFetch({ ...base, short_ref: "<b>1</b>" });
+    expect(bad.ok && bad.intent.shortRef).toBe(null);
+    const old = await withFetch(base);
+    expect(old.ok && old.intent.shortRef).toBe(null);
+  });
+
   it("stari rail bez polja → null, panel nudi samo QR", async () => {
     const r = await withFetch(base);
     expect(r.ok && r.intent.hub3Data).toBeNull();

@@ -30,6 +30,11 @@ export interface PaymentIntent {
    * `null` dok rail polje ne šalje ili kad IBAN ne stane u HUB3.
    */
   hub3Data: string | null;
+  /**
+   * Kratka referenca intenta (rail ADR 0028): 3 znamenke + Damm kontrolna, npr. „0071".
+   * Kad Revolut ispusti dugi opis, uplatitelj upiše samo nju. `null` dok rail polje ne šalje.
+   */
+  shortRef: string | null;
   statusUrl: string;
   expiresAt: string;
 }
@@ -100,6 +105,7 @@ interface IntentJson {
   bic?: string | null;
   epc_qr_data?: string;
   hub3_data?: string | null;
+  short_ref?: string | null;
   status_url?: string;
   expires_at?: string;
   state?: string;
@@ -159,6 +165,7 @@ export function intentFromJson(b: IntentJson, fallbackAmountEur: string): Paymen
     bic: b.bic ?? null,
     epcQrData: b.epc_qr_data,
     hub3Data: b.hub3_data ?? null,
+    shortRef: typeof b.short_ref === "string" && /^\d{4,}$/.test(b.short_ref) ? b.short_ref : null,
     statusUrl: b.status_url,
     expiresAt: b.expires_at ?? "",
   };
