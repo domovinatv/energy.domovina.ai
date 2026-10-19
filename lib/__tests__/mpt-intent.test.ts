@@ -18,6 +18,7 @@ const st = (stage: IntentStatus["stage"], forwardTxHash: string | null = null): 
   stage,
   forwardTxHash,
   reviewExpected: null,
+  forwardOwed: false,
 });
 
 /** SSE event kakav rail šalje (`intents/stream.ts` `formatEvent`). */
@@ -120,13 +121,20 @@ describe("statusFromJson", () => {
   it("čita fazu i hash iz `status` (oblik SSE eventa)", () => {
     expect(
       statusFromJson({ state: "paid", status: { stage: "settled", forward_tx_hash: "0xabc", review_expected: false } }),
-    ).toEqual({ stage: "settled", forwardTxHash: "0xabc", reviewExpected: false });
+    ).toEqual({ stage: "settled", forwardTxHash: "0xabc", reviewExpected: false, forwardOwed: false });
   });
 
   it("hash na vrhu (oblik `GET status_url`) ima prednost", () => {
     expect(statusFromJson({ forward_tx_hash: "0x1", status: { stage: "settled", forward_tx_hash: "0x2" } }).forwardTxHash).toBe(
       "0x1",
     );
+  });
+
+  it("`direct_owed` znači da prijenos čeka ručni 2-od-3, ne sekunde", () => {
+    // Oblik s live raila 19.10.2026. (Lukavec, ITalk tenant prije ProjectRoutera).
+    expect(statusFromJson({ status: { stage: "forwarding", forward_error: "direct_owed" } }).forwardOwed).toBe(true);
+    expect(statusFromJson({ status: { stage: "forwarding", forward_error: null } }).forwardOwed).toBe(false);
+    expect(statusFromJson({ status: { stage: "forwarding", forward_error: "broadcast_failed" } }).forwardOwed).toBe(false);
   });
 
   it("bez `status` faza dolazi iz `state`, kao u checkoutu", () => {
@@ -139,11 +147,11 @@ describe("statusFromJson", () => {
 describe("watchIntentStatus", () => {
   it("povratak na karticu odmah dohvaća status, i kad stream čeka ponovno spajanje", async () => {
     const h = harness(true);
-    await h.answer({ stage: "awaiting_payment", forwardTxHash: null, reviewExpected: null });
+    await h.answer({ stage: "awaiting_payment", forwardTxHash: null, reviewExpected: null, forwardOwed: false });
     const before = h.pollCount;
     h.becomeVisible();
     expect(h.pollCount).toBe(before + 1);
-    await h.answer({ stage: "received_processing", forwardTxHash: null, reviewExpected: null });
+    await h.answer({ stage: "received_processing", forwardTxHash: null, reviewExpected: null, forwardOwed: false });
     expect(h.seen.at(-1)?.stage).toBe("received_processing");
   });
 

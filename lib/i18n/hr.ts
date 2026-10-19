@@ -863,6 +863,10 @@ export const hr = {
   "beta.stepReceived": "Zaprimljeno u Moneriumu",
   "beta.stepMinted": "EURe izdan na Gnosis Chainu",
   "beta.stepSettled": "Na Safeu elektrane",
+  "beta.stepForwarding": "Prijenos na Safe elektrane",
+  "beta.stepOwed": "Prijenos na Safe elektrane čeka potpise vlasnika",
+  "beta.intentOwedSub":
+    "EURe je izdan, ali na zbirni račun primatelja, ne izravno na Safe elektrane. Na Safe elektrane ga prebacuju vlasnici (2 od 3 potpisa), pa to traje dulje od nekoliko sekundi. Uplata je zaprimljena; ne plaćaj ponovo.",
   "beta.intentSettledSub": "Novac je na Safeu elektrane, javno vidljiv na Gnosis Chainu.",
   "beta.intentRejected": "Uplata je odbijena. Novac se vraća na račun s kojeg je poslan.",
   "beta.intentExpired": "Vrijeme za ovu uplatu je isteklo. Ako si već platio, uplata će ipak stići na Safe elektrane — ne plaćaj ponovo. Ako nisi, napravi novu.",
@@ -872,6 +876,7 @@ export const hr = {
   "beta.justArrived": "+{amount} upravo stiglo",
   "beta.includesUnconfirmed": "Uključuje {amount} koje je Monerium već zaprimio u eurima (SEPA). Na Gnosisscanu se pojavi kad se izda EURe — kod prve uplate s novog računa tek nakon nekoliko sati.",
   "beta.rowReceived": "zaprimljeno, čeka EURe",
+  "beta.rowMinted": "EURe izdan, čeka prijenos na Safe",
   "beta.rowIndexing": "na Gnosis Chainu",
   "beta.payButton": "Plati {amount}",
   "beta.payBusy": "Pripremam uplatu…",

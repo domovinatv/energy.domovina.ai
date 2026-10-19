@@ -54,6 +54,7 @@ export function IntentPanel({
     stage: "awaiting_payment",
     forwardTxHash: null,
     reviewExpected: null,
+    forwardOwed: false,
   });
   const [transport, setTransport] = useState<IntentTransport>("poll");
   const [code, setCode] = useState<"qr" | "hub3">("qr");
@@ -109,6 +110,7 @@ export function IntentPanel({
               statusUrl: intent.statusUrl,
               receivedAt: Date.now(),
               txHash: s.stage === "settled" ? s.forwardTxHash : null,
+              ...(s.stage === "minted" || s.stage === "forwarding" ? { minted: true } : {}),
             });
           }
         },
@@ -179,7 +181,12 @@ export function IntentPanel({
     >
       {split && <div className="[&>:first-child]:mt-0">{qrBlock}</div>}
       <div>
-        <StageBanner stage={stage} amount={amount} reviewExpected={status.reviewExpected} />
+        <StageBanner
+          stage={stage}
+          amount={amount}
+          reviewExpected={status.reviewExpected}
+          forwardOwed={status.forwardOwed}
+        />
 
         {receipt !== null && stage === "awaiting_payment" && (
           <div className="mt-4 max-w-[320px] rounded-sm border border-forest/30 bg-forest/5 p-3 text-xs text-inkSoft">
@@ -279,10 +286,12 @@ function StageBanner({
   stage,
   amount,
   reviewExpected,
+  forwardOwed,
 }: {
   stage: IntentStatus["stage"];
   amount: string;
   reviewExpected: boolean | null;
+  forwardOwed: boolean;
 }) {
   const { t } = useT();
   if (stage === "awaiting_payment") {
@@ -292,7 +301,13 @@ function StageBanner({
   if (stage === "expired") return <p className="text-sm font-medium text-inkSoft">{t("beta.intentExpired")}</p>;
   // received_processing → 1, minted / forwarding → 2, settled → 3 gotova koraka.
   const doneSteps = stage === "received_processing" ? 1 : stage === "settled" ? 3 : 2;
-  const steps = [t("beta.stepReceived"), t("beta.stepMinted"), t("beta.stepSettled")];
+  // Treći korak dok nije gotov ne smije glasiti kao činjenica („Na Safeu elektrane").
+  const owed = forwardOwed && stage !== "settled";
+  const steps = [
+    t("beta.stepReceived"),
+    t("beta.stepMinted"),
+    stage === "settled" ? t("beta.stepSettled") : owed ? t("beta.stepOwed") : t("beta.stepForwarding"),
+  ];
   return (
     <div role="status" className="animate-fade-in rounded-sm bg-forest/10 px-4 py-4">
       <div className="flex items-center gap-3">
@@ -320,7 +335,7 @@ function StageBanner({
         })}
       </ol>
       <p className="mt-3 text-xs text-inkSoft">
-        {stage === "settled" ? t("beta.intentSettledSub") : t("beta.intentReceivedSub")}
+        {stage === "settled" ? t("beta.intentSettledSub") : owed ? t("beta.intentOwedSub") : t("beta.intentReceivedSub")}
       </p>
       {stage === "received_processing" && reviewExpected === true && (
         <p className="mt-2 text-xs text-inkSoft">{t("beta.intentReviewNote")}</p>

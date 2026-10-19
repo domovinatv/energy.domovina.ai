@@ -18,6 +18,11 @@ export interface PendingPayment {
   receivedAt: number;
   /** Hash railovog forwarda na Safe; poznat tek u fazi `settled`. */
   txHash: string | null;
+  /**
+   * EURe je izdan (faza `minted`/`forwarding`), ali još nije na Safeu elektrane.
+   * Opcionalno: zapisi u localStorageu stariji od 19.10.2026. ga nemaju.
+   */
+  minted?: boolean;
 }
 
 export function unconfirmedCents(
@@ -34,7 +39,14 @@ export function unconfirmedCents(
 export function upsertPending(list: readonly PendingPayment[], next: PendingPayment): PendingPayment[] {
   const i = list.findIndex((p) => p.sid === next.sid);
   if (i === -1) return [...list, next];
-  const merged = { ...list[i]!, txHash: next.txHash ?? list[i]!.txHash, receivedAt: list[i]!.receivedAt };
+  const prev = list[i]!;
+  // Faza ide samo naprijed: kasniji odgovor bez hasha ili minta ne briše ono što se već znalo.
+  const merged = {
+    ...prev,
+    txHash: next.txHash ?? prev.txHash,
+    ...(next.minted === true || prev.minted === true ? { minted: true } : {}),
+    receivedAt: prev.receivedAt,
+  };
   return [...list.slice(0, i), merged, ...list.slice(i + 1)];
 }
 

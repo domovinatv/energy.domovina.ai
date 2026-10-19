@@ -56,6 +56,12 @@ export interface IntentStatus {
    * iz povijesti naloga, ne Moneriumova odluka — tekst to ne smije zvati „AML".
    */
   reviewExpected: boolean | null;
+  /**
+   * Rail `status.forward_error === "direct_owed"` (rail ADR 0026, D4): EURe je
+   * izdan na glavni Safe tenanta, ne izravno na Safe elektrane. Rail ne potpisuje,
+   * pa prijenos čeka vlasnike (2-od-3) ili ProjectRouter. Nije „par sekundi".
+   */
+  forwardOwed: boolean;
 }
 
 /** Kao checkout: uplata je „stigla" čim je Monerium zaprimi, prije minta. */
@@ -81,7 +87,12 @@ interface IntentJson {
   expires_at?: string;
   state?: string;
   forward_tx_hash?: string | null;
-  status?: { stage?: IntentStage; review_expected?: boolean | null; forward_tx_hash?: string | null };
+  status?: {
+    stage?: IntentStage;
+    review_expected?: boolean | null;
+    forward_tx_hash?: string | null;
+    forward_error?: string | null;
+  };
   error?: string;
 }
 
@@ -159,6 +170,7 @@ export function statusFromJson(b: IntentJson): IntentStatus {
     stage,
     forwardTxHash: b.forward_tx_hash ?? b.status?.forward_tx_hash ?? null,
     reviewExpected: b.status?.review_expected ?? null,
+    forwardOwed: b.status?.forward_error === "direct_owed",
   };
 }
 
@@ -215,7 +227,8 @@ function browserDeps(): WatchDeps {
 }
 
 const sameStatus = (a: IntentStatus, b: IntentStatus) =>
-  a.stage === b.stage && a.forwardTxHash === b.forwardTxHash && a.reviewExpected === b.reviewExpected;
+  a.stage === b.stage && a.forwardTxHash === b.forwardTxHash && a.reviewExpected === b.reviewExpected &&
+  a.forwardOwed === b.forwardOwed;
 
 /**
  * Prati status intenta dok ne dođe do završne faze. Obrazac je railov checkout

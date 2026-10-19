@@ -32,6 +32,12 @@ describe("uplata zaprimljena, a još nije na lancu", () => {
     expect(l).toEqual([p("a", 102, "0x1")]);
     expect(l[0]?.receivedAt).toBe(1_000);
   });
+  it("jednom izdan EURe ostaje izdan i kad kasniji odgovor to ne kaže", () => {
+    let l = upsertPending([], p("a", 100, null));
+    l = upsertPending(l, { ...p("a", 100, null), minted: true });
+    l = upsertPending(l, p("a", 100, null));
+    expect(l[0]?.minted).toBe(true);
+  });
 });
 
 describe("oznaka „upravo stiglo“", () => {

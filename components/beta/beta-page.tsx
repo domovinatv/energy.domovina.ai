@@ -694,7 +694,11 @@ function LiveActivity({
                   <span className="text-inkSoft">
                     {formatDateShort(new Date(p.receivedAt).toISOString(), locale)}
                     <span className="ml-2 text-xs text-forest">
-                      {p.txHash === null ? t("beta.rowReceived") : t("beta.rowIndexing")}
+                      {p.txHash !== null
+                        ? t("beta.rowIndexing")
+                        : p.minted === true
+                          ? t("beta.rowMinted")
+                          : t("beta.rowReceived")}
                     </span>
                   </span>
                   {p.txHash === null ? (

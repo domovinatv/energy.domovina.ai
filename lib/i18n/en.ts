@@ -825,6 +825,10 @@ export const en: Catalog = {
   "beta.stepReceived": "Received by Monerium",
   "beta.stepMinted": "EURe issued on Gnosis Chain",
   "beta.stepSettled": "On the plant's Safe",
+  "beta.stepForwarding": "Transfer to the plant's Safe",
+  "beta.stepOwed": "Transfer to the plant's Safe awaits the owners' signatures",
+  "beta.intentOwedSub":
+    "EURe has been issued, but to the recipient's pooled account rather than directly to the plant's Safe. The owners move it to the plant's Safe (2 of 3 signatures), so this takes longer than a few seconds. Your payment has been received; do not pay again.",
   "beta.intentSettledSub": "The money is on the plant's Safe, publicly visible on Gnosis Chain.",
   "beta.intentRejected": "The payment was rejected. The money goes back to the account it came from.",
   "beta.intentExpired": "The time for this payment has run out. If you already paid, it will still reach the plant's Safe — do not pay again. If not, start a new one.",
@@ -834,6 +838,7 @@ export const en: Catalog = {
   "beta.justArrived": "+{amount} just arrived",
   "beta.includesUnconfirmed": "Includes {amount} that Monerium has already received in euros (SEPA). It appears on Gnosisscan once the EURe is issued — for a first payment from a new account, only after a few hours.",
   "beta.rowReceived": "received, awaiting EURe",
+  "beta.rowMinted": "EURe issued, awaiting transfer to the Safe",
   "beta.rowIndexing": "on Gnosis Chain",
   "beta.payButton": "Pay {amount}",
   "beta.payBusy": "Preparing the payment…",
