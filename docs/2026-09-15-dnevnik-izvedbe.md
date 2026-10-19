@@ -1128,3 +1128,55 @@ Provjereno u Braveu podmetnutim `short_ref`. **Prava uplata s upisanim kratkim k
 napravljena.**
 
 Primjer: kontrolna znamenka za `007` je 6, pa je važeći kod `0076`, a ne `0071`.
+
+## 21. Stranica elektrane kao kampanja — manje tehnike, slika 16:9 (20.10.2026.)
+
+Vlasnik je za `/beta/lukavec/` rekao da stranica ima nepotrebne podatke i da treba izgledati
+kao kampanja. Commitovi `e97d45f`, `608525d`, `3a447f3`.
+
+### 21.1 Što je skriveno i zašto
+
+| Bilo vidljivo | Sad | Razlog |
+|---|---|---|
+| oznaka „Kampanja”, županija | maknuto | županija se vidi iz adrese |
+| „Priključaka HEP-ODS: 1 · Gnosis node” | maknuto (polja `connections`/`gnosisNode` ostaju u `lib/beta-projects.ts`) | uplatitelju ne znači ništa |
+| HEP blok (OMM, brojilo, tarifa, očitanja, graf) | `<details>` „Mjerno mjesto HEP ODS” u stupcu elektrane | dokaz je za onoga tko provjerava; uplatitelju je dovoljna godišnja potrošnja, koja je sad treća činjenica uz snagu i cilj (`hepYearKwh`) |
+| „Trenutno na računu” | samo kad je `balanceCents ≠ receivedCents` | do prve isplate samo ponavlja „Uplaćeno ukupno” |
+| adresa Safea + Kopiraj u panelu uplate | maknuto | link „Svi prijenosi na Gnosisscanu” vodi na istu adresu |
+| „Moje uplate iz ovog preglednika” | zadnje 3 + „Prikaži još (n)” | vlasnikov preglednik ima 13 probnih uplata → stupac uplate 1351 px |
+
+**Ostaje namjerno:** tekst o 2 od 3 potpisa (svi ključevi kod iste osobe) i „Uplata nije
+ulaganje…”: to su objave sukoba interesa i pravne granice, ne višak.
+
+Mobitel: tri slike jedna ispod druge zamijenio je isti preglednik slika kao na desktopu (velika
+slika i sličice), a ispod činjenica je gumb „Uplati za ovu elektranu” (`#uplata`). Na 390 px
+gumb je na 378 px od vrha, panel uplate na 1257 px.
+
+### 21.2 Zamka: `max-h` + `object-cover` reže sliku
+
+Da desktop stane bez skrolanja, slika je imala `aspect-video` i `max-h: 100vh − 35rem`. Dok je
+QR otvoren, prvi stupac je uzak i omjer drži. Bez QR-a stupac je širi od `visina × 16/9`, pa
+`max-h` skrati kutiju i `object-cover` odreže vrh i dno. Vlasnik je to odmah primijetio.
+
+Ispravno je ograničiti **širinu**, ne visinu: i slika (`max-w`) i prvi stupac grida su
+`min((100vh − 36rem) × 16/9, 100% − 400px − 18rem − 5rem)`. Drugi član čuva srednjem stupcu
+barem 18rem; bez njega je na 1300 px srednji stupac bio 240 px. Izmjereno kroz iframe na istom
+podrijetlu, QR zatvoren:
+
+| prozor | slika | stupci 1 / 2 | donji rub sekcije |
+|---|---|---|---|
+| 1300×800 | 363×204 | 363 / 304 | 787 |
+| 1600×1000 | 663×373 | 663 / 288 | 940 |
+| 1920×847 | 482×271 | 482 / 789 | 838 |
+| 2400×1300 | 1287×724 | 1287 / 464 | 1275 |
+
+**Nije ponovno izmjereno s otvorenim QR-om.** Za to treba kliknuti „Plati”, što stvara pravi
+intent na railu. Raspored za `paying` na 2xl nije mijenjan.
+
+### 21.3 Što kampanji još nedostaje (čeka sadržaj vlasnika)
+
+1. Opis: zašto ova elektrana i za koga (2–3 rečenice).
+2. Razrada troška cilja od 11.200 € po stavkama (`docs/14` §4).
+3. Rok prikupljanja, montaže i priključka (`docs/15` checklist „Priključak HEP-ODS po lokaciji i rok”).
+4. Procjena godišnje proizvodnje uz potrošnju: tek s izvorom i datumom provjere (pravilo 2).
+5. Broj uplatitelja: ne može se izračunati s lanca, jer sve stiže s raila; treba podatak s raila.
