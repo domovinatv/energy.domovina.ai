@@ -875,6 +875,7 @@ export const hr = {
   "beta.intentCancel": "Odustani",
   "beta.justArrived": "+{amount} upravo stiglo",
   "beta.includesUnconfirmed": "Uključuje {amount} koje je Monerium već zaprimio u eurima (SEPA). Na Gnosisscanu se pojavi kad se izda EURe — kod prve uplate s novog računa tek nakon nekoliko sati.",
+  "beta.includesMinted": "Uključuje {amount} koje je Monerium zaprimio u eurima (SEPA). EURe je već izdan, ali još nije prebačen na Safe elektrane, pa ga Gnosisscan na ovom Safeu još ne pokazuje.",
   "beta.rowReceived": "zaprimljeno, čeka EURe",
   "beta.rowMinted": "EURe izdan, čeka prijenos na Safe",
   "beta.rowIndexing": "na Gnosis Chainu",

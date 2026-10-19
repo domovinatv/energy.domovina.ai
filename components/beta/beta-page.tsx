@@ -648,6 +648,8 @@ function LiveActivity({
   const unconfirmed = [...pending]
     .filter((p) => p.txHash === null || !onChain.has(p.txHash.toLowerCase()))
     .reverse();
+  // Sve nepotvrđene imaju izdan EURe → napomena ne smije reći „pojavi se kad se izda EURe".
+  const allMinted = unconfirmed.length > 0 && unconfirmed.every((p) => p.txHash !== null || p.minted === true);
   const receivedCents = state.status === "ready" ? state.data.receivedCents + extraCents : 0;
   const latest = pending.length > 0 ? pending[pending.length - 1] : undefined;
 
@@ -681,7 +683,9 @@ function LiveActivity({
           )}
           {extraCents > 0 && (
             <p className="mt-2 text-xs text-inkMuted">
-              {t("beta.includesUnconfirmed", { amount: formatEurPrecise(extraCents) })}
+              {t(allMinted ? "beta.includesMinted" : "beta.includesUnconfirmed", {
+                amount: formatEurPrecise(extraCents),
+              })}
             </p>
           )}
           <h3 className="mt-5 text-xs uppercase tracking-wide text-inkMuted">{t("beta.recent")}</h3>

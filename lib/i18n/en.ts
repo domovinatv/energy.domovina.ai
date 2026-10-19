@@ -837,6 +837,7 @@ export const en: Catalog = {
   "beta.intentCancel": "Cancel",
   "beta.justArrived": "+{amount} just arrived",
   "beta.includesUnconfirmed": "Includes {amount} that Monerium has already received in euros (SEPA). It appears on Gnosisscan once the EURe is issued — for a first payment from a new account, only after a few hours.",
+  "beta.includesMinted": "Includes {amount} that Monerium has already received in euros (SEPA). The EURe has been issued but not yet moved to the plant's Safe, so Gnosisscan does not show it on this Safe yet.",
   "beta.rowReceived": "received, awaiting EURe",
   "beta.rowMinted": "EURe issued, awaiting transfer to the Safe",
   "beta.rowIndexing": "on Gnosis Chain",
