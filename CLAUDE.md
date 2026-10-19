@@ -230,6 +230,13 @@ Iz potvrde o uplati (dnevnik §17, 12.10.2026.):
   izmjena ide na rail pa kopijom, a test drži railove zlatne vrijednosti.
 - Za potvrdu se ručno lijepi **cijela** referenca `mpt:…?sid=…`, ne samo sid.
 
+Iz paralelnih uplata bez reference (19.10.2026.):
+- **Iznos nikad ne nosi identitet uplate.** Ne predlaži jedinstven iznos po intentu
+  (1,00 → 1,01), centski nonce ni slične hackove — vlasnik ih je odbacio. Uplata bez reference
+  se uparuje samo po iznosu i vremenu, pa je kod istovremenih istih iznosa pripisivanje
+  proizvoljno, a kod različitih Safeova nalog parkira. Smjer je **kratka referenca intenta**
+  (3 znamenke, jedinstvena među živim intentima, kruži): rail ADR 0028.
+
 Iz `pinka-finance/app`:
 - Statički export → `script-src` mora imati `'unsafe-inline'` (inline RSC bez
   nonce-a). Dobitak traži u `frame-ancestors`, origin-pin, `object-src 'none'`.
