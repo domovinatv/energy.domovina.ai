@@ -909,7 +909,7 @@ export const en: Catalog = {
     "The payment slip (barcode) carries no receipt; you will get one retroactively once you pay by QR from the same account.",
   "receipt.referenceTitle": "For a receipt, check the payment description before sending",
   "receipt.referenceText":
-    "The description must contain the full reference below, from start to end. Revolut leaves it out after a scan. Then copy it and paste it into the description by hand, in full and unchanged; the sid alone is not enough. Without the reference the payment does not go straight to the plant (only after a manual transfer) and gets no receipt; only a payment whose reference arrives in the description gets a receipt.",
+    "The description must contain the full reference below, from start to end. Revolut leaves it out after a scan. Then copy it and paste it into the description by hand, in full and unchanged; the sid alone is not enough. Without the reference the payment still reaches the plant, but gets no receipt; only a payment whose reference arrives in the description gets a receipt.",
   "receipt.mineTitle": "My payments from this browser",
   "receipt.mineNote": "This list and the receipt keys exist only in this browser, nowhere else.",
   "receipt.shortIssued": "Receipt issued",

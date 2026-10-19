@@ -225,7 +225,7 @@ export function IntentPanel({
               <div data-short-ref className="mt-3 max-w-[320px] rounded-sm border border-forest/40 bg-forest/5 p-3 text-ink">
                 <p className="text-sm font-medium">{t("beta.shortRefTitle")}</p>
                 <p className="mt-1 text-xs">{t("beta.shortRefText")}</p>
-                <p className="mt-2 font-mono text-3xl font-semibold tracking-[0.3em] text-forest">{intent.shortRef}</p>
+                <p className="mt-2 font-mono text-3xl font-semibold tracking-[0.15em] text-forest">{intent.shortRef}</p>
                 {receipt !== null && <p className="mt-2 text-xs text-inkSoft">{t("beta.shortRefReceipt")}</p>}
               </div>
             )}

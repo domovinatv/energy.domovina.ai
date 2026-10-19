@@ -947,7 +947,7 @@ export const hr = {
     "Uplatnica (barkod) nema potvrdu o uplati; dobit ćeš je naknadno kad jednom platiš QR-om s istog računa.",
   "receipt.referenceTitle": "Za potvrdu provjeri opis plaćanja prije slanja",
   "receipt.referenceText":
-    "U opisu mora pisati cijela referenca ispod, od početka do kraja. Revolut je nakon skeniranja izostavi. Tada je kopiraj i zalijepi u opis ručno, cijelu i bez izmjena; sam sid nije dovoljan. Bez reference uplata ne stiže izravno u elektranu (tek nakon ručnog prijenosa) i ne dobiva potvrdu; potvrdu dobiva samo uplata kojoj referenca stigne u opisu.",
+    "U opisu mora pisati cijela referenca ispod, od početka do kraja. Revolut je nakon skeniranja izostavi. Tada je kopiraj i zalijepi u opis ručno, cijelu i bez izmjena; sam sid nije dovoljan. Bez reference uplata i dalje stiže u elektranu, ali ne dobiva potvrdu; potvrdu dobiva samo uplata kojoj referenca stigne u opisu.",
   "receipt.mineTitle": "Moje uplate iz ovog preglednika",
   "receipt.mineNote": "Popis i ključevi potvrda postoje samo u ovom pregledniku, nigdje drugdje.",
   "receipt.shortIssued": "Potvrda izdana",
