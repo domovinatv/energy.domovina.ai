@@ -59,3 +59,18 @@ kanalima (CLAUDE.md, tamna tema), impresum, profil raila i popis kampanja. Za dr
 host treba nova stavka u rail `ALLOWED_ORIGINS`. Uzor je pay.domovina.ai ADR 0015.
 Copy kampanja klijenta prolazi isti `lint:copy`: to je Mod 2, gdje nas non-custody ne
 štiti (docs/14 §2.4).
+
+## 5. Provjereno 20.10.2026.
+
+U Braveu na `energy.domovina.ai/sandbox/primjer-kampanje/`: 1 € pa 10 €, gumb „Simuliraj
+uplatu". Od klika do „Na Safeu kampanje" je prošlo 8 s, odnosno 2 s. Ukupno prikupljeno je
+11,00 €, što se slaže s `balanceOf` na Chiadu.
+
+**Nađen i ispravljen bug koji vrijedi i za `/beta/`:** u izravnom načinu rail šalje
+`forward_error: "direct_mint"` i `forward_tx_hash: null`, pa se zaprimljena uplata iz
+`localStorage` nikad nije uparila s prijenosom na lancu i iznos se zbrajao dvaput (2,00 €
+umjesto 1,00 €). `statusFromJson` sad uzima zadnji mint tx kao dolazak na Safe. Stari
+zapisi se sami poprave pri sljedećoj provjeri (`PendingWatcher`).
+
+Chiado Blockscout povremeno ne odgovori iz preglednika (`Failed to fetch`); minutu kasnije
+radi. Saldo dolazi s RPC-a, pa je samo popis uplata privremeno prazan.
