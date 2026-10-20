@@ -11,6 +11,7 @@
  * Nova domena ovdje = nova stavka u CSP-u (public/_headers).
  */
 import type { Address } from "@/lib/beta-projects";
+import type { MessageKey } from "@/lib/i18n/hr";
 
 export interface RailProfile {
   /** Tenant na pay.domovina.ai. */
@@ -85,4 +86,31 @@ export function explorerTxUrl(rail: RailProfile, hash: string): string {
 export function explorerAddressUrl(rail: RailProfile, address: Address): string {
   // gnosisscan.io (Blockscout) i Chiado Blockscout imaju isti tab za tokene.
   return `${rail.explorer}/address/${address}#tokentxns`;
+}
+
+/**
+ * Copy dijeljenih komponenti (`IntentPanel`, `LiveActivity`) govori o elektrani i
+ * Gnosis Chainu. U sandboxu ista poruka ide pod `sandbox.*`: Chiado, Safe kampanje,
+ * testni EURe. Ključ bez zamjene ostaje isti.
+ */
+const SANDBOX_COPY: Partial<Record<MessageKey, MessageKey>> = {
+  "beta.loading": "sandbox.loading",
+  "beta.chainError": "sandbox.chainError",
+  "beta.stepMinted": "sandbox.stepMinted",
+  "beta.stepSettled": "sandbox.stepSettled",
+  "beta.stepForwarding": "sandbox.stepForwarding",
+  "beta.stepOwed": "sandbox.stepOwed",
+  "beta.stepHintProcessing": "sandbox.stepHintProcessing",
+  "beta.stepHintForwarding": "sandbox.stepHintForwarding",
+  "beta.intentSettledSub": "sandbox.intentSettledSub",
+  "beta.intentExpired": "sandbox.intentExpired",
+  "beta.intentTx": "sandbox.intentTx",
+  "beta.includesUnconfirmed": "sandbox.includesUnconfirmed",
+  "beta.includesMinted": "sandbox.includesMinted",
+  "beta.rowIndexing": "sandbox.rowIndexing",
+  "beta.payErrorWhitelist": "sandbox.payErrorWhitelist",
+};
+
+export function railKey(rail: RailProfile, key: MessageKey): MessageKey {
+  return rail.sandbox ? (SANDBOX_COPY[key] ?? key) : key;
 }

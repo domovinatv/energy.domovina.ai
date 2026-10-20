@@ -31,7 +31,7 @@ import { justArrivedRemainingMs, unconfirmedCents, type PendingPayment } from "@
 import { removePending, savePending, usePending } from "@/lib/pending-store";
 import { fetchIntent, fetchIntentStatus } from "@/lib/mpt-intent";
 import { withViewTransition } from "@/lib/view-transition";
-import { RAIL_ITALK, explorerAddressUrl, explorerTxUrl, isRailConfigured, type RailProfile } from "@/lib/rail-profile";
+import { RAIL_ITALK, explorerAddressUrl, explorerTxUrl, isRailConfigured, railKey, type RailProfile } from "@/lib/rail-profile";
 
 const RECENT_COUNT = 5;
 /** Koliko često se lanac ponovno čita dok je kartica vidljiva. */
@@ -604,8 +604,8 @@ export function LiveActivity({
 
   return (
     <div>
-      {state.status === "loading" && <p className="text-sm text-inkMuted">{t("beta.loading")}</p>}
-      {state.status === "error" && <p className="text-sm text-inkSoft">{t("beta.chainError")}</p>}
+      {state.status === "loading" && <p className="text-sm text-inkMuted">{t(railKey(rail, "beta.loading"))}</p>}
+      {state.status === "error" && <p className="text-sm text-inkSoft">{t(railKey(rail, "beta.chainError"))}</p>}
       {state.status === "ready" && (
         <>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-3">
@@ -651,7 +651,7 @@ export function LiveActivity({
                     {formatDateShort(new Date(p.receivedAt).toISOString(), locale)}
                     <span className="ml-2 text-xs text-forest">
                       {p.txHash !== null
-                        ? t("beta.rowIndexing")
+                        ? t(railKey(rail, "beta.rowIndexing"))
                         : p.minted === true
                           ? t("beta.rowMinted")
                           : t("beta.rowReceived")}
@@ -874,7 +874,7 @@ export function PayWithIntent({
       {error !== null && !error.ok && (
         <p className="mt-2 text-sm text-rust">
           {error.reason === "not_whitelisted"
-            ? t("beta.payErrorWhitelist")
+            ? t(railKey(rail, "beta.payErrorWhitelist"))
             : error.reason === "invalid_amount"
               ? t("beta.amountInvalid", { max: formatEur(MAX_AMOUNT_EUR * 100) })
               : t("beta.payErrorGeneric")}

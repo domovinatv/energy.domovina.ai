@@ -75,6 +75,12 @@ export interface IntentStatus {
   stage: IntentStage;
   /** Prazno dok rail ne pošalje `status.steps` (stariji rail) — tada panel crta zamjenske korake. */
   steps: IntentStep[];
+  /**
+   * Transakcija kojom je EURe stigao na Safe primatelja: forward, a u izravnom
+   * načinu (`forward_error: "direct_mint"`, rail ADR 0025) zadnji mint, jer forwarda
+   * nema. Po njoj se zaprimljena uplata upari s prijenosom na lancu
+   * (`unconfirmedCents`); bez nje bi se ista uplata zbrojila dvaput.
+   */
   forwardTxHash: string | null;
   /**
    * Railova procjena (`status.review_expected`): vjerojatno prva uplata s tog
@@ -204,10 +210,15 @@ export async function fetchIntent(
 export function statusFromJson(b: IntentJson): IntentStatus {
   const stage: IntentStage =
     b.status?.stage ?? (b.state === "paid" ? "settled" : b.state === "expired" ? "expired" : "awaiting_payment");
+  const steps = parseSteps(b.status?.steps);
+  const directMintTx =
+    b.status?.forward_error === "direct_mint"
+      ? (steps.find((st) => st.key === "minted")?.txHashes.at(-1) ?? null)
+      : null;
   return {
     stage,
-    steps: parseSteps(b.status?.steps),
-    forwardTxHash: b.forward_tx_hash ?? b.status?.forward_tx_hash ?? null,
+    steps,
+    forwardTxHash: b.forward_tx_hash ?? b.status?.forward_tx_hash ?? directMintTx,
     reviewExpected: b.status?.review_expected ?? null,
     forwardOwed: b.status?.forward_error === "direct_owed",
   };

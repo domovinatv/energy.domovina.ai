@@ -16,7 +16,7 @@ import QRCode from "qrcode";
 import { toSVG } from "bwip-js/browser";
 import { useT } from "@/lib/i18n";
 import { useMediaQuery } from "@/lib/media-query";
-import { RAIL_ITALK, explorerTxUrl, type RailProfile } from "@/lib/rail-profile";
+import { RAIL_ITALK, explorerTxUrl, railKey, type RailProfile } from "@/lib/rail-profile";
 import {
   isReceived,
   isTerminal,
@@ -285,7 +285,7 @@ export function IntentPanel({
             rel="noreferrer"
             className="mt-3 block text-sm text-forest underline underline-offset-2"
           >
-            {t("beta.intentTx")}
+            {t(railKey(rail, "beta.intentTx"))}
           </a>
         )}
 
@@ -333,7 +333,7 @@ function StageBanner({ status, amount, rail }: { status: IntentStatus; amount: s
     );
   }
   if (stage === "rejected") return <p className="text-sm font-medium text-rust">{t("beta.intentRejected")}</p>;
-  if (stage === "expired") return <p className="text-sm font-medium text-inkSoft">{t("beta.intentExpired")}</p>;
+  if (stage === "expired") return <p className="text-sm font-medium text-inkSoft">{t(railKey(rail, "beta.intentExpired"))}</p>;
   const owed = status.forwardOwed && stage !== "settled";
   const forwarding = status.steps.find((s) => s.key === "forwarding");
   const midForward = stage !== "settled" && forwarding !== undefined && !owed &&
@@ -349,17 +349,17 @@ function StageBanner({ status, amount, rail }: { status: IntentStatus; amount: s
       {status.steps.length > 0 ? (
         <RailSteps steps={status.steps} stage={stage} owed={owed} now={now} rail={rail} />
       ) : (
-        <FallbackSteps stage={stage} owed={owed} />
+        <FallbackSteps stage={stage} owed={owed} rail={rail} />
       )}
       <p className="mt-3 text-xs text-inkSoft">
         {stage === "settled"
-          ? t("beta.intentSettledSub")
+          ? t(railKey(rail, "beta.intentSettledSub"))
           : owed
             ? t("beta.intentOwedSub")
             : stage === "received_processing"
-              ? t("beta.stepHintProcessing")
+              ? t(railKey(rail, "beta.stepHintProcessing"))
               : midForward
-                ? t("beta.stepHintForwarding")
+                ? t(railKey(rail, "beta.stepHintForwarding"))
                 : t("beta.intentReceivedSub")}
       </p>
       {stage === "received_processing" && status.reviewExpected === true && (
@@ -406,11 +406,11 @@ function RailSteps({
       case "processing":
         return s.status === "proven" ? t("beta.stepProcessed") : t("beta.stepProcessing");
       case "minted":
-        return t("beta.stepMinted");
+        return t(railKey(rail, "beta.stepMinted"));
       case "forwarding":
-        return owed ? t("beta.stepOwed") : t("beta.stepForwarding");
+        return owed ? t(railKey(rail, "beta.stepOwed")) : t(railKey(rail, "beta.stepForwarding"));
       case "settled":
-        return t("beta.stepSettled");
+        return t(railKey(rail, "beta.stepSettled"));
     }
   };
   return (
@@ -520,14 +520,14 @@ function SandboxTransfer({
 }
 
 /** Rail bez `status.steps`: received_processing → 1, minted / forwarding → 2, settled → 3. */
-function FallbackSteps({ stage, owed }: { stage: IntentStatus["stage"]; owed: boolean }) {
+function FallbackSteps({ stage, owed, rail }: { stage: IntentStatus["stage"]; owed: boolean; rail: RailProfile }) {
   const { t } = useT();
   const doneSteps = stage === "received_processing" ? 1 : stage === "settled" ? 3 : 2;
   // Treći korak dok nije gotov ne smije glasiti kao činjenica („Na Safeu elektrane").
   const steps = [
     t("beta.stepReceived"),
-    t("beta.stepMinted"),
-    stage === "settled" ? t("beta.stepSettled") : owed ? t("beta.stepOwed") : t("beta.stepForwarding"),
+    t(railKey(rail, "beta.stepMinted")),
+    stage === "settled" ? t(railKey(rail, "beta.stepSettled")) : owed ? t(railKey(rail, "beta.stepOwed")) : t(railKey(rail, "beta.stepForwarding")),
   ];
   return (
     <ol className="mt-3 space-y-1.5 text-sm">

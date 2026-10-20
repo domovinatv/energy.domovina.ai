@@ -125,6 +125,32 @@ function harness(withStream: boolean) {
 }
 
 describe("statusFromJson", () => {
+  it("izravni mint: mint tx je transakcija dolaska na Safe (rail 20.10.2026., sandbox)", () => {
+    const s = statusFromJson({
+      state: "paid",
+      status: {
+        stage: "settled",
+        forward_tx_hash: null,
+        forward_error: "direct_mint",
+        steps: [
+          { key: "payment", status: "proven", at: 1 },
+          { key: "minted", status: "proven", at: 2, tx_hashes: ["0xmint"] },
+          { key: "forwarding", status: "proven", at: 3, tx_hash: null },
+          { key: "settled", status: "proven", at: 3, tx_hash: null },
+        ],
+      },
+    });
+    expect(s.forwardTxHash).toBe("0xmint");
+  });
+
+  it("bez direct_mint mint tx NIJE dolazak na Safe (forward još slijedi)", () => {
+    const s = statusFromJson({
+      state: "pending",
+      status: { stage: "minted", steps: [{ key: "minted", status: "proven", at: 2, tx_hashes: ["0xmint"] }] },
+    });
+    expect(s.forwardTxHash).toBeNull();
+  });
+
   it("čita fazu i hash iz `status` (oblik SSE eventa)", () => {
     expect(
       statusFromJson({ state: "paid", status: { stage: "settled", forward_tx_hash: "0xabc", review_expected: false } }),
