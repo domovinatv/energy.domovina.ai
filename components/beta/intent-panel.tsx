@@ -7,7 +7,7 @@
  * pollingom kao rezervom (`watchIntentStatus`), uspjeh čim Monerium zaprimi
  * uplatu, kraj na settled / rejected / expired.
  *
- * Sandbox profil raila (/demo/, docs/17): umjesto EPC QR-a gumb koji od Monerium
+ * Sandbox profil raila (/sandbox/, docs/17): umjesto EPC QR-a gumb koji od Monerium
  * sandboxa traži simuliranu SEPA uplatu. QR sa sandbox IBAN-om se NE crta —
  * netko bi ga skenirao bankom i poslao pravi novac na račun koji ne postoji.
  */

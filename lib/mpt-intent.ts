@@ -14,7 +14,7 @@
  * kao kampanja (whitelist). Nova domena ovdje = nova stavka u CSP-u.
  *
  * Profil raila (`lib/rail-profile`) bira tenant: bez ključa rail uzme zadani
- * `italk`, s `pk_` ključem tenant tog ključa (sandbox /demo/ → `italk-sandbox`).
+ * `italk`, s `pk_` ključem tenant tog ključa (sandbox /sandbox/ → `italk-sandbox`).
  */
 import { RAIL_API_BASE, type Address } from "@/lib/beta-projects";
 import { RAIL_ITALK, type RailProfile } from "@/lib/rail-profile";

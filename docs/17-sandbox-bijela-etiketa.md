@@ -1,6 +1,6 @@
 # 17 — Sandbox kampanja pod bijelom etiketom
 
-> Stanje: 20.10.2026. `/sandbox/` u kodu; uplata čeka javni ključ tenanta (§3).
+> Stanje: 20.10.2026. `/sandbox/` live, kampanja registrirana, javni ključ u `lib/rail-profile.ts`.
 
 ## 1. Što i zašto
 

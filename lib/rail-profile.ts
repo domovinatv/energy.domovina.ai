@@ -4,7 +4,7 @@
  * jedan; profil kaže samo GDJE.
  *
  * - `italk` — pravi novac: produkcijski Monerium, Gnosis Chain, /beta/.
- * - `italk-sandbox` — Monerium sandbox, Chiado: /demo/. Banka se simulira
+ * - `italk-sandbox` — Monerium sandbox, Chiado: /sandbox/. Banka se simulira
  *   (`POST /api/intents/:sid/monerium-sandbox-transfer`), sve iza nje je pravi
  *   put raila: Monerium order, webhook, mint na Chiadu, status uživo.
  *
@@ -54,10 +54,10 @@ export const RAIL_ITALK: RailProfile = {
 /**
  * Javni ključ tenanta `italk-sandbox` — izdaje ga admin raila
  * (`POST /admin/api/tenants/italk-sandbox/keys`, `kind: "public"`). Dok je `null`,
- * /demo/ kaže da uplata nije podešena umjesto da pošalje intent zadanom tenantu
+ * /sandbox/ kaže da uplata nije podešena umjesto da pošalje intent zadanom tenantu
  * (koji bi ga odbio s `target_not_whitelisted`).
  */
-const ITALK_SANDBOX_PUBLIC_KEY: string | null = null;
+const ITALK_SANDBOX_PUBLIC_KEY: string | null = "pk_0f2aa3339d619acb1dd56239e97d33711c5452a7ab8a2057"; // izdan 20.10.2026.
 
 export const RAIL_ITALK_SANDBOX: RailProfile = {
   tenant: "italk-sandbox",

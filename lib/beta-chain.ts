@@ -8,7 +8,7 @@
  * u CSP-u (public/_headers).
  *
  * Lanac, token i Blockscout daje profil raila (`lib/rail-profile`): Gnosis za
- * /beta/, Chiado za sandbox /demo/.
+ * /beta/, Chiado za sandbox /sandbox/.
  */
 import { weiToCents, type Address } from "@/lib/beta-projects";
 import { RAIL_ITALK, type RailProfile } from "@/lib/rail-profile";
