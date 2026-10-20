@@ -37,8 +37,8 @@ export function decodeUint(hex: string): number {
   return Number(BigInt(hex));
 }
 
-async function rpc(method: string, params: unknown[], signal?: AbortSignal): Promise<string> {
-  const res = await fetch(GNOSIS_RPC, {
+async function rpc(method: string, params: unknown[], signal?: AbortSignal, url: string = GNOSIS_RPC): Promise<string> {
+  const res = await fetch(url, {
     method: "POST",
     signal,
     headers: { "content-type": "application/json" },
@@ -61,8 +61,13 @@ export function balanceOfCalldata(holder: string): string {
  * lijeno i zna satima kasniti za prijenosima (6.10.2026.: 7,26 € umjesto 8,26 €),
  * pa saldo na /beta/ dolazi odavde.
  */
-export async function readErc20Balance(token: string, holder: string, signal?: AbortSignal): Promise<bigint> {
-  return BigInt(await rpc("eth_call", [{ to: token, data: balanceOfCalldata(holder) }, "latest"], signal));
+export async function readErc20Balance(
+  token: string,
+  holder: string,
+  signal?: AbortSignal,
+  rpcUrl: string = GNOSIS_RPC,
+): Promise<bigint> {
+  return BigInt(await rpc("eth_call", [{ to: token, data: balanceOfCalldata(holder) }, "latest"], signal, rpcUrl));
 }
 
 export async function readSafe(address: string): Promise<SafeOnChain> {

@@ -6,11 +6,13 @@
  * ne mogu razići. Iznimka je saldo: njega Blockscout osvježava lijeno, pa se čita
  * `balanceOf` izravno s lanca (`lib/safe-rpc`). Nova domena ovdje = nova stavka
  * u CSP-u (public/_headers).
+ *
+ * Lanac, token i Blockscout daje profil raila (`lib/rail-profile`): Gnosis za
+ * /beta/, Chiado za sandbox /demo/.
  */
-import { EURE_ADDRESS, weiToCents, type Address } from "@/lib/beta-projects";
+import { weiToCents, type Address } from "@/lib/beta-projects";
+import { RAIL_ITALK, type RailProfile } from "@/lib/rail-profile";
 import { readErc20Balance } from "@/lib/safe-rpc";
-
-const API = "https://gnosisscan.io/api/v2";
 
 /** Gornja granica stranica po 50 prijenosa; 500 uplata je daleko iznad bete. */
 const MAX_PAGES = 10;
@@ -53,8 +55,12 @@ async function getJson<T>(url: string, signal: AbortSignal): Promise<T> {
   return (await res.json()) as T;
 }
 
-export async function fetchSafeActivity(safe: Address, signal: AbortSignal): Promise<SafeActivity> {
-  const base = `${API}/addresses/${safe}/token-transfers?type=ERC-20&filter=to&token=${EURE_ADDRESS}`;
+export async function fetchSafeActivity(
+  safe: Address,
+  signal: AbortSignal,
+  rail: RailProfile = RAIL_ITALK,
+): Promise<SafeActivity> {
+  const base = `${rail.blockscoutApi}/addresses/${safe}/token-transfers?type=ERC-20&filter=to&token=${rail.eure}`;
   const transfers: IncomingTransfer[] = [];
   let next: Record<string, string | number> | null = null;
   let pages = 0;
@@ -74,9 +80,9 @@ export async function fetchSafeActivity(safe: Address, signal: AbortSignal): Pro
     pages += 1;
   } while (next && pages < MAX_PAGES);
 
-  const balanceWei = await readErc20Balance(EURE_ADDRESS, safe, signal).catch(() => {
+  const balanceWei = await readErc20Balance(rail.eure, safe, signal, rail.rpcUrl).catch(() => {
     if (signal.aborted) throw signal.reason;
-    return blockscoutBalanceWei(safe, signal);
+    return blockscoutBalanceWei(safe, signal, rail);
   });
 
   return {
@@ -88,10 +94,10 @@ export async function fetchSafeActivity(safe: Address, signal: AbortSignal): Pro
 }
 
 /** Rezerva kad RPC ne odgovara — može kasniti za prijenosima, ali je bolja od ničega. */
-async function blockscoutBalanceWei(safe: Address, signal: AbortSignal): Promise<bigint> {
-  const balances = await getJson<TokenBalance[]>(`${API}/addresses/${safe}/token-balances`, signal);
+async function blockscoutBalanceWei(safe: Address, signal: AbortSignal, rail: RailProfile): Promise<bigint> {
+  const balances = await getJson<TokenBalance[]>(`${rail.blockscoutApi}/addresses/${safe}/token-balances`, signal);
   const eure = balances.find(
-    (b) => (b.token.address_hash ?? b.token.address ?? "").toLowerCase() === EURE_ADDRESS.toLowerCase(),
+    (b) => (b.token.address_hash ?? b.token.address ?? "").toLowerCase() === rail.eure.toLowerCase(),
   );
   return eure ? BigInt(eure.value) : 0n;
 }

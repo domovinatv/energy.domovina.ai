@@ -13,8 +13,6 @@ import {
   PRESET_AMOUNTS_EUR,
   parseAmountEur,
   hasVerifiedSafe,
-  gnosisscanAddressUrl,
-  gnosisscanTxUrl,
   isPayable,
   PHOTO_WIDTHS,
   type Address,
@@ -33,6 +31,7 @@ import { justArrivedRemainingMs, unconfirmedCents, type PendingPayment } from "@
 import { removePending, savePending, usePending } from "@/lib/pending-store";
 import { fetchIntent, fetchIntentStatus } from "@/lib/mpt-intent";
 import { withViewTransition } from "@/lib/view-transition";
+import { RAIL_ITALK, explorerAddressUrl, explorerTxUrl, isRailConfigured, type RailProfile } from "@/lib/rail-profile";
 
 const RECENT_COUNT = 5;
 /** Koliko često se lanac ponovno čita dok je kartica vidljiva. */
@@ -144,15 +143,23 @@ function ProjectCard({ project }: { project: BetaProject }) {
 }
 
 /** Prikupljeno na kartici — jedno čitanje lanca, bez osvježavanja (to radi stranica elektrane). */
-function CardProgress({ safe, goalCents }: { safe: Address; goalCents: number }) {
+export function CardProgress({
+  safe,
+  goalCents,
+  rail = RAIL_ITALK,
+}: {
+  safe: Address;
+  goalCents: number;
+  rail?: RailProfile;
+}) {
   const { t } = useT();
   const pending = usePending(safe);
   const [data, setData] = useState<SafeActivity | null>(null);
   useEffect(() => {
     const controller = new AbortController();
-    fetchSafeActivity(safe, controller.signal).then(setData, () => undefined);
+    fetchSafeActivity(safe, controller.signal, rail).then(setData, () => undefined);
     return () => controller.abort();
-  }, [safe]);
+  }, [safe, rail]);
   if (data === null) return <div className="mt-3 h-2 rounded-full bg-sandDeep" />;
   const received = data.receivedCents + unconfirmedCents(pending, data.transfers.map((tr) => tr.hash));
   const fraction = received / goalCents;
@@ -400,7 +407,7 @@ function GoalProgress({ receivedCents, goalCents }: { receivedCents: number; goa
  * i kad je panel za plaćanje zatvoren ili je stranica osvježena. Bez hasha
  * forwarda ne bi se znalo kad uplata stigne na lanac, pa bi se zbrojila dvaput.
  */
-function PendingWatcher({
+export function PendingWatcher({
   safe,
   pending,
   onSettled,
@@ -530,16 +537,18 @@ type LoadState =
   | { status: "error" }
   | { status: "ready"; data: SafeActivity };
 
-function LiveActivity({
+export function LiveActivity({
   safe,
   goalCents,
   pending,
   refreshKey,
+  rail = RAIL_ITALK,
 }: {
   safe: Address;
   goalCents: number | null;
   pending: readonly PendingPayment[];
   refreshKey: number;
+  rail?: RailProfile;
 }) {
   const { t, locale } = useT();
   const [state, setState] = useState<LoadState>({ status: "loading" });
@@ -553,7 +562,7 @@ function LiveActivity({
       controller.abort();
       controller = new AbortController();
       const { signal } = controller;
-      fetchSafeActivity(safe, signal).then(
+      fetchSafeActivity(safe, signal, rail).then(
         (data) => setState({ status: "ready", data }),
         () => {
           if (!signal.aborted) setState((prev) => (prev.status === "ready" ? prev : { status: "error" }));
@@ -578,7 +587,7 @@ function LiveActivity({
       document.removeEventListener("visibilitychange", onVisible);
       controller.abort();
     };
-  }, [safe, refreshKey]);
+  }, [safe, refreshKey, rail]);
 
   const chainHashes = state.status === "ready" ? state.data.transfers.map((tr) => tr.hash) : [];
   const extraCents = state.status === "ready" ? unconfirmedCents(pending, chainHashes) : 0;
@@ -652,7 +661,7 @@ function LiveActivity({
                     <span className="font-medium text-ink">{formatEurPrecise(p.cents)}</span>
                   ) : (
                     <a
-                      href={gnosisscanTxUrl(p.txHash)}
+                      href={explorerTxUrl(rail, p.txHash)}
                       target="_blank"
                       rel="noreferrer"
                       className="font-medium text-ink underline decoration-ink/20 underline-offset-2"
@@ -666,7 +675,7 @@ function LiveActivity({
                 <li key={tr.hash + tr.timestamp} className="flex items-center justify-between gap-4 py-2">
                   <span className="text-inkSoft">{formatDateShort(tr.timestamp, locale)}</span>
                   <a
-                    href={gnosisscanTxUrl(tr.hash)}
+                    href={explorerTxUrl(rail, tr.hash)}
                     target="_blank"
                     rel="noreferrer"
                     className="font-medium text-ink underline decoration-ink/20 underline-offset-2"
@@ -680,12 +689,12 @@ function LiveActivity({
         </>
       )}
       <a
-        href={gnosisscanAddressUrl(safe)}
+        href={explorerAddressUrl(rail, safe)}
         target="_blank"
         rel="noreferrer"
         className="mt-4 inline-block text-sm text-forest underline underline-offset-2"
       >
-        {t("beta.viewOnChain")}
+        {rail.sandbox ? t("sandbox.viewOnChain", { chain: rail.chainName }) : t("beta.viewOnChain")}
       </a>
     </div>
   );
@@ -696,14 +705,20 @@ function LiveActivity({
  * Iznos se bira ovdje jer je OBAVEZAN u EPC QR-u — bez njega Revolut ne popuni
  * opis plaćanja. QR, opis `mpt:<safe>?sid=` i potvrdu uživo daje rail checkout.
  */
-function PayWithIntent({
+export function PayWithIntent({
   safe,
   onPayment,
   onOpenChange,
+  rail = RAIL_ITALK,
 }: {
   safe: Address;
   onPayment: (p: PendingPayment) => void;
   onOpenChange: (open: boolean) => void;
+  /**
+   * Sandbox (/demo/): bez potvrde o uplati — potvrda se provjerava na Gnosisu i
+   * nosi pravni smisao dokaza uplate, a simulirana uplata nije uplata.
+   */
+  rail?: RailProfile;
 }) {
   const { t } = useT();
   const [preset, setPreset] = useState<number | null>(DEFAULT_AMOUNT_EUR);
@@ -721,7 +736,7 @@ function PayWithIntent({
     setIntentParam(i?.sid ?? null);
   };
   // Potvrda o uplati (docs/16): uključena po zadanom, uplatitelj je može isključiti.
-  const [wantReceipt, setWantReceipt] = useState(true);
+  const [wantReceipt, setWantReceipt] = useState(!rail.sandbox);
   const [receipt, setReceipt] = useState<{ key: ReceiptKey; saved: boolean } | null>(null);
   const amountEur = preset ?? parseAmountEur(custom);
 
@@ -731,7 +746,7 @@ function PayWithIntent({
     const sid = new URLSearchParams(window.location.search).get(INTENT_PARAM);
     if (sid === null) return;
     const controller = new AbortController();
-    Promise.all([fetchIntent(sid, safe, controller.signal), import("@/lib/receipt-keys")]).then(
+    Promise.all([fetchIntent(sid, safe, controller.signal, rail), import("@/lib/receipt-keys")]).then(
       ([restored, { receiptKeyStore }]) => {
         if (restored === null) {
           setIntentParam(null);
@@ -769,7 +784,7 @@ function PayWithIntent({
       } else if (!result.ok) setError(result);
       return;
     }
-    const result = await createPaymentIntent(safe, amountEur);
+    const result = await createPaymentIntent(safe, amountEur, { rail });
     setBusy(false);
     setReceipt(null);
     if (result.ok) setIntent(result.intent);
@@ -787,7 +802,10 @@ function PayWithIntent({
           onClose={() => setIntent(null)}
           onPayment={onPayment}
           copyRow={(label, value, copy, mono) => <Row label={label} value={value} copy={copy} mono={mono} />}
+          rail={rail}
         />
+      ) : !isRailConfigured(rail) ? (
+        <p className="mt-3 text-sm text-inkSoft">{t("sandbox.notConfigured")}</p>
       ) : (
       <>
       <fieldset className="mt-3">
@@ -827,6 +845,7 @@ function PayWithIntent({
         )}
       </fieldset>
 
+      {!rail.sandbox && (
       <label className="mt-4 flex items-start gap-2 text-sm text-ink">
         <input
           type="checkbox"
@@ -839,6 +858,7 @@ function PayWithIntent({
           <span className="mt-1 block text-xs text-inkMuted">{t("receipt.toggleHint")}</span>
         </span>
       </label>
+      )}
 
       <button
         type="button"
@@ -850,7 +870,7 @@ function PayWithIntent({
           ? t("beta.payBusy")
           : t("beta.payButton", { amount: formatEurPrecise(Math.round((amountEur ?? 0) * 100)) })}
       </button>
-      <p className="mt-2 text-xs text-inkMuted">{t("beta.payHow")}</p>
+      <p className="mt-2 text-xs text-inkMuted">{rail.sandbox ? t("sandbox.payHow") : t("beta.payHow")}</p>
       {error !== null && !error.ok && (
         <p className="mt-2 text-sm text-rust">
           {error.reason === "not_whitelisted"
@@ -863,7 +883,7 @@ function PayWithIntent({
       </>
       )}
 
-      <MyReceipts safe={safe} />
+      {!rail.sandbox && <MyReceipts safe={safe} />}
     </div>
   );
 }

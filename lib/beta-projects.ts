@@ -12,9 +12,11 @@
  */
 
 
+import { RAIL_ITALK, explorerAddressUrl, explorerTxUrl } from "@/lib/rail-profile";
+
 /** EURe (Monerium, V2) na Gnosis Chainu — isti token kao pinka donacije. */
-export const EURE_ADDRESS = "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430";
-export const GNOSIS_CHAIN_ID = 100;
+export const EURE_ADDRESS = RAIL_ITALK.eure;
+export const GNOSIS_CHAIN_ID = RAIL_ITALK.chainId;
 
 /** Rail Safe na pay.domovina.ai: prima mint od Moneriuma i prosljeđuje ga dalje. */
 export const RAIL_SAFE_ADDRESS = "0x449aBCEf4e29a7Dd8d98dB451AF2c463561BAf2e";
@@ -43,7 +45,7 @@ const OWNER_SIGNERS: { owners: Address[]; threshold: number } = {
 const MPT_INTENT: BetaPayment = { kind: "mpt-intent" };
 
 /** MPT intent API (pay.domovina.ai backend): `POST` stvara intent, `GET /campaign-qr` služi provjeri. */
-export const RAIL_API_BASE = "https://mpt.domovina.ai/api/intents";
+export const RAIL_API_BASE = RAIL_ITALK.apiBase;
 
 export type Address = `0x${string}`;
 
@@ -209,9 +211,9 @@ export function weiToCents(value: string): number {
 }
 
 export function gnosisscanAddressUrl(address: Address): string {
-  return `https://gnosisscan.io/address/${address}#tokentxns`;
+  return explorerAddressUrl(RAIL_ITALK, address);
 }
 
 export function gnosisscanTxUrl(hash: string): string {
-  return `https://gnosisscan.io/tx/${hash}`;
+  return explorerTxUrl(RAIL_ITALK, hash);
 }

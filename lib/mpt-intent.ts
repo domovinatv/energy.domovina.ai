@@ -12,8 +12,12 @@
  *
  * Preduvjeti na railu: `energy.domovina.ai` u `ALLOWED_ORIGINS` i Safe registriran
  * kao kampanja (whitelist). Nova domena ovdje = nova stavka u CSP-u.
+ *
+ * Profil raila (`lib/rail-profile`) bira tenant: bez ključa rail uzme zadani
+ * `italk`, s `pk_` ključem tenant tog ključa (sandbox /demo/ → `italk-sandbox`).
  */
 import { RAIL_API_BASE, type Address } from "@/lib/beta-projects";
+import { RAIL_ITALK, type RailProfile } from "@/lib/rail-profile";
 
 export interface PaymentIntent {
   sid: string;
@@ -128,13 +132,17 @@ interface IntentJson {
 export async function createPaymentIntent(
   target: Address,
   amountEur: number,
-  opts: { receiptSid?: string } = {},
+  opts: { receiptSid?: string; rail?: RailProfile } = {},
 ): Promise<IntentResult> {
+  const rail = opts.rail ?? RAIL_ITALK;
   let res: Response;
   try {
-    res = await fetch(RAIL_API_BASE, {
+    res = await fetch(rail.apiBase, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        ...(rail.tenantKey !== null ? { authorization: `Bearer ${rail.tenantKey}` } : {}),
+      },
       body: JSON.stringify({
         target_address: target,
         amount_eur: amountEur.toFixed(2),
@@ -175,8 +183,13 @@ export function intentFromJson(b: IntentJson, fallbackAmountEur: string): Paymen
  * Postojeći intent po sidu — za `?uplata=<sid>` u adresi, da osvježavanje stranice
  * ne traži novi intent. `null` kad ga nema ili ne ide na `target` (tuđi Safe).
  */
-export async function fetchIntent(sid: string, target: Address, signal?: AbortSignal): Promise<PaymentIntent | null> {
-  const res = await fetch(`${RAIL_API_BASE}/${encodeURIComponent(sid)}`, { signal });
+export async function fetchIntent(
+  sid: string,
+  target: Address,
+  signal?: AbortSignal,
+  rail: RailProfile = RAIL_ITALK,
+): Promise<PaymentIntent | null> {
+  const res = await fetch(`${rail.apiBase}/${encodeURIComponent(sid)}`, { signal });
   if (!res.ok) return null;
   const b = (await res.json()) as IntentJson;
   if (typeof b.target_address !== "string" || b.target_address.toLowerCase() !== target.toLowerCase()) return null;
@@ -229,6 +242,34 @@ export async function fetchIntentStatus(statusUrl: string, signal: AbortSignal):
 }
 
 export const intentStreamUrl = (sid: string) => `${RAIL_API_BASE}/${encodeURIComponent(sid)}/stream`;
+
+export type SandboxTransferResult =
+  | { ok: true }
+  | { ok: false; reason: "too_soon" | "not_pending" | "monerium" | "network" | "unknown" };
+
+/**
+ * Simulirana SEPA uplata za intent na Monerium sandboxu (rail
+ * `monerium/sandboxFund.ts`). Monerium glumi samo banku: nalog iznosa intenta s
+ * referencom intenta na IBAN tenanta. Order, webhook, mint na Chiadu i status
+ * dalje idu pravim putem, pa ih `watchIntentStatus` prati kao svaku uplatu.
+ * Rail odbija svaki intent koji nije na sandbox tenantu (404), pa ovo ne može
+ * pomaknuti pravi novac.
+ */
+export async function simulateSandboxTransfer(sid: string, rail: RailProfile): Promise<SandboxTransferResult> {
+  if (!rail.sandbox) return { ok: false, reason: "unknown" };
+  let res: Response;
+  try {
+    res = await fetch(`${rail.apiBase}/${encodeURIComponent(sid)}/monerium-sandbox-transfer`, { method: "POST" });
+  } catch {
+    return { ok: false, reason: "network" };
+  }
+  if (res.ok) return { ok: true };
+  const b = (await res.json().catch(() => ({}))) as { error?: string };
+  if (b.error === "already_sent") return { ok: false, reason: "too_soon" };
+  if (b.error === "intent_not_pending") return { ok: false, reason: "not_pending" };
+  if (b.error === "monerium_fund_failed") return { ok: false, reason: "monerium" };
+  return { ok: false, reason: "unknown" };
+}
 
 /** Kako status trenutno stiže — za `data-transport` na panelu i provjeru u pregledniku. */
 export type IntentTransport = "sse" | "poll";

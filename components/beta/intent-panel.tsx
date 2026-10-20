@@ -6,17 +6,23 @@
  * (`pay.domovina.ai/backend/src/checkout/page.ts`): status uživo preko SSE-a s
  * pollingom kao rezervom (`watchIntentStatus`), uspjeh čim Monerium zaprimi
  * uplatu, kraj na settled / rejected / expired.
+ *
+ * Sandbox profil raila (/demo/, docs/17): umjesto EPC QR-a gumb koji od Monerium
+ * sandboxa traži simuliranu SEPA uplatu. QR sa sandbox IBAN-om se NE crta —
+ * netko bi ga skenirao bankom i poslao pravi novac na račun koji ne postoji.
  */
 import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 import { toSVG } from "bwip-js/browser";
 import { useT } from "@/lib/i18n";
 import { useMediaQuery } from "@/lib/media-query";
-import { gnosisscanTxUrl } from "@/lib/beta-projects";
+import { RAIL_ITALK, explorerTxUrl, type RailProfile } from "@/lib/rail-profile";
 import {
   isReceived,
   isTerminal,
+  simulateSandboxTransfer,
   watchIntentStatus,
+  type SandboxTransferResult,
   type IntentStatus,
   type IntentStep,
   type IntentTransport,
@@ -37,6 +43,7 @@ export function IntentPanel({
   onClose,
   onPayment,
   copyRow,
+  rail = RAIL_ITALK,
 }: {
   intent: PaymentIntent;
   /**
@@ -49,6 +56,8 @@ export function IntentPanel({
   /** Javlja zaprimljenu uplatu (i kasnije hash forwarda) — pribroji se odmah. */
   onPayment: (p: PendingPayment) => void;
   copyRow: (label: string, value: string, copy?: string, mono?: boolean) => React.ReactNode;
+  /** Tenant i lanac (lib/rail-profile); zadano pravi ITalk na Gnosisu. */
+  rail?: RailProfile;
 }) {
   const { t } = useT();
   const [svg, setSvg] = useState<string | null>(null);
@@ -72,13 +81,13 @@ export function IntentPanel({
   // U modu s potvrdom HUB3 se ne nudi: opis uplatnice ne nosi `sid`, pa takva
   // uplata nikad ne dobiva izravnu potvrdu (docs/16 §4.1).
   const hub3Svg = useMemo(() => {
-    if (intent.hub3Data === null || receipt !== null) return null;
+    if (intent.hub3Data === null || receipt !== null || rail.sandbox) return null;
     try {
       return toSVG({ bcid: "pdf417", text: intent.hub3Data, paddingwidth: 4, paddingheight: 4, ...HUB3_PDF417 });
     } catch {
       return null;
     }
-  }, [intent.hub3Data, receipt]);
+  }, [intent.hub3Data, receipt, rail.sandbox]);
 
   // ⚠️ Revolut iOS NE čita gust EPC QR iscrtan sitno: ≥ 320 px, tiha zona 4
   // modula, ECC M (pay.domovina.ai memorija feedback_epc_format). EPC tekst je
@@ -126,7 +135,7 @@ export function IntentPanel({
 
   const stage = status.stage;
   const amount = `${intent.amountEur.replace(".", ",")} €`;
-  const showQr = stage === "awaiting_payment" && !qrBlocked;
+  const showQr = stage === "awaiting_payment" && !qrBlocked && !rail.sandbox;
   // Široki stupac uplate (2xl, beta-page): QR lijevo, sve ostalo desno — panel ne
   // mora biti visok koliko QR i podaci zajedno. Ispod 2xl redoslijed je kao prije.
   const split = wide && showQr;
@@ -184,7 +193,7 @@ export function IntentPanel({
     >
       {split && <div className="[&>:first-child]:mt-0">{qrBlock}</div>}
       <div>
-        <StageBanner status={status} amount={amount} />
+        <StageBanner status={status} amount={amount} rail={rail} />
 
         {receipt !== null && stage === "awaiting_payment" && (
           <div className="mt-4 max-w-[320px] rounded-sm border border-forest/30 bg-forest/5 p-3 text-xs text-inkSoft">
@@ -207,6 +216,10 @@ export function IntentPanel({
             {keyDownloaded && <span className="ml-2 text-forest">{t("receipt.keyDownloaded")}</span>}
             {intent.hub3Data !== null && <p className="mt-2">{t("receipt.hub3Hidden")}</p>}
           </div>
+        )}
+
+        {rail.sandbox && stage === "awaiting_payment" && (
+          <SandboxTransfer intent={intent} amount={amount} rail={rail} copyRow={copyRow} />
         )}
 
         {showQr && (
@@ -267,7 +280,7 @@ export function IntentPanel({
         {/* S railovim koracima link na forward stoji uz korak „Prijenos na Safe". */}
         {stage === "settled" && status.forwardTxHash !== null && status.steps.length === 0 && (
           <a
-            href={gnosisscanTxUrl(status.forwardTxHash)}
+            href={explorerTxUrl(rail, status.forwardTxHash)}
             target="_blank"
             rel="noreferrer"
             className="mt-3 block text-sm text-forest underline underline-offset-2"
@@ -299,7 +312,7 @@ export function IntentPanel({
  * korak traje — umjesto deset sekundi tišine. Stariji rail bez `steps` dobiva
  * prijašnja tri koraka.
  */
-function StageBanner({ status, amount }: { status: IntentStatus; amount: string }) {
+function StageBanner({ status, amount, rail }: { status: IntentStatus; amount: string; rail: RailProfile }) {
   const { t } = useT();
   const { stage } = status;
   // Sat za „traje 5 s" / „čekam već 42 s"; staje kad više nema što čekati.
@@ -334,7 +347,7 @@ function StageBanner({ status, amount }: { status: IntentStatus; amount: string 
         </p>
       </div>
       {status.steps.length > 0 ? (
-        <RailSteps steps={status.steps} stage={stage} owed={owed} now={now} />
+        <RailSteps steps={status.steps} stage={stage} owed={owed} now={now} rail={rail} />
       ) : (
         <FallbackSteps stage={stage} owed={owed} />
       )}
@@ -372,11 +385,13 @@ function RailSteps({
   stage,
   owed,
   now,
+  rail,
 }: {
   steps: readonly IntentStep[];
   stage: IntentStatus["stage"];
   owed: boolean;
   now: number;
+  rail: RailProfile;
 }) {
   const { t, locale } = useT();
   const start = steps.find((s) => s.key === "payment")?.at ?? null;
@@ -435,7 +450,7 @@ function RailSteps({
             </div>
             {tx !== undefined && (
               <a
-                href={gnosisscanTxUrl(tx)}
+                href={explorerTxUrl(rail, tx)}
                 target="_blank"
                 rel="noreferrer"
                 className="ml-6 text-xs text-forest underline underline-offset-2"
@@ -447,6 +462,60 @@ function RailSteps({
         );
       })}
     </ol>
+  );
+}
+
+/**
+ * Sandbox umjesto QR-a: jedan klik = jedna simulirana SEPA uplata iznosa intenta s
+ * referencom intenta. Rail drži 60 s bravu po intentu, pa dvostruki klik ne minta
+ * dvaput. Ishod se vidi u StageBanneru (isti SSE kao prava uplata), ne ovdje.
+ */
+function SandboxTransfer({
+  intent,
+  amount,
+  rail,
+  copyRow,
+}: {
+  intent: PaymentIntent;
+  amount: string;
+  rail: RailProfile;
+  copyRow: (label: string, value: string, copy?: string, mono?: boolean) => React.ReactNode;
+}) {
+  const { t } = useT();
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<SandboxTransferResult | null>(null);
+  return (
+    <div data-sandbox-transfer className="mt-4 max-w-[420px] rounded-sm border border-solar/60 bg-solar-soft p-3 text-ink">
+      <p className="text-sm font-medium">{t("sandbox.simTitle")}</p>
+      <p className="mt-1 text-xs text-inkSoft">{t("sandbox.simText", { chain: rail.chainName })}</p>
+      <button
+        type="button"
+        disabled={busy || result?.ok === true}
+        onClick={async () => {
+          setBusy(true);
+          setResult(await simulateSandboxTransfer(intent.sid, rail));
+          setBusy(false);
+        }}
+        className="mt-3 w-full rounded-sm bg-forest px-4 py-2.5 text-sm font-medium text-cream hover:bg-forest-700 disabled:opacity-50 sm:w-auto"
+      >
+        {busy ? t("sandbox.simBusy") : result?.ok === true ? t("sandbox.simSent") : t("sandbox.simButton", { amount })}
+      </button>
+      {result !== null && !result.ok && (
+        <p className="mt-2 text-xs text-rust">
+          {result.reason === "too_soon"
+            ? t("sandbox.simTooSoon")
+            : result.reason === "not_pending"
+              ? t("sandbox.simNotPending")
+              : result.reason === "monerium"
+                ? t("sandbox.simMonerium")
+                : t("sandbox.simError")}
+        </p>
+      )}
+      <dl className="mt-3 space-y-2 text-sm">
+        {copyRow(t("sandbox.simIban"), intent.iban.replace(/(.{4})/g, "$1 ").trim())}
+        {copyRow(t("beta.reference"), intent.memo, intent.memo, true)}
+      </dl>
+    </div>
   );
 }
 

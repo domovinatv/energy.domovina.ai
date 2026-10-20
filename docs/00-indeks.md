@@ -30,6 +30,7 @@ Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.** ([11
 | 14 | [poslovni-model](./14-poslovni-model.md) | **Dva moda rada, zašto nismo ECSP, prihod od izvedbe, sukob interesa** | promjena uloge ili prihoda |
 | 15 | [pravi-projekti-vlastite-lokacije](./15-pravi-projekti-vlastite-lokacije.md) | **Tri stvarne elektrane na vlastitim lokacijama**, pravi Safe 2-od-3, bez javnog prikupljanja | odluka o izvoru novca ili lokaciji |
 | 16 | [potvrda-o-uplati](./16-potvrda-o-uplati.md) | **Potvrda o uplati (rail ADR 0022) u beta toku**: ključ u pregledniku, `r1` sid, stranica potvrde, ugovor s railom; rail live, ovdje još ništa | promjena rail API-ja ili ADR 0023 |
+| 17 | [sandbox-bijela-etiketa](./17-sandbox-bijela-etiketa.md) | **`/sandbox/`: kampanja doprinosa na `italk-sandbox`** (Monerium sandbox, Chiado), placeholder brend, profil raila, simulirana SEPA uplata | novi klijent ili blueprint brenda |
 
 ### Dnevnici
 
