@@ -1203,5 +1203,6 @@ Uplatitelj na bilo kojem ekranu (mobitel, TV na štandu) prepozna svoju uplatu
   na lancu ni u vlastitim uplatama postaje zaseban redak i ulazi u zbroj, ali
   samo 24 h od `placedAt` (`RAIL_PENDING_WINDOW_MS`): uplata riješena izvan raila
   inače bi trajno napuhala zbroj.
-- Kartica na `/beta/` (`CardProgress`) i dalje broji samo lanac i vlastite
-  uplate. Uplata nekog drugog koja čeka na mint ondje se vidi tek kad sjedne na lanac.
+- Kartica na `/beta/` (`CardProgress`) zbraja isto: lanac, vlastite zaprimljene
+  uplate i tuđe koje je rail zaprimio (`useOwnRefs` dijele kartica i `LiveActivity`).
+  Kartica čita samo jednom, bez osvježavanja.

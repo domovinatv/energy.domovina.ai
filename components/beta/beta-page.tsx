@@ -143,7 +143,34 @@ function ProjectCard({ project }: { project: BetaProject }) {
   );
 }
 
-/** Prikupljeno na kartici — jedno čitanje lanca, bez osvježavanja (to radi stranica elektrane). */
+/**
+ * SHA-256 vlastitih sidova (sid → ref, lib/payer-tags): railov redak uplate
+ * koju uplatitelj već vidi iz localStoragea ne smije se ponoviti ni zbrojiti dvaput.
+ */
+function useOwnRefs(pending: readonly PendingPayment[]): ReadonlyMap<string, string> {
+  const [ownRefs, setOwnRefs] = useState<ReadonlyMap<string, string>>(new Map());
+  const pendingKey = pending.map((p) => p.sid).join(",");
+  useEffect(() => {
+    let live = true;
+    const sids = pendingKey === "" ? [] : pendingKey.split(",");
+    Promise.all(sids.map(payerRef)).then(
+      (refs) => {
+        if (live) setOwnRefs(new Map(sids.map((sid, i) => [sid, refs[i]!])));
+      },
+      () => undefined,
+    );
+    return () => {
+      live = false;
+    };
+  }, [pendingKey]);
+  return ownRefs;
+}
+
+/**
+ * Prikupljeno na kartici — jedno čitanje lanca i oznaka raila, bez osvježavanja
+ * (to radi stranica elektrane). Zbraja isto što i `LiveActivity`: lanac, vlastite
+ * zaprimljene uplate i tuđe koje je rail zaprimio, a lanac još ne pokazuje.
+ */
 export function CardProgress({
   safe,
   goalCents,
@@ -155,14 +182,25 @@ export function CardProgress({
 }) {
   const { t } = useT();
   const pending = usePending(safe);
+  const ownRefs = useOwnRefs(pending);
   const [data, setData] = useState<SafeActivity | null>(null);
+  const [tags, setTags] = useState<{ list: PayerTag[]; at: number }>({ list: [], at: 0 });
   useEffect(() => {
     const controller = new AbortController();
     fetchSafeActivity(safe, controller.signal, rail).then(setData, () => undefined);
+    fetchPayerTags(safe, controller.signal, rail).then(
+      (list) => setTags({ list, at: Date.now() }),
+      () => undefined,
+    );
     return () => controller.abort();
   }, [safe, rail]);
   if (data === null) return <div className="mt-3 h-2 rounded-full bg-sandDeep" />;
-  const received = data.receivedCents + unconfirmedCents(pending, data.transfers.map((tr) => tr.hash));
+  const chainHashes = data.transfers.map((tr) => tr.hash);
+  const railOnly = railOnlyPending(tags.list, chainHashes, new Set(ownRefs.values()), tags.at);
+  const received =
+    data.receivedCents +
+    unconfirmedCents(pending, chainHashes) +
+    railOnly.reduce((sum, tag) => sum + tag.cents, 0);
   const fraction = received / goalCents;
   return (
     <div className="mt-3">
@@ -556,22 +594,7 @@ export function LiveActivity({
   // Oznake uplatitelja s raila (lib/payer-tags) i trenutak čitanja — njime se
   // mjeri starost zaprimljenih uplata, da render ne čita sat.
   const [tags, setTags] = useState<{ list: PayerTag[]; at: number }>({ list: [], at: 0 });
-  // SHA-256 vlastitih sidova: rail redak iste uplate ne smije se ponoviti.
-  const [ownRefs, setOwnRefs] = useState<ReadonlyMap<string, string>>(new Map());
-  const pendingKey = pending.map((p) => p.sid).join(",");
-  useEffect(() => {
-    let live = true;
-    const sids = pendingKey === "" ? [] : pendingKey.split(",");
-    Promise.all(sids.map(payerRef)).then(
-      (refs) => {
-        if (live) setOwnRefs(new Map(sids.map((sid, i) => [sid, refs[i]!])));
-      },
-      () => undefined,
-    );
-    return () => {
-      live = false;
-    };
-  }, [pendingKey]);
+  const ownRefs = useOwnRefs(pending);
 
   // Uplata se pojavi bez ručnog osvježavanja: dok je kartica vidljiva, lanac se
   // ponovno čita svakih REFRESH_MS. Skrivena kartica ne troši upite, a povratak
