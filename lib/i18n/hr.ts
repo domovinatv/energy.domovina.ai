@@ -888,6 +888,8 @@ export const hr = {
   "beta.includesMinted": "Uključuje {amount} koje je Monerium zaprimio u eurima (SEPA). EURe je već izdan, ali još nije prebačen na Safe elektrane, pa ga Gnosisscan na ovom Safeu još ne pokazuje.",
   "beta.rowReceived": "zaprimljeno, čeka EURe",
   "beta.rowMinted": "EURe izdan, čeka prijenos na Safe",
+  "beta.payerTagNotice":
+    "Na javnom popisu uplata uz tvoju uplatu stoje samo inicijali i zadnje 4 znamenke IBAN-a, da je prepoznaš. Ime i IBAN se ne objavljuju.",
   "beta.rowIndexing": "na Gnosis Chainu",
   "beta.payButton": "Plati {amount}",
   "beta.payBusy": "Pripremam uplatu…",

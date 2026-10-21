@@ -1180,3 +1180,28 @@ intent na railu. Raspored za `paying` na 2xl nije mijenjan.
 3. Rok prikupljanja, montaže i priključka (`docs/15` checklist „Priključak HEP-ODS po lokaciji i rok”).
 4. Procjena godišnje proizvodnje uz potrošnju: tek s izvorom i datumom provjere (pravilo 2).
 5. Broj uplatitelja: ne može se izračunati s lanca, jer sve stiže s raila; treba podatak s raila.
+
+## 22. Oznaka uplatitelja na popisu uplata — inicijali + ··1234 (21.10.2026.)
+
+Uplatitelj na bilo kojem ekranu (mobitel, TV na štandu) prepozna svoju uplatu
+čim je Monerium zaprimi: redak nosi „M. S. ··0160". Ime i IBAN ne izlaze s raila.
+
+- **Izvor je rail**, ne lanac: `GET https://mpt.domovina.ai/api/payers/:address`
+  (pay.domovina.ai PR #139, migracija 0032). Vraća inicijale, zadnja 4 znaka
+  IBAN-a, iznos, `placedAt`, `received`/`minted`, sve hasheve uplate (mint i
+  forward) i `ref` = SHA-256(sid)[:16]. Sid se ne objavljuje: on je capability
+  za `status_url`.
+- **Opt-in po tenantu** (`tenants.public_payer_tags`): bez zastavice bi svatko
+  izlistao uplatitelje tuđeg Safea (MT-08). Uključen samo za `italk`; sandbox
+  ne, pa `RailProfile.payerTags` mora odgovarati railu.
+- **Odluke vlasnika:** retroaktivno za sve dosadašnje uplate (uplaćivali su samo
+  vlasnik i osobno poznati), uz napomenu na obrascu za uplatu
+  (`beta.payerTagNotice`); zaprimljena uplata vidljiva je **svima** prije minta,
+  ne samo uplatitelju u njegovom pregledniku.
+- **Uparivanje** (`lib/payer-tags.ts`): redak s lanca dobiva oznaku po bilo kojem
+  hashu uplate; vlastiti redak iz `localStorage` po `ref`; railov redak koji nije
+  na lancu ni u vlastitim uplatama postaje zaseban redak i ulazi u zbroj, ali
+  samo 24 h od `placedAt` (`RAIL_PENDING_WINDOW_MS`): uplata riješena izvan raila
+  inače bi trajno napuhala zbroj.
+- Kartica na `/beta/` (`CardProgress`) i dalje broji samo lanac i vlastite
+  uplate. Uplata nekog drugog koja čeka na mint ondje se vidi tek kad sjedne na lanac.

@@ -35,6 +35,12 @@ export interface RailProfile {
    * s whiteliste tenanta.
    */
   tenantKey: string | null;
+  /**
+   * Tenant na railu objavljuje oznake uplatitelja (inicijali + ··1234,
+   * `tenants.public_payer_tags`, lib/payer-tags). Mora se slagati s railom:
+   * bez toga stranica ne obećava oznaku na obrascu za uplatu.
+   */
+  payerTags: boolean;
 }
 
 const RAIL_API_BASE = "https://mpt.domovina.ai/api/intents";
@@ -50,6 +56,7 @@ export const RAIL_ITALK: RailProfile = {
   eure: "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430",
   apiBase: RAIL_API_BASE,
   tenantKey: null,
+  payerTags: true,
 };
 
 /**
@@ -72,6 +79,7 @@ export const RAIL_ITALK_SANDBOX: RailProfile = {
   eure: "0x7a47605930002cc2cd2c3c408d1f33fc2a18ab71",
   apiBase: RAIL_API_BASE,
   tenantKey: ITALK_SANDBOX_PUBLIC_KEY,
+  payerTags: false,
 };
 
 /** Tenant raila prima intente s ove stranice: zadani tenant ili tenant s ključem. */

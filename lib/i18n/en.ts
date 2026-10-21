@@ -850,6 +850,8 @@ export const en: Catalog = {
   "beta.includesMinted": "Includes {amount} that Monerium has already received in euros (SEPA). The EURe has been issued but not yet moved to the plant's Safe, so Gnosisscan does not show it on this Safe yet.",
   "beta.rowReceived": "received, awaiting EURe",
   "beta.rowMinted": "EURe issued, awaiting transfer to the Safe",
+  "beta.payerTagNotice":
+    "The public list of payments shows only your initials and the last 4 digits of your IBAN, so you can recognise your payment. Your name and IBAN are never published.",
   "beta.rowIndexing": "on Gnosis Chain",
   "beta.payButton": "Pay {amount}",
   "beta.payBusy": "Preparing the payment…",

@@ -28,6 +28,7 @@ import { IntentPanel } from "@/components/beta/intent-panel";
 import { HepMeter, hepYearKwh } from "@/components/beta/hep-meter";
 import { BETA_HEP } from "@/lib/beta-hep";
 import { justArrivedRemainingMs, unconfirmedCents, type PendingPayment } from "@/lib/pending-payments";
+import { fetchPayerTags, payerRef, railOnlyPending, tagsByHash, type PayerTag } from "@/lib/payer-tags";
 import { removePending, savePending, usePending } from "@/lib/pending-store";
 import { fetchIntent, fetchIntentStatus } from "@/lib/mpt-intent";
 import { withViewTransition } from "@/lib/view-transition";
@@ -552,6 +553,25 @@ export function LiveActivity({
 }) {
   const { t, locale } = useT();
   const [state, setState] = useState<LoadState>({ status: "loading" });
+  // Oznake uplatitelja s raila (lib/payer-tags) i trenutak čitanja — njime se
+  // mjeri starost zaprimljenih uplata, da render ne čita sat.
+  const [tags, setTags] = useState<{ list: PayerTag[]; at: number }>({ list: [], at: 0 });
+  // SHA-256 vlastitih sidova: rail redak iste uplate ne smije se ponoviti.
+  const [ownRefs, setOwnRefs] = useState<ReadonlyMap<string, string>>(new Map());
+  const pendingKey = pending.map((p) => p.sid).join(",");
+  useEffect(() => {
+    let live = true;
+    const sids = pendingKey === "" ? [] : pendingKey.split(",");
+    Promise.all(sids.map(payerRef)).then(
+      (refs) => {
+        if (live) setOwnRefs(new Map(sids.map((sid, i) => [sid, refs[i]!])));
+      },
+      () => undefined,
+    );
+    return () => {
+      live = false;
+    };
+  }, [pendingKey]);
 
   // Uplata se pojavi bez ručnog osvježavanja: dok je kartica vidljiva, lanac se
   // ponovno čita svakih REFRESH_MS. Skrivena kartica ne troši upite, a povratak
@@ -567,6 +587,11 @@ export function LiveActivity({
         () => {
           if (!signal.aborted) setState((prev) => (prev.status === "ready" ? prev : { status: "error" }));
         },
+      );
+      // Oznake su ukras popisa: greška raila ostavlja prethodne, a popis radi i bez njih.
+      fetchPayerTags(safe, signal, rail).then(
+        (list) => setTags({ list, at: Date.now() }),
+        () => undefined,
       );
     };
     load();
@@ -590,7 +615,15 @@ export function LiveActivity({
   }, [safe, refreshKey, rail]);
 
   const chainHashes = state.status === "ready" ? state.data.transfers.map((tr) => tr.hash) : [];
-  const extraCents = state.status === "ready" ? unconfirmedCents(pending, chainHashes) : 0;
+  const byHash = tagsByHash(tags.list);
+  const byRef = new Map(tags.list.flatMap((tag) => (tag.ref === null ? [] : [[tag.ref, tag] as const])));
+  // Uplate koje je rail zaprimio od DRUGIH uplatitelja (ili s drugog uređaja), a
+  // lanac ih još ne pokazuje — vide ih svi, ne samo onaj tko je platio.
+  const railOnly = state.status === "ready" ? railOnlyPending(tags.list, chainHashes, new Set(ownRefs.values()), tags.at) : [];
+  const extraCents =
+    state.status === "ready"
+      ? unconfirmedCents(pending, chainHashes) + railOnly.reduce((sum, tag) => sum + tag.cents, 0)
+      : 0;
   // Zaprimljene uplate koje lanac (ili gnosisscan indeks) još ne pokazuje — idu na
   // vrh popisa odmah, da popis ne kasni za porukom „uplata je stigla".
   const onChain = new Set(chainHashes.map((h) => h.toLowerCase()));
@@ -598,7 +631,10 @@ export function LiveActivity({
     .filter((p) => p.txHash === null || !onChain.has(p.txHash.toLowerCase()))
     .reverse();
   // Sve nepotvrđene imaju izdan EURe → napomena ne smije reći „pojavi se kad se izda EURe".
-  const allMinted = unconfirmed.length > 0 && unconfirmed.every((p) => p.txHash !== null || p.minted === true);
+  const allMinted =
+    unconfirmed.length + railOnly.length > 0 &&
+    unconfirmed.every((p) => p.txHash !== null || p.minted === true) &&
+    railOnly.every((tag) => tag.minted);
   const receivedCents = state.status === "ready" ? state.data.receivedCents + extraCents : 0;
   const latest = pending.length > 0 ? pending[pending.length - 1] : undefined;
 
@@ -641,7 +677,7 @@ export function LiveActivity({
             </p>
           )}
           <h3 className="mt-5 text-xs uppercase tracking-wide text-inkMuted">{t("beta.recent")}</h3>
-          {state.data.transfers.length === 0 && unconfirmed.length === 0 ? (
+          {state.data.transfers.length === 0 && unconfirmed.length === 0 && railOnly.length === 0 ? (
             <p className="mt-2 text-sm text-inkSoft">{t("beta.noTransfers")}</p>
           ) : (
             <ul className="mt-2 divide-y divide-ink/8 text-sm">
@@ -649,6 +685,7 @@ export function LiveActivity({
                 <li key={p.sid} className="flex items-center justify-between gap-4 bg-forest/5 py-2">
                   <span className="text-inkSoft">
                     {formatDateShort(new Date(p.receivedAt).toISOString(), locale)}
+                    <PayerLabel tag={byRef.get(ownRefs.get(p.sid) ?? "")} />
                     <span className="ml-2 text-xs text-forest">
                       {p.txHash !== null
                         ? t(railKey(rail, "beta.rowIndexing"))
@@ -671,9 +708,24 @@ export function LiveActivity({
                   )}
                 </li>
               ))}
+              {railOnly.map((tag, i) => (
+                <li key={tag.ref ?? `rail-${i}`} className="flex items-center justify-between gap-4 bg-forest/5 py-2">
+                  <span className="text-inkSoft">
+                    {formatDateShort(new Date(tag.receivedAt ?? tags.at).toISOString(), locale)}
+                    <PayerLabel tag={tag} />
+                    <span className="ml-2 text-xs text-forest">
+                      {tag.minted ? t("beta.rowMinted") : t("beta.rowReceived")}
+                    </span>
+                  </span>
+                  <span className="font-medium text-ink">{formatEurPrecise(tag.cents)}</span>
+                </li>
+              ))}
               {state.data.transfers.slice(0, RECENT_COUNT).map((tr) => (
                 <li key={tr.hash + tr.timestamp} className="flex items-center justify-between gap-4 py-2">
-                  <span className="text-inkSoft">{formatDateShort(tr.timestamp, locale)}</span>
+                  <span className="text-inkSoft">
+                    {formatDateShort(tr.timestamp, locale)}
+                    <PayerLabel tag={byHash.get(tr.hash.toLowerCase())} />
+                  </span>
                   <a
                     href={explorerTxUrl(rail, tr.hash)}
                     target="_blank"
@@ -698,6 +750,12 @@ export function LiveActivity({
       </a>
     </div>
   );
+}
+
+/** „M. S. ··0160" uz datum retka (lib/payer-tags); bez oznake ništa. */
+function PayerLabel({ tag }: { tag: PayerTag | undefined }) {
+  if (tag === undefined || tag.label === null) return null;
+  return <span className="ml-2 whitespace-nowrap font-mono text-xs text-inkMuted">{tag.label}</span>;
 }
 
 /**
@@ -871,6 +929,7 @@ export function PayWithIntent({
           : t("beta.payButton", { amount: formatEurPrecise(Math.round((amountEur ?? 0) * 100)) })}
       </button>
       <p className="mt-2 text-xs text-inkMuted">{rail.sandbox ? t("sandbox.payHow") : t("beta.payHow")}</p>
+      {rail.payerTags && <p className="mt-1 text-xs text-inkMuted">{t("beta.payerTagNotice")}</p>}
       {error !== null && !error.ok && (
         <p className="mt-2 text-sm text-rust">
           {error.reason === "not_whitelisted"
