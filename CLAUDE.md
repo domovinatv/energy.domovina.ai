@@ -230,6 +230,12 @@ Iz potvrde o uplati (dnevnik §17, 12.10.2026.):
   izmjena ide na rail pa kopijom, a test drži railove zlatne vrijednosti.
 - Za potvrdu se ručno lijepi **cijela** referenca `mpt:…?sid=…`, ne samo sid.
 
+Iz skalabilnosti javnog čitanja (`docs/18`, 22.10.2026.):
+- **Javno čitanje s raila ne smije ići ravno u D1** — ista baza nosi Monerium webhook; navala
+  gledatelja bi zaustavila tok novca. `/api/payers` ide kroz Cache API (rail ADR 0030).
+- **`Cache-Control` na odgovoru Workera CDN ne poštuje** (Worker je ispred cachea) — treba
+  Cache API. **CDN ne sprema JSON po zadanim postavkama** — R2 iza domene traži Cache Rule.
+
 Iz paralelnih uplata bez reference (19.10.2026.):
 - **Iznos nikad ne nosi identitet uplate.** Ne predlaži jedinstven iznos po intentu
   (1,00 → 1,01), centski nonce ni slične hackove — vlasnik ih je odbacio. Uplata bez reference
