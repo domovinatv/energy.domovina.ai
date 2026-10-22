@@ -31,7 +31,7 @@ Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.** ([11
 | 15 | [pravi-projekti-vlastite-lokacije](./15-pravi-projekti-vlastite-lokacije.md) | **Tri stvarne elektrane na vlastitim lokacijama**, pravi Safe 2-od-3, bez javnog prikupljanja | odluka o izvoru novca ili lokaciji |
 | 16 | [potvrda-o-uplati](./16-potvrda-o-uplati.md) | **Potvrda o uplati (rail ADR 0022) u beta toku**: ključ u pregledniku, `r1` sid, stranica potvrde, ugovor s railom; rail live, ovdje još ništa | promjena rail API-ja ili ADR 0023 |
 | 17 | [sandbox-bijela-etiketa](./17-sandbox-bijela-etiketa.md) | **`/sandbox/`: kampanja doprinosa na `italk-sandbox`** (Monerium sandbox, Chiado), placeholder brend, profil raila, simulirana SEPA uplata | novi klijent ili blueprint brenda |
-| 18 | [skalabilnost-javnog-citanja](./18-skalabilnost-javnog-citanja.md) | **Popis uplata pod navalom**: proračun za 1M pregleda/min, D1 dijeli bazu s novcem, Cache API na railu (ADR 0030), sljedeći korak R2 iza CDN-a | novo javno čitanje s raila, javna kampanja |
+| 18 | [skalabilnost-javnog-citanja](./18-skalabilnost-javnog-citanja.md) | **Popis uplata pod navalom**: proračun za 1M pregleda/min, D1 dijeli bazu s novcem, Cache API, lanac kroz rail `/api/activity`, ograničenje promašaja (ADR 0030), sljedeći korak R2 iza CDN-a | novo javno čitanje s raila, javna kampanja |
 
 ### Dnevnici
 

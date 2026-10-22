@@ -601,11 +601,13 @@ export function LiveActivity({
   // na nju odmah osvježi. Greška pri osvježavanju ne briše već prikazane podatke.
   useEffect(() => {
     let controller = new AbortController();
-    const load = () => {
+    // `direct`: brza ponovna čitanja nakon vlastite uplate idu mimo railova cachea
+    // (do 10 s star), inače bi upravo stigao prijenos čekao sljedeći krug.
+    const load = (direct = false) => {
       controller.abort();
       controller = new AbortController();
       const { signal } = controller;
-      fetchSafeActivity(safe, signal, rail).then(
+      fetchSafeActivity(safe, signal, rail, { direct }).then(
         (data) => setState({ status: "ready", data }),
         () => {
           if (!signal.aborted) setState((prev) => (prev.status === "ready" ? prev : { status: "error" }));
@@ -617,11 +619,11 @@ export function LiveActivity({
         () => undefined,
       );
     };
-    load();
+    load(refreshKey > 0);
     // Nakon railova forwarda gnosisscan prijenos indeksira s nekoliko sekundi
     // zakašnjenja, pa prvo čitanje ga često još ne vidi. Dva brza ponovna čitanja
     // umjesto čekanja sljedećih REFRESH_MS.
-    const burst = refreshKey > 0 ? SETTLE_RETRY_MS.map((ms) => window.setTimeout(load, ms)) : [];
+    const burst = refreshKey > 0 ? SETTLE_RETRY_MS.map((ms) => window.setTimeout(() => load(true), ms)) : [];
     const timer = window.setInterval(() => {
       if (document.visibilityState === "visible") load();
     }, REFRESH_MS);

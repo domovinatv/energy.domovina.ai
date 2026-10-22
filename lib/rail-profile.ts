@@ -41,6 +41,11 @@ export interface RailProfile {
    * bez toga stranica ne obećava oznaku na obrascu za uplatu.
    */
   payerTags: boolean;
+  /**
+   * Lanac se čita kroz rail `GET /api/activity/:address` (edge cache, rail ADR 0030), a
+   * izravno samo kao rezerva. Samo Gnosis: rail ne čita Chiado.
+   */
+  activityViaRail: boolean;
 }
 
 const RAIL_API_BASE = "https://mpt.domovina.ai/api/intents";
@@ -57,6 +62,7 @@ export const RAIL_ITALK: RailProfile = {
   apiBase: RAIL_API_BASE,
   tenantKey: null,
   payerTags: true,
+  activityViaRail: true,
 };
 
 /**
@@ -80,6 +86,7 @@ export const RAIL_ITALK_SANDBOX: RailProfile = {
   apiBase: RAIL_API_BASE,
   tenantKey: ITALK_SANDBOX_PUBLIC_KEY,
   payerTags: false,
+  activityViaRail: false,
 };
 
 /** Tenant raila prima intente s ove stranice: zadani tenant ili tenant s ključem. */

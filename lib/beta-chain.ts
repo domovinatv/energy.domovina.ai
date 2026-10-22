@@ -9,6 +9,13 @@
  *
  * Lanac, token i Blockscout daje profil raila (`lib/rail-profile`): Gnosis za
  * /beta/, Chiado za sandbox /sandbox/.
+ *
+ * Za Gnosis se isti Blockscout redovi i isti `balanceOf` čitaju kroz rail
+ * `GET /api/activity/:address` (edge cache, rail ADR 0030, `docs/18`): pod navalom,
+ * i na sajmu gdje su svi mobiteli iza jednog NAT-a, Blockscout tako vidi jedan
+ * upit po Safeu u 10 s umjesto jednog po kartici. Izravno čitanje ostaje rezerva i
+ * put za brza ponovna čitanja nakon vlastite uplate (`direct`), gdje 10 s cachea
+ * ne smije sakriti upravo stigao prijenos. Svaki redak i dalje nosi hash za explorer.
  */
 import { weiToCents, type Address } from "@/lib/beta-projects";
 import { RAIL_ITALK, type RailProfile } from "@/lib/rail-profile";
@@ -55,11 +62,65 @@ async function getJson<T>(url: string, signal: AbortSignal): Promise<T> {
   return (await res.json()) as T;
 }
 
+export function activityUrl(rail: RailProfile, safe: string): string {
+  return `${rail.apiBase.replace(/\/intents$/, "/activity")}/${safe}`;
+}
+
+interface RailActivity {
+  transfers: Array<{ hash: string; timestamp: string; value: string }>;
+  balance_wei: string | null;
+  truncated: boolean;
+}
+
+export function parseRailActivity(body: unknown): RailActivity | null {
+  if (typeof body !== "object" || body === null) return null;
+  const b = body as Record<string, unknown>;
+  if (!Array.isArray(b.transfers) || typeof b.truncated !== "boolean") return null;
+  const transfers = b.transfers.filter((t): t is RailActivity["transfers"][number] => {
+    if (typeof t !== "object" || t === null) return false;
+    const r = t as Record<string, unknown>;
+    return (
+      typeof r.hash === "string" &&
+      typeof r.timestamp === "string" &&
+      typeof r.value === "string" &&
+      /^[0-9]+$/.test(r.value)
+    );
+  });
+  if (transfers.length !== b.transfers.length) return null;
+  const balance = typeof b.balance_wei === "string" && /^[0-9]+$/.test(b.balance_wei) ? b.balance_wei : null;
+  return { transfers, balance_wei: balance, truncated: b.truncated };
+}
+
+async function fetchViaRail(safe: Address, signal: AbortSignal, rail: RailProfile): Promise<SafeActivity> {
+  const parsed = parseRailActivity(await getJson<unknown>(activityUrl(rail, safe), signal));
+  if (parsed === null) throw new Error("activity: neispravan odgovor");
+  const transfers = parsed.transfers.map((t) => ({ hash: t.hash, timestamp: t.timestamp, cents: weiToCents(t.value) }));
+  const balanceWei = parsed.balance_wei !== null ? BigInt(parsed.balance_wei) : await readBalance(safe, signal, rail);
+  return {
+    receivedCents: transfers.reduce((sum, t) => sum + t.cents, 0),
+    balanceCents: weiToCents(balanceWei.toString()),
+    transfers,
+    truncated: parsed.truncated,
+  };
+}
+
 export async function fetchSafeActivity(
   safe: Address,
   signal: AbortSignal,
   rail: RailProfile = RAIL_ITALK,
+  opts: { direct?: boolean } = {},
 ): Promise<SafeActivity> {
+  if (rail.activityViaRail && !opts.direct) {
+    try {
+      return await fetchViaRail(safe, signal, rail);
+    } catch {
+      if (signal.aborted) throw signal.reason;
+    }
+  }
+  return fetchDirect(safe, signal, rail);
+}
+
+async function fetchDirect(safe: Address, signal: AbortSignal, rail: RailProfile): Promise<SafeActivity> {
   const base = `${rail.blockscoutApi}/addresses/${safe}/token-transfers?type=ERC-20&filter=to&token=${rail.eure}`;
   const transfers: IncomingTransfer[] = [];
   let next: Record<string, string | number> | null = null;
@@ -80,10 +141,7 @@ export async function fetchSafeActivity(
     pages += 1;
   } while (next && pages < MAX_PAGES);
 
-  const balanceWei = await readErc20Balance(rail.eure, safe, signal, rail.rpcUrl).catch(() => {
-    if (signal.aborted) throw signal.reason;
-    return blockscoutBalanceWei(safe, signal, rail);
-  });
+  const balanceWei = await readBalance(safe, signal, rail);
 
   return {
     receivedCents: transfers.reduce((sum, t) => sum + t.cents, 0),
@@ -91,6 +149,13 @@ export async function fetchSafeActivity(
     transfers,
     truncated: next !== null,
   };
+}
+
+function readBalance(safe: Address, signal: AbortSignal, rail: RailProfile): Promise<bigint> {
+  return readErc20Balance(rail.eure, safe, signal, rail.rpcUrl).catch(() => {
+    if (signal.aborted) throw signal.reason;
+    return blockscoutBalanceWei(safe, signal, rail);
+  });
 }
 
 /** Rezerva kad RPC ne odgovara — može kasniti za prijenosima, ali je bolja od ničega. */

@@ -13,8 +13,9 @@
   pita rail `GET /api/payers/:address`, a do 22. 10. je svaki takav zahtjev bio jedan upit na
   D1. Ista D1 baza obrađuje Monerium webhook, intente i forwarde, pa bi publika koja
   gleda kampanju **izgladnjela tok novca**. To je rizik, a ne račun.
-- Prvi korak je isporučen 22. 10. 2026.: **Cache API** na railu (§4). Drugi, snimka na R2
-  iza CDN-a, čeka prvu javnu kampanju (§5).
+- Isporučeno 22. 10. 2026. (rail PR #141, #142): **Cache API** na railu, **lanac kroz rail**
+  (`/api/activity`), **ograničenje hladnih promašaja** po IP-u i **indeksi** (§4). Snimka na
+  R2 iza CDN-a čeka prvu javnu kampanju (§5).
 
 ## 2. Kako je izvedeno (stanje 21. 10.)
 
@@ -82,6 +83,20 @@ baza s novcem je zaštićena.
 Cijena za korisnika: zaprimljena uplata na tuđem ekranu kasni do 10 s više. Prvi zahtjev
 nakon duge tišine može dobiti odgovor star do 60 s, a već sljedeći je svjež.
 
+Isti dan, drugi krug (rail PR #142, migracija 0033):
+
+- **`GET /api/activity/:address`**: dolazni EURe s Blockscouta i `balanceOf` s RPC-a, kroz
+  isti cache. Energy (`lib/beta-chain.ts`, `RailProfile.activityViaRail`, samo Gnosis) čita
+  lanac kroz rail. Ako rail ne odgovori ili vrati neispravan odgovor, čita izravno kao
+  prije. Brza ponovna čitanja nakon vlastite uplate (`SETTLE_RETRY_MS`) idu izravno, da 10 s
+  cachea ne sakrije upravo stigao prijenos. Izmjereno uživo: 1,3 s bez cachea, 60–90 ms
+  iz cachea, 44 prijenosa kao i izravno s Blockscouta.
+- **`PUBLIC_READ_LIMITER`** (vezivanje `ratelimit`, 60/min po IP-u) broji samo hladne
+  promašaje. Nasumične adrese tako ne mogu zakucati D1, a gledatelji iza jednog NAT-a ne
+  troše ograničenje jer dobivaju pogotke.
+- **Indeksi** (migracija 0033): upit uplatitelja ide kroz `UNION` tri indeksirana puta, a
+  test provjerava plan upita.
+
 ## 5. Korak 2 — snimka na R2 iza CDN-a (kad krene javna kampanja)
 
 Ideja vlasnika, 22. 10.: put čitanja se odvoji od Workera i D1.
@@ -108,9 +123,7 @@ Zamke iz dokumentacije koje treba poštovati:
 - Opt-in po tenantu (`public_payer_tags`) mora se poštovati i pri upisu. Ako se zastavica
   ugasi, objekt se briše, a ne ostavlja da istekne.
 
-Uz to, u istu snimku treba spojiti i stanje s lanca (prijenose, saldo). Rail ionako prati
-lanac zbog forwarda. Preglednik tada ne zove Blockscout ni RPC, pa nestaje i 429 na
-sajamskom NAT-u. **Provjerljivost se ne gubi**: lanac ostaje izvor istine, snimka je
+Uz to, u istu snimku ide i stanje s lanca koje danas služi `/api/activity` (§4). **Provjerljivost se ne gubi**: lanac ostaje izvor istine, snimka je
 izvedena predmemorija koja se može baciti, a uz svaki redak ostaje link na Gnosisscan.
 
 ```mermaid
@@ -131,8 +144,7 @@ flowchart LR
 
 ## 7. Otvoreno
 
-1. Indeks za adresu na railu (normalizirani stupac + `UNION` umjesto `OR EXISTS`): danas
-   nebitno, ali smanjuje trošak promašaja.
-2. Rate Limiting pravilo na javnom `/api/*` raila, da nitko ne može namjerno zakucati bazu
-   s novcem mimo cachea (npr. nasumičnim adresama, od kojih je svaka promašaj).
-3. Odluka o `c.mpt.hr` (zona, ime) prije koraka 2.
+1. Odluka o `c.mpt.hr` (zona, ime) prije koraka 2 (§5).
+2. `/api/activity` je javni proxy za bilo koju adresu na Gnosisu. Ograničenje hladnih
+   promašaja čuva Blockscout od nas. Ako zloupotreba postane stvarna, proxy se suzi na
+   adrese koje rail poznaje (`tenant_rail`, projektni Safeovi).
