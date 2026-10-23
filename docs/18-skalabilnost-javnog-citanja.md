@@ -97,6 +97,14 @@ Isti dan, drugi krug (rail PR #142, migracija 0033):
 - **Indeksi** (migracija 0033): upit uplatitelja ide kroz `UNION` tri indeksirana puta, a
   test provjerava plan upita.
 
+**Provjera uživo 23. 10. 2026.** Gledano u Braveu, plaćeno s drugog uređaja (iOS Chrome,
+1,08 € bez reference, MPT ju je ispravno razriješio). Zbroj je s raila porastao u 08:23:36 UTC
+uz napomenu „Monerium zaprimio", a redak „M. S. ··5625 · 1,08 €" s lanca stigao je u
+08:23:56. Ostao je jedan redak, bez dvostrukog zbroja. Stanje s lanca išlo je samo kroz
+`mpt.domovina.ai/api/activity`. Uočeno, a nije razjašnjeno: „Uplaćeno ukupno" je na jednu
+sekundu pokazalo 46,57 € prije točnih 46,59 €. Vjerojatno se dva izvora osvježe u odvojenim
+renderima, ali to nije potvrđeno.
+
 ## 5. Korak 2 — snimka na R2 iza CDN-a (kad krene javna kampanja)
 
 Ideja vlasnika, 22. 10.: put čitanja se odvoji od Workera i D1.
