@@ -1246,3 +1246,26 @@ lokacije bit će dodane naknadno" (`photos` sa svim `null`).
 razrada troška za /beta/ projekte (obveza iz `docs/14`); ostatak landinga (problem,
 „za koga") još priča iz kuta energetskih zajednica — usklađen s novim herojem samo
 utoliko što ga ne proturječi.
+
+## 24. Skeniranje QR-a: Revolut iOS pod LED rasvjetom, HR banke samo HUB3 (29.10.2026.)
+
+**Zaključak: s naše strane nema više što popravljati na QR-u.** Pokušano više puta (§14, §16);
+ne otvarati ponovno bez novog podatka.
+
+- **Revolut iOS skener** je spor i osjetljiv na treperenje LED rasvjete. Pod reflektorom od 100 W,
+  6500 K na kameri se vide pojasevi između monitora i rasvjete i Revolut ne pročita QR. Kad se
+  reflektor ugasi, pročita brzo. QR bot na istom iOS-u čita trenutno u svakoj rasvjeti. Nakon
+  čitanja popunjavanje SEPA naloga traje dugo (poslužiteljski parser, §14.2) i redovito ispusti
+  Reference (§14.1, stanje ≥ iznos). Rezerve postoje: kratki kod (§20.4), uparivanje po iznosu i
+  vremenu, ProjectRouter.
+- Gustoća koda izmjerena: EPC tekst ~141 znak, ECC M → QR verzija 7, 45 modula, ~6 px/modul na
+  320 px. ECC L daje v6 (manja otpornost, loša zamjena pod treperenjem). Kratka referenca umjesto
+  `gnosis:… sid:…` dala bi v4, ali lomi izravni mint i potvrdu — odbačeno.
+- **Hrvatske bankovne aplikacije čitaju samo HUB3 (PDF417)**, ne EPC QR. HUB3 s Monerium `EE…`
+  IBAN-om odbiju (§16.2). Jedini izlaz je HR IBAN primatelja (pay.domovina.ai ADR 0020).
+- Tekst ispod QR-a (`beta.intentScan`) više ne obećava da će „aplikacija banke" popuniti nalog:
+  sad kaže Revolut ili druga aplikacija koja čita EPC QR, a za HR banke ručna uplata.
+
+Sustavno istraživanje (koji EMI/banke u HR i EU popunjavaju SEPA (Instant) nalog iz barkoda ili
+deep linka, i koji izvori osim Moneriuma mogu javiti uplatu webhookom, npr. Wise) ide u
+pay.domovina.ai `docs/research/`.

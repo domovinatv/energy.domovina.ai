@@ -853,7 +853,7 @@ export const hr = {
   "beta.bic": "BIC",
   "beta.reference": "Opis plaćanja",
   "beta.referenceExact": "Ako plaćaš ručno, opis plaćanja upiši točno ovako i uplati točno ovaj iznos — po tome se uplata prepoznaje.",
-  "beta.intentScan": "Skeniraj u aplikaciji banke: popunit će se primatelj, IBAN i iznos {amount}.",
+  "beta.intentScan": "Skeniraj u Revolutu ili drugoj aplikaciji koja čita EPC QR: popunit će se primatelj, IBAN i iznos {amount}. Hrvatske banke ovaj kod ne čitaju, ondje plati ručno podacima ispod.",
   "beta.codeQr": "QR kod",
   "beta.codeHub3": "Barkod uplatnice",
   "beta.hub3Scan": "Skeniraj barkod kao račun za režije, npr. u Aircashu (Slikaj i plati) ili u aplikaciji hrvatske banke. Ovo je pokus: primatelj ima estonski IBAN pa ga neke aplikacije možda neće prihvatiti, a uplata stiže najkasnije sljedeći radni dan. Opis plaćanja se ne prenosi, pa uplatu prepoznajemo po točnom iznosu i vremenu. Zato ne mijenjaj iznos.",

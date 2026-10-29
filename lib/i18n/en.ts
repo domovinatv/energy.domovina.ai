@@ -815,7 +815,7 @@ export const en: Catalog = {
   "beta.bic": "BIC",
   "beta.reference": "Payment reference",
   "beta.referenceExact": "If you pay manually, enter the reference exactly as shown and pay exactly this amount — that is how the payment is recognised.",
-  "beta.intentScan": "Scan it in your banking app: the recipient, IBAN and amount {amount} fill in.",
+  "beta.intentScan": "Scan it in Revolut or another app that reads EPC QR codes: the recipient, IBAN and amount {amount} fill in. Croatian banking apps do not read this code; there, pay manually with the details below.",
   "beta.codeQr": "QR code",
   "beta.codeHub3": "Payment slip barcode",
   "beta.hub3Scan": "Scan the barcode as you would a utility bill, e.g. in Aircash (Scan & Pay) or a Croatian banking app. This is an experiment: the recipient has an Estonian IBAN, so some apps may refuse it, and the payment arrives by the next working day at the latest. The payment description is not carried over, so we match the payment by its exact amount and time. Do not change the amount.",
