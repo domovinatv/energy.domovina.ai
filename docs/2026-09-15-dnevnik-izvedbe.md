@@ -1284,3 +1284,6 @@ pay.domovina.ai `docs/research/`.
   odmah (1680 novih + 385 već poznatih asseta).
 - Rail CORS ne pušta staging origin (preflight 204 bez `access-control-allow-origin`), pa
   `/beta/` uplata na stagingu ne radi — otvoreno, odluka vlasnika (pravi novac ili sandbox).
+- **Razrješenje:** produkcijski deploy prošao od sebe oko 10:55, bez ikakve promjene s naše
+  strane (~50 min kvara). Ako se ponovi: provjeri probnim Workerom s istim `out/`, pa čekaj ili
+  tiket s cf-rayem; staging (`npm run deploy:staging`) je u međuvremenu mjesto za pregled.
