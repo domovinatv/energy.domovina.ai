@@ -1269,3 +1269,18 @@ ne otvarati ponovno bez novog podatka.
 Sustavno istraživanje (koji EMI/banke u HR i EU popunjavaju SEPA (Instant) nalog iz barkoda ili
 deep linka, i koji izvori osim Moneriuma mogu javiti uplatu webhookom, npr. Wise) ide u
 pay.domovina.ai `docs/research/`.
+
+## 25. Produkcijski Worker ne prima deploy → uveden staging (29.10.2026.)
+
+- `wrangler deploy` i `wrangler versions upload` za `energy-domovina-ai` padaju na
+  `POST …/assets-upload-session` s 500, `code: 10013`, bez detalja (cf-ray
+  `a5218db12e752a09-LJU`). 20 pokušaja kroz ~40 min, isto. Zadnji uspješan deploy 06:16.
+- Nije račun ni build: probni Worker s jednom datotekom prošao, probni Worker s **istim**
+  `out/` (2066 datoteka, 46 MB) prošao za 14 s; probni obrisan. Kvar je u stanju tog
+  jednog Workera na Cloudflareovoj strani. Status stranica u to vrijeme: incident
+  „Durable Objects availability in Eastern Europe" — veza nagađanje, ne dokaz.
+- Vlasnik: iskoristiti priliku za staging. `env.staging` u `wrangler.jsonc`,
+  `npm run deploy:staging`, `energy-staging.domovina.ai` — docs/12 §2.3. Prvi deploy prošao
+  odmah (1680 novih + 385 već poznatih asseta).
+- Rail CORS ne pušta staging origin (preflight 204 bez `access-control-allow-origin`), pa
+  `/beta/` uplata na stagingu ne radi — otvoreno, odluka vlasnika (pravi novac ili sandbox).

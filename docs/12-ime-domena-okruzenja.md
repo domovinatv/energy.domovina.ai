@@ -13,7 +13,7 @@ kandidati — **odbačeni**).
 | **Radna adresa (live)** | **energy.domovina.ai** |
 | Repo | `domovinatv/energy.domovina.ai` |
 | Faza | **closed beta** |
-| Okruženja | **jedno** — development = staging = production |
+| Okruženja | **produkcija** + **staging** (`energy-staging.domovina.ai`, od 29.10.2026., §2.3) |
 
 `domovina.energy` je ime i rezervirana domena za javno lansiranje.
 `energy.domovina.ai` je adresa na kojoj **stvarno živi** i na koju idemo live sad.
@@ -71,6 +71,30 @@ Ne po kalendaru, nego kad nastupi prvi od ovih uvjeta:
   produkcije je trenutak kad jedno okruženje prestaje biti podnošljivo;
 - postoji **pravi novac** na pravom Safeu;
 - beta se otvara **izvan pozvanog kruga**.
+
+### 2.3 Staging (od 29.10.2026.)
+
+Uveden na dan kad produkcijski Worker nije primao deploy: Cloudflare je na
+`assets-upload-session` za `energy-domovina-ai` uporno vraćao 500 (`code: 10013`), a isti
+`out/` je na novi Worker prošao za 14 s (dnevnik §25). Vlasnik je to iskoristio da uvede
+drugo okruženje.
+
+| | Produkcija | Staging |
+|---|---|---|
+| Worker | `energy-domovina-ai` | `energy-domovina-ai-staging` (`wrangler.jsonc` → `env.staging`) |
+| Adresa | `energy.domovina.ai` | `energy-staging.domovina.ai` |
+| Naredba | `npm run deploy` | `npm run deploy:staging` |
+| Izvor | `main` | isti `out/`, bilo koja grana |
+
+- Ime hosta je `energy-staging.domovina.ai`, ne `staging.energy.domovina.ai`:
+  univerzalni certifikat pokriva `*.domovina.ai`, ali ne `*.energy.domovina.ai`.
+- Isti build, isti `_headers` (noindex, CSP). Staging **nema** vlastiti rail: čita isti
+  `mpt.domovina.ai` i prave Safeove. Uplata sa staginga bila bi pravi novac.
+- ⚠️ Rail CORS zasad pušta samo `https://energy.domovina.ai` — na stagingu `/beta/` ne može
+  stvoriti intent. Dodavanje origina ide na railu (pay.domovina.ai), i tek uz odluku je li
+  staging smije primati pravi novac ili mu treba sandbox profil (`docs/17`).
+- Pravila iz §2.1 i dalje vrijede za `main`: staging je mjesto za pogledati prije objave,
+  ne izgovor za nedovršeno na `main`.
 
 ---
 

@@ -2,7 +2,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   // Samo statički asseti, bez Worker koda: `next build` (output: "export")
   // puni `out/`, a Cloudflare ga poslužuje na energy.domovina.ai.
-  // Jedno okruženje (docs/12 §2): ovaj deploy JE produkcija.
+  // Vrh datoteke je produkcija (energy.domovina.ai). `--env staging` je drugi Worker
+  // s istim `out/` na energy-staging.domovina.ai (docs/12 §2.3, od 29.10.2026.).
   "name": "energy-domovina-ai",
   "account_id": "7dc7167b7e2e00923bfa7cd697df14e4",
   "compatibility_date": "2026-09-01",
@@ -21,5 +22,24 @@
     { "pattern": "energy.domovina.ai", "custom_domain": true }
   ],
 
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+
+  // Drugo ime hosta, ne pod-poddomena: *.domovina.ai pokriva univerzalni certifikat,
+  // *.energy.domovina.ai ne bi.
+  "env": {
+    "staging": {
+      "name": "energy-domovina-ai-staging",
+      "workers_dev": false,
+      "preview_urls": false,
+      "assets": {
+        "directory": "./out",
+        "html_handling": "auto-trailing-slash",
+        "not_found_handling": "404-page"
+      },
+      "routes": [
+        { "pattern": "energy-staging.domovina.ai", "custom_domain": true }
+      ],
+      "observability": { "enabled": true }
+    }
+  }
 }

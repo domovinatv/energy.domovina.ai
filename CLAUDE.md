@@ -10,8 +10,9 @@ a novac prikupljamo od ljudi koji tu elektranu dobivaju (**Mod 1**, uzor ZEZ). T
 novac ne prolazi kroz nas (**Mod 2**). Zbog toga **ne treba ECSP** — `docs/14`.
 
 **Ime: `domovina.energy`. Live na: `energy.domovina.ai` (closed beta).**
-**JEDNO OKRUŽENJE — development = staging = production.** Grana `main` je ono što
-ljudi vide; nema „probat ću na stagingu". Detalji i pravila: `docs/12`.
+**Produkcija + staging (od 29.10.2026.).** Grana `main` je ono što ljudi vide
+(`npm run deploy` → `energy.domovina.ai`); staging je `npm run deploy:staging` →
+`energy-staging.domovina.ai`, isti rail i pravi Safeovi. Detalji i pravila: `docs/12` §2.3.
 
 **Stanje: Faza 1a + 1b + 1c + 1d isporučene** — temelj (Next.js, tokeni, `lib/*`,
 i18n), registar (maplibre karta s klasterima, filtri, popis, `/elektrana/:slug`),
@@ -35,7 +36,7 @@ i `docs/08` §2 još govore o `/` kao karti — vrijedi `docs/06` §1 i dnevnik 
 - **Ime: `domovina.energy`**, radna/live adresa `energy.domovina.ai`. Ime **ne
   hardkodiraj** u copy — ide preko `lib/brand.ts` (`docs/12` §5), jer je prelazak na
   `domovina.energy` kasnije jedna izmjena.
-- **Jedno okruženje, idemo live s njim.** Svaki push u `main` je objava:
+- **`main` = produkcija** (staging od 29.10., `docs/12` §2.3). Svaki push u `main` je objava:
   `npm run verify` prolazi prije commita, nedovršeno ide **iza zastavice** a ne na
   `main` bez nje, migracije su samo aditivne (`docs/12` §2.1).
 
