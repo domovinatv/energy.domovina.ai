@@ -1283,7 +1283,8 @@ pay.domovina.ai `docs/research/`.
   `npm run deploy:staging`, `energy-staging.domovina.ai` — docs/12 §2.3. Prvi deploy prošao
   odmah (1680 novih + 385 već poznatih asseta).
 - Rail CORS ne pušta staging origin (preflight 204 bez `access-control-allow-origin`), pa
-  `/beta/` uplata na stagingu ne radi — otvoreno, odluka vlasnika (pravi novac ili sandbox).
+  `/beta/` uplata na stagingu nije radila. Odluka vlasnika: pravi novac, origin u env varijabli
+  (bez baze) — pay.domovina.ai `448b4bc`, preflight sad vraća staging origin.
 - **Razrješenje:** produkcijski deploy prošao od sebe oko 10:55, bez ikakve promjene s naše
   strane (~50 min kvara). Ako se ponovi: provjeri probnim Workerom s istim `out/`, pa čekaj ili
   tiket s cf-rayem; staging (`npm run deploy:staging`) je u međuvremenu mjesto za pregled.

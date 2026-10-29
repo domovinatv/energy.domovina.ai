@@ -89,16 +89,12 @@ drugo okruženje.
 - Ime hosta je `energy-staging.domovina.ai`, ne `staging.energy.domovina.ai`:
   univerzalni certifikat pokriva `*.domovina.ai`, ali ne `*.energy.domovina.ai`.
 - Isti build, isti `_headers` (noindex, CSP). Staging **nema** vlastiti rail: čita isti
-  `mpt.domovina.ai` i prave Safeove. Uplata sa staginga bila bi pravi novac.
-- ⚠️ Rail CORS zasad pušta samo `https://energy.domovina.ai` — na stagingu `/beta/` ne može
-  stvoriti intent (preflight 204 bez `access-control-allow-origin`). Popis je varijabla
-  `ALLOWED_ORIGINS` u `pay.domovina.ai/backend/wrangler.toml`, čita je middleware u
-  `backend/src/index.ts` — promjena = PR + deploy raila. Prijedlog (29.10., čeka ADR na railu):
-  origini **po tenantu** u D1 s kopijom u KV/memoriji (TTL ~60 s, D1 ne na svaki preflight,
-  `docs/18`), unos kroz `mpt.domovina.ai/admin`, `ALLOWED_ORIGINS` ostaje osnovni popis.
-  CORS nije autorizacija — `curl` prolazi i bez njega; kontrolu nose whitelist `target_address`
-  (rail ADR 0016) i `x-mpt-key`. Uz to odluka: smije li staging primati pravi novac ili mu
-  treba sandbox profil (`docs/17`).
+  `mpt.domovina.ai` i prave Safeove. Uplata sa staginga je pravi novac — namjerno.
+- **Rail CORS pušta staging** (pay.domovina.ai `448b4bc`, 29.10.): origin je u env varijabli
+  `ALLOWED_ORIGINS` u `pay.domovina.ai/backend/wrangler.toml`, promjena = commit + deploy raila.
+  **Odluka vlasnika 29.10.: staging smije primati pravi novac; CORS ostaje env varijabla, ne
+  ide u bazu/admin.** CORS ionako nije autorizacija — kontrolu nose whitelist `target_address`
+  (rail ADR 0016) i `x-mpt-key`.
 - Pravila iz §2.1 i dalje vrijede za `main`: staging je mjesto za pogledati prije objave,
   ne izgovor za nedovršeno na `main`.
 
