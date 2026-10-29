@@ -136,7 +136,8 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     signers: OWNER_SIGNERS,
     goalCents: 1_550_000,
     payment: MPT_INTENT,
-    photos: null,
+    // Slike još nema; UI prikazuje da stižu naknadno (29.10.2026.).
+    photos: { before: null, render: null, after: null },
   },
   {
     slug: "rab",
@@ -150,7 +151,8 @@ export const BETA_PROJECTS: readonly BetaProject[] = [
     signers: OWNER_SIGNERS,
     goalCents: 650_000,
     payment: MPT_INTENT,
-    photos: null,
+    // Slike još nema; UI prikazuje da stižu naknadno (29.10.2026.).
+    photos: { before: null, render: null, after: null },
   },
 ];
 

@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 export const metadata: Metadata = {
   title: "Pravi projekti",
   description:
-    "Tri sunčane elektrane financirane javno, preko računa s više potpisa na Gnosis Chainu.",
+    "Tri sunčane elektrane; uplate su javno vidljive na računima s više potpisa na Gnosis Chainu.",
 };
 
 /**
@@ -20,7 +20,7 @@ export default function BetaLayout({ children }: { children: React.ReactNode }) 
       <main id="main" className="flex-1">
         {children}
       </main>
-      <SiteFooter />
+      <SiteFooter variant="beta" />
     </>
   );
 }

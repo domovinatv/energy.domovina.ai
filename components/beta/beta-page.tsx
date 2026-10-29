@@ -109,6 +109,11 @@ function ProjectCard({ project }: { project: BetaProject }) {
       className="group flex h-full flex-col overflow-hidden rounded-md border border-ink/8 bg-white/60 transition-shadow hover:shadow-soft"
     >
       <div className="relative aspect-video bg-sandDeep">
+        {photo === null && (
+          <p className="flex h-full items-center justify-center px-4 text-center text-sm text-inkMuted">
+            {t("beta.photoCardPending")}
+          </p>
+        )}
         {photo !== null && (
           // eslint-disable-next-line @next/next/no-img-element
           <img

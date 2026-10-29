@@ -146,6 +146,8 @@ export const en: Catalog = {
     "{operator} is a non-custodial software provider. Funds never pass through the platform and the platform never holds keys. Regulated e-money functions are performed by Monerium (EMI, MiCA EMT). The platform is not a crowdfunding service provider under Regulation (EU) 2020/1503, is not an investment firm, and gives no investment advice. The project organiser is responsible for legal form, permits and tax treatment.",
   "footer.noCommission":
     "We take no percentage of the money raised. We earn as the contractor — on building the plant — and the price of that work is public in every project's cost breakdown.",
+  "footer.noCommissionBeta":
+    "We take no percentage of the money raised. We earn as the contractor — on building the plant.",
   "footer.impressum": "Company details",
   "footer.director": "Director",
   "footer.court": "Register",
@@ -779,7 +781,7 @@ export const en: Catalog = {
   // ── Beta: real projects (docs/15) ─────────────────────────────────────────
   "beta.bar": "Real projects. Payments are real money and are publicly visible on Gnosis Chain.",
   "beta.barShort": "Real projects, real money",
-  "beta.title": "Three solar plants, funded in the open",
+  "beta.title": "Three solar plants, payments publicly visible on-chain",
   "beta.intro":
     "Each plant has its own multi-signature account (Safe) on Gnosis Chain. You pay by SEPA transfer and the money lands on that account. This page never receives or holds money; it only shows what is on chain.",
   "beta.who":
@@ -865,6 +867,7 @@ export const en: Catalog = {
   "beta.photoRender": "How the plant could look",
   "beta.photoAfter": "Finished plant",
   "beta.photoBeforePending": "Site photo coming soon",
+  "beta.photoCardPending": "Site photos will be added later",
   "beta.photoRenderPending": "Visualisation in preparation",
   "beta.photoAfterPending": "Photo after installation",
   "beta.photoRenderBadge": "AI visualisation",

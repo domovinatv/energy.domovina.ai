@@ -168,6 +168,8 @@ export const hr = {
     "{operator} je non-custodial pružatelj softvera. Sredstva nikad ne prolaze kroz platformu niti platforma drži ključeve. Regulirane funkcije e-novca obavlja Monerium (EMI, MiCA EMT). Platforma nije pružatelj usluga skupnog financiranja po Uredbi (EU) 2020/1503, nije investicijsko društvo i ne daje investicijski savjet. Organizator projekta odgovoran je za pravni oblik, dozvole i porezni tretman.",
   "footer.noCommission":
     "Ne uzimamo postotak od prikupljenog novca. Zarađujemo kao izvođač — na izgradnji elektrane, a cijena izvedbe je javna u razradi troška svakog projekta.",
+  "footer.noCommissionBeta":
+    "Ne uzimamo postotak od prikupljenog novca. Zarađujemo kao izvođač — na izgradnji elektrane.",
   "footer.impressum": "Impresum",
   "footer.director": "Direktor",
   "footer.court": "Registar",
@@ -817,7 +819,7 @@ export const hr = {
   // ── Beta: pravi projekti (docs/15) ────────────────────────────────────────
   "beta.bar": "Stvarni projekti. Uplate su pravi novac i javno se vide na Gnosis Chainu.",
   "beta.barShort": "Stvarni projekti, pravi novac",
-  "beta.title": "Tri elektrane, financirane javno",
+  "beta.title": "Tri elektrane, uplate javno vidljive na lancu",
   "beta.intro":
     "Svaka elektrana ima vlastiti račun s više potpisa (Safe) na Gnosis Chainu. Uplata ide SEPA nalogom i završava na tom računu. Ova stranica novac ne prima ni ne drži, nego prikazuje ono što je na lancu.",
   "beta.who":
@@ -903,6 +905,7 @@ export const hr = {
   "beta.photoRender": "Kako bi elektrana mogla izgledati",
   "beta.photoAfter": "Gotova elektrana",
   "beta.photoBeforePending": "Snimka lokacije uskoro",
+  "beta.photoCardPending": "Slike lokacije bit će dodane naknadno",
   "beta.photoRenderPending": "Vizualizacija u pripremi",
   "beta.photoAfterPending": "Fotografija nakon izvedbe",
   "beta.photoRenderBadge": "AI vizualizacija",

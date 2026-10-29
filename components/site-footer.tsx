@@ -12,7 +12,11 @@
 import { BRAND, OPERATOR } from "@/lib/brand";
 import { useT } from "@/lib/i18n";
 
-export function SiteFooter() {
+/**
+ * `beta`: na /beta/ još nema razrade troška, pa podnožje ne smije tvrditi da je
+ * javna. Tvrdnja o postotku i zarada kao izvođač ostaju zajedno (docs/14 §3.1).
+ */
+export function SiteFooter({ variant = "prototype" }: { variant?: "prototype" | "beta" }) {
   const { t } = useT();
   return (
     <footer className="mt-16 border-t border-ink/8 bg-sand print:hidden">
@@ -24,7 +28,7 @@ export function SiteFooter() {
           </p>
           {/* docs/14 §3.1 — tvrdnja i njezina cijena u istom vidnom polju. */}
           <p className="mt-3 max-w-prose text-sm leading-relaxed text-inkSoft">
-            {t("footer.noCommission")}
+            {t(variant === "beta" ? "footer.noCommissionBeta" : "footer.noCommission")}
           </p>
         </div>
 
