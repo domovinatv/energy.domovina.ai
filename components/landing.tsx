@@ -19,7 +19,7 @@
  * sekcije.
  */
 import Link from "next/link";
-import { REPO_URL } from "@/lib/brand";
+import { PAYMENT_ORCHESTRATOR, REPO_URL } from "@/lib/brand";
 import { BETA_PROJECTS } from "@/lib/beta-projects";
 import {
   ArrowRight,
@@ -174,12 +174,10 @@ export function Landing() {
         <div className="container-content">
           <p className="eyebrow">{t("landing.hero.eyebrow")}</p>
           <h1 className="mt-4 max-w-4xl font-display text-display-lg font-semibold text-ink">
-            {t("landing.hero.title", {
-              communities: formatNumber(ENERGY_COMMUNITIES_REGISTERED.value),
-            })}
+            {t("landing.hero.title")}
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-inkSoft">
-            {t("landing.hero.lede")}
+            {t("landing.hero.lede", { orchestrator: PAYMENT_ORCHESTRATOR })}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">

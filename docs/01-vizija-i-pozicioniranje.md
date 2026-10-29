@@ -9,7 +9,16 @@ Zadnja revizija: **15.9.2026.**
 > **Mjesto gdje ljudi zajedno financiraju i posjeduju sunčane elektrane u Hrvatskoj —
 > bez provizije, bez posrednika koji drži novac, i s javnim dokazom tko je što uložio.**
 
-### 1.1 Odluka o pozicioniranju — potvrđeno 15.9.2026.
+### 1.1 Odluka o pozicioniranju — potvrđeno 15.9.2026., hero promijenjen 29.10.2026.
+
+> **29.10.2026. (vlasnik):** hero više ne nosi energetske zajednice. Nova nosiva
+> priča: **P2P platforma za transparentno zajedničko financiranje sunčanih
+> elektrana, bez posrednika**, s mpt.hr kao orkestratorom plaćanja. Energetska
+> zajednica je jedan od korisnika, uz vlasnika krova, tvrtku i općinu, za jednu
+> ili više elektrana. Riječ „crowdfunding" i dalje **ne ide** u hero (razlog 1
+> niže vrijedi: podnožje kaže da nismo pružatelj usluga skupnog financiranja po
+> Uredbi 2020/1503). Kanonski tekst je `landing.hero.*` u `lib/i18n/hr.ts`.
+> Ispod je izvorna odluka, zadržana radi razloga.
 
 **Nosiva priča su energetske zajednice, ne „crowdfunding za solar".**
 

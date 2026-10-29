@@ -25,9 +25,10 @@ i `docs/08` §2 još govore o `/` kao karti — vrijedi `docs/06` §1 i dnevnik 
 
 ### Potvrđene odluke (15.9.2026.)
 
-- **Pozicioniranje: energetske zajednice**, ne „crowdfunding za solar". Hero nosi
-  „tri zajednice u cijeloj Hrvatskoj, radimo četvrtu". Riječ *crowdfunding* se
-  **ne koristi** u heroju ni u navigaciji (`docs/01` §1.1).
+- **Pozicioniranje (29.10.2026.): P2P platforma za transparentno zajedničko
+  financiranje elektrana, bez posrednika**, mpt.hr kao orkestrator plaćanja;
+  energetska zajednica je jedan od korisnika, ne nosiva priča. Riječ
+  *crowdfunding* se i dalje **ne koristi** u heroju ni u navigaciji (`docs/01` §1.1).
 - **Nastup: vjerojatno posjetitelj**, ali opseg gradimo na izlagački standard
   (offline build, layout za TV, kiosk povratak, deep-linkovi — `docs/06` §6).
   Veći opseg se lako smanjuje; obrnuto ne ide.

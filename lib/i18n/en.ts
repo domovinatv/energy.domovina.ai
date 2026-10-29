@@ -568,11 +568,10 @@ export const en: Catalog = {
   // `lib/fees.ts` — none is written here.
   // ───────────────────────────────────────────────────────────────────────────
 
-  "landing.hero.eyebrow": "Energy communities in Croatia",
-  "landing.hero.title":
-    "The law has allowed this since 2021. Croatia has {communities} such communities. We are building the fourth — and making it easier than the first three.",
+  "landing.hero.eyebrow": "A P2P platform for solar plants",
+  "landing.hero.title": "Funding solar plants together, with no intermediary holding the money.",
   "landing.hero.lede":
-    "Whoever has a roof, capital and patience has a plant. Whoever lives in a flat, or does not have twelve thousand euros, does not. That is a matter of structure, not of information, and shared ownership is what changes it.",
+    "Every plant has its own multi-signature account. Payments go by SEPA transfer through {orchestrator} and are publicly visible on-chain. For a roof owner, a company, a municipality or an energy community — for one plant or several.",
   "landing.hero.ctaMap": "See the map",
   "landing.hero.betaEyebrow": "Real projects",
   "landing.hero.betaBody":
@@ -580,7 +579,7 @@ export const en: Catalog = {
   "landing.hero.betaCta": "See the real plants",
   "landing.hero.ctaProject": "Start a project",
   "landing.hero.disclaimer":
-    "That would require authorisation from HANFA under Regulation (EU) 2020/1503, and we do not have it. We offer what the law has allowed since 2021 and almost nobody uses: that you own a plant together and use the electricity it makes.",
+    "That would require authorisation from HANFA under Regulation (EU) 2020/1503, and we do not have it. A payment is a contribution towards building the plant: it is not paid back and earns nothing, and every payment and payout is publicly visible.",
 
   "landing.problem.eyebrow": "The problem",
   "landing.problem.title": "In Croatia, solar is a solo sport",

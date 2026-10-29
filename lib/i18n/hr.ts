@@ -592,11 +592,10 @@ export const hr = {
   // ───────────────────────────────────────────────────────────────────────────
 
   // 1 · Hero
-  "landing.hero.eyebrow": "Energetske zajednice u Hrvatskoj",
-  "landing.hero.title":
-    "Zakon to dopušta od 2021. U Hrvatskoj postoje {communities} takve zajednice. Radimo četvrtu — lakšom od prve tri.",
+  "landing.hero.eyebrow": "P2P platforma za sunčane elektrane",
+  "landing.hero.title": "Zajedničko financiranje elektrana, bez posrednika koji drži novac.",
   "landing.hero.lede":
-    "Tko ima krov, kapital i strpljenje, ima elektranu. Tko živi u stanu ili nema dvanaest tisuća eura — nema. To je struktura, ne neinformiranost, i mijenja se zajedničkim vlasništvom.",
+    "Svaka elektrana ima svoj račun s više potpisa. Uplate idu SEPA nalogom preko {orchestrator} i javno se vide na lancu. Za vlasnika krova, tvrtku, općinu ili energetsku zajednicu — za jednu elektranu ili više njih.",
   "landing.hero.ctaMap": "Pogledaj kartu",
   "landing.hero.betaEyebrow": "Pravi projekti",
   "landing.hero.betaBody":
@@ -604,7 +603,7 @@ export const hr = {
   "landing.hero.betaCta": "Pogledaj prave elektrane",
   "landing.hero.ctaProject": "Pokreni projekt",
   "landing.hero.disclaimer":
-    "Za to bi trebalo odobrenje HANFA-e po Uredbi (EU) 2020/1503, i mi ga nemamo. Nudimo ono što zakon dopušta od 2021., a gotovo nitko ne koristi: da zajedno posjedujete elektranu i koristite struju koju proizvodi.",
+    "Za to bi trebalo odobrenje HANFA-e po Uredbi (EU) 2020/1503, i mi ga nemamo. Uplata je doprinos za izgradnju elektrane: ne vraća se i ne donosi financijsku korist, a svaka uplata i isplata vidi se javno.",
 
   // 2 · Problem
   "landing.problem.eyebrow": "Problem",

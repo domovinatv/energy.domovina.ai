@@ -36,6 +36,9 @@ export const OPERATOR = {
   director: "Matija Stepanić",
 } as const;
 
+/** Orkestrator plaćanja (MPT): SEPA nalog → Monerium → Safe projekta. */
+export const PAYMENT_ORCHESTRATOR = "mpt.hr";
+
 /** Javni repozitorij (MIT, javan od 8.10.2026.). */
 export const REPO_URL = "https://github.com/domovinatv/energy.domovina.ai";
 
