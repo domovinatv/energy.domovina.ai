@@ -1206,3 +1206,43 @@ Uplatitelj na bilo kojem ekranu (mobitel, TV na štandu) prepozna svoju uplatu
 - Kartica na `/beta/` (`CardProgress`) zbraja isto: lanac, vlastite zaprimljene
   uplate i tuđe koje je rail zaprimio (`useOwnRefs` dijele kartica i `LiveActivity`).
   Kartica čita samo jednom, bez osvježavanja.
+
+## 23. Dan GEF-a: hero kao P2P financiranje, landing ↔ /beta/, zaglavlje na mobitelu (29.10.2026.)
+
+Vlasnik ide na GEF kao posjetitelj i u razgovoru pokazuje `/beta/`. Tri commita
+(`324b5d5`, `00b1194`, `8697ddb`).
+
+**Hero promijenjen.** Odluka vlasnika: nosiva priča je *P2P platforma za
+transparentno zajedničko financiranje elektrana bez posrednika*, mpt.hr kao
+orkestrator plaćanja (`PAYMENT_ORCHESTRATOR` u `lib/brand.ts`), energetska zajednica
+je jedan od korisnika. Riječ „crowdfunding" je bila na stolu i odbačena: podnožje
+iste stranice kaže da nismo pružatelj usluga skupnog financiranja po Uredbi
+2020/1503, pa bi „crowdfunding platforma" gore i „nismo crowdfunding" dolje stajali
+u istom pogledu. `docs/01` §1.1 nosi bilješku o promjeni.
+
+**Landing proturječio /beta/ na četiri mjesta**, sva ispravljena: „repozitorij još
+nije javan" (javan od 8.10., sad poveznica `REPO_URL`), „u zatvorenoj beti račun
+projekta je simuliran" (na /beta/ su pravi Safeovi, ali sva tri ključa drži vlasnik
+lokacija — to sad piše), plan „slijedi: pravi račun i nalozi" (već postoje),
+nijedne poveznice na /beta/ (sad u zaglavlju „Prave elektrane" i okvir „Pravi
+projekti" u heroju).
+
+**/beta/:** naslov „financirane javno" se kosio s „ovo nije javno prikupljanje";
+podnožje na /beta/ (`SiteFooter variant="beta"`) više ne tvrdi da je razrada troška
+javna, jer je na /beta/ nema. Lomnica i Rab nemaju slike → placeholder „Slike
+lokacije bit će dodane naknadno" (`photos` sa svim `null`).
+
+**Zamke:**
+- `lint:copy` okida i na niječno „ne donosi **prinos**" — zabrana je na riječ, ne na
+  tvrdnju. Piši „financijsku korist".
+- Zaglavlje prototipa: s pet poveznica + HR/EN strši na 375 px (izmjereno
+  `scrollWidth` 382–409) i na 640 px (667). Sad: <640 samo „Prave elektrane",
+  ≥640 + „Karta i registar", ≥1024 + „Kako radi" i „Novi projekt". Mjereno
+  Playwrightom na 360/375/414/640/768/1024/1280, bez vodoravnog skrolanja (tablica
+  naknada ima vlastiti skrol, to je u redu).
+
+**Otvoreno:** fotke za Donju Lomnicu i Rab (vlasnik šalje → webp 800/1600 u
+`public/beta/<slug>/`, upis u `lib/beta-projects.ts`); HEP JSON za Lomnicu i Rab;
+razrada troška za /beta/ projekte (obveza iz `docs/14`); ostatak landinga (problem,
+„za koga") još priča iz kuta energetskih zajednica — usklađen s novim herojem samo
+utoliko što ga ne proturječi.
