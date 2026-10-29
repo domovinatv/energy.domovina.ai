@@ -36,6 +36,9 @@ export const OPERATOR = {
   director: "Matija Stepanić",
 } as const;
 
+/** Javni repozitorij (MIT, javan od 8.10.2026.). */
+export const REPO_URL = "https://github.com/domovinatv/energy.domovina.ai";
+
 /** Adresa na kojoj prototip trenutno živi, bez sheme — za prikaz u traci. */
 export const LIVE_HOST = BRAND.liveUrl.replace(/^https?:\/\//, "");
 

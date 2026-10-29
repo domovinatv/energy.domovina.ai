@@ -19,6 +19,7 @@ export const hr = {
   // Navigacija i okvir
   "nav.registry": "Karta i registar",
   "nav.communities": "Zajednice",
+  "nav.beta": "Prave elektrane",
   "nav.how": "Kako radi",
   "nav.skipToContent": "Prijeđi na sadržaj",
   "nav.menu": "Izbornik",
@@ -597,6 +598,10 @@ export const hr = {
   "landing.hero.lede":
     "Tko ima krov, kapital i strpljenje, ima elektranu. Tko živi u stanu ili nema dvanaest tisuća eura — nema. To je struktura, ne neinformiranost, i mijenja se zajedničkim vlasništvom.",
   "landing.hero.ctaMap": "Pogledaj kartu",
+  "landing.hero.betaEyebrow": "Pravi projekti",
+  "landing.hero.betaBody":
+    "Ova stranica je prototip s izmišljenim podacima. Uz nju rade {count} prave elektrane ({places}): svaka ima svoj račun s više potpisa na Gnosis Chainu, a uplate su pravi SEPA nalozi koji se javno vide.",
+  "landing.hero.betaCta": "Pogledaj prave elektrane",
   "landing.hero.ctaProject": "Pokreni projekt",
   "landing.hero.disclaimer":
     "Za to bi trebalo odobrenje HANFA-e po Uredbi (EU) 2020/1503, i mi ga nemamo. Nudimo ono što zakon dopušta od 2021., a gotovo nitko ne koristi: da zajedno posjedujete elektranu i koristite struju koju proizvodi.",
@@ -673,7 +678,7 @@ export const hr = {
   "landing.proof.exit.body":
     "Projekt se prebacuje na vlastiti bankovni račun, vlastiti račun s potpisima i izvođača po izboru. Tada novac ne prolazi kroz nas uopće.",
   "landing.proof.prototypeNote":
-    "U zatvorenoj beti eID i račun projekta su simulirani, a adrese su izvedene iz naziva projekta. Ovo opisuje kako je sustav složen, ne što je danas spojeno.",
+    "U prototipu su eID i račun projekta simulirani, a adrese su izvedene iz naziva projekta. Na pravim elektranama (/beta/) računi su pravi Safeovi 2-od-3 i uplate se vide na lancu, ali sva tri ključa zasad drži vlasnik lokacija: to pokazuje mehanizam, ne neovisnu kontrolu. eID još nije spojen.",
   "landing.proof.rippleTitle": "Platforma propadne, imovina ostane",
   "landing.proof.rippleBody":
     "Ripple Energy je otišao u stečajnu upravu, a zadruge koje je pokrenuo rade dalje — jedna od njih ima {members} članova. Elektrane nikad nisu bile Rippleove, nego njihove. To je dokaz teze na stvarnom slučaju, a ne naše obećanje.",
@@ -719,8 +724,7 @@ export const hr = {
   "landing.open.codeTitle": "Kod pod MIT licencom",
   "landing.open.codeBody":
     "Zadruga, općina ili druga platforma smije uzeti isti softver, pokrenuti ga na svojoj adresi i raditi bez nas. Za to se ne traži dozvola ni naknada.",
-  "landing.open.codePending":
-    "Repozitorij još nije javan, pa ovdje namjerno nema poveznice — poveznica u prazno gora je od nijedne.",
+  "landing.open.codeLink": "Kod na GitHubu",
   "landing.open.labelTitle": "Bijela etiketa i uvođenje",
   "landing.open.labelBody":
     "Naplaćujemo postavljanje, prilagodbu i održavanje, a ne pristup. Tko to hoće sam, ima kod; tko hoće da mu se postavi, ima račun.",
@@ -736,14 +740,14 @@ export const hr = {
   "landing.roadmap.done3": "Marketplace: stranica projekta, tijek doprinosa, zajednice i lista čekanja.",
   "landing.roadmap.done4": "Čarobnjak za novi projekt s provjerom opisa pri upisu.",
   "landing.roadmap.now": "U tijeku",
-  "landing.roadmap.now1": "Ova stranica: dvanaest sekcija, od problema do kontakta.",
+  "landing.roadmap.now1": "Tri prave elektrane: pravi računi s više potpisa, prave SEPA uplate, potvrda o uplati.",
   "landing.roadmap.now2": "Dijagram toka novca sa scenarijima i testovima koji ga čuvaju.",
   "landing.roadmap.now3": "Usporedba naknada, označena kao ilustrativna.",
   "landing.roadmap.now4": "Mjerenje kontrasta i prolaz na pravom mobilnom uređaju.",
   "landing.roadmap.next": "Slijedi",
   "landing.roadmap.next1": "Rad bez mreže — prikaz na sajmu ne smije ovisiti o WiFi-ju.",
   "landing.roadmap.next2": "Prikaz na velikom ekranu, ne samo na mobitelu i laptopu.",
-  "landing.roadmap.next3": "Živi podaci: pravi račun projekta, pravi eID, pravi nalozi.",
+  "landing.roadmap.next3": "Pravi eID i prag potpisa koji ne drži jedna osoba.",
   "landing.roadmap.next4": "Sloj sunčanih elektrana na zajedničkoj karti Hrvatske.",
   "landing.roadmap.note":
     "Zajam, vlasnički udio i prenosivi udio nisu u planu nego iza uvjeta: traže odobrenje kojeg nemamo. Dok ga nema, ne stoje ni kao „uskoro“.",

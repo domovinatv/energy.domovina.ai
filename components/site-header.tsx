@@ -28,7 +28,7 @@ export function SiteHeader() {
         <nav aria-label={t("nav.menu")} className="flex items-center gap-4 sm:gap-6">
           <Link
             href="/karta/"
-            className="text-sm text-inkSoft transition-colors hover:text-forest"
+            className="hidden text-sm text-inkSoft transition-colors hover:text-forest sm:inline"
           >
             {t("nav.registry")}
           </Link>
@@ -36,19 +36,26 @@ export function SiteHeader() {
               (docs/06 §1, sekcija 4) — poveznica vodi na sidro. */}
           <Link
             href="/#kako-radi"
-            className="hidden text-sm text-inkSoft transition-colors hover:text-forest sm:inline"
+            className="hidden text-sm text-inkSoft transition-colors hover:text-forest lg:inline"
           >
             {t("nav.how")}
           </Link>
+          {/* Pravi projekti (docs/15) — jedini izlaz iz prototipa na pravi novac. */}
+          <Link
+            href="/beta/"
+            className="whitespace-nowrap text-sm font-medium text-forest transition-colors hover:text-forest-700"
+          >
+            {t("nav.beta")}
+          </Link>
           <Link
             href="/zajednice/"
-            className="text-sm text-inkSoft transition-colors hover:text-forest"
+            className="hidden text-sm text-inkSoft transition-colors hover:text-forest sm:inline"
           >
             {t("nav.communities")}
           </Link>
           <Link
             href="/novi-projekt/"
-            className="hidden text-sm text-inkSoft transition-colors hover:text-forest sm:inline"
+            className="hidden text-sm text-inkSoft transition-colors hover:text-forest lg:inline"
           >
             {t("nav.newProject")}
           </Link>

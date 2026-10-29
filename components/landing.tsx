@@ -19,6 +19,8 @@
  * sekcije.
  */
 import Link from "next/link";
+import { REPO_URL } from "@/lib/brand";
+import { BETA_PROJECTS } from "@/lib/beta-projects";
 import {
   ArrowRight,
   Building2,
@@ -203,6 +205,26 @@ export function Landing() {
           <p className="mt-8 max-w-2xl rounded-md border border-ink/8 bg-white/70 p-4 text-sm leading-relaxed text-inkSoft">
             {t("model.noPromise")} {t("landing.hero.disclaimer")}
           </p>
+
+          {/* Pravi projekti (docs/15): sve iznad je maketa, ovo nije — zato zaseban okvir. */}
+          <div className="mt-4 max-w-2xl rounded-md border border-forest/30 bg-forest/6 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-forest">
+              {t("landing.hero.betaEyebrow")}
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-inkSoft">
+              {t("landing.hero.betaBody", {
+                count: BETA_PROJECTS.length,
+                places: BETA_PROJECTS.map((p) => p.place).join(", "),
+              })}
+            </p>
+            <Link
+              href="/beta/"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-forest underline underline-offset-2 hover:text-forest-700"
+            >
+              {t("landing.hero.betaCta")}
+              <ArrowRight aria-hidden="true" className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -493,14 +515,15 @@ export function Landing() {
             <p className="mt-2 text-sm leading-relaxed text-inkSoft">
               {t("landing.open.codeBody")}
             </p>
-            {/*
-              ⚠️ NEMA POVEZNICE NA REPO, i to je namjerno: repo još nije javan.
-              Poveznica u prazno je ista klasa greške kao lažni „provjeri na
-              pregledniku blokova" link (docs/04 §6, CLAUDE.md pravilo 3).
-            */}
-            <p className="mt-2 text-sm leading-relaxed text-inkMuted">
-              {t("landing.open.codePending")}
-            </p>
+            {/* Repo je javan od 8.10.2026., pa poveznica više ne vodi u prazno. */}
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-block text-sm font-medium text-forest underline underline-offset-2 hover:text-forest-700"
+            >
+              {t("landing.open.codeLink")}
+            </a>
           </div>
           <div className="rounded-lg border border-ink/8 bg-white/70 p-5 shadow-soft">
             <h3 className="font-display text-lg font-semibold text-ink">

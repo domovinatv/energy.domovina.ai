@@ -14,6 +14,7 @@ import type { Catalog } from "./hr";
 export const en: Catalog = {
   "nav.registry": "Map and registry",
   "nav.communities": "Communities",
+  "nav.beta": "Real plants",
   "nav.how": "How it works",
   "nav.skipToContent": "Skip to content",
   "nav.menu": "Menu",
@@ -573,6 +574,10 @@ export const en: Catalog = {
   "landing.hero.lede":
     "Whoever has a roof, capital and patience has a plant. Whoever lives in a flat, or does not have twelve thousand euros, does not. That is a matter of structure, not of information, and shared ownership is what changes it.",
   "landing.hero.ctaMap": "See the map",
+  "landing.hero.betaEyebrow": "Real projects",
+  "landing.hero.betaBody":
+    "This page is a prototype with made-up data. Alongside it run {count} real solar plants ({places}): each has its own multi-signature account on Gnosis Chain, and payments are real SEPA transfers that are publicly visible.",
+  "landing.hero.betaCta": "See the real plants",
   "landing.hero.ctaProject": "Start a project",
   "landing.hero.disclaimer":
     "That would require authorisation from HANFA under Regulation (EU) 2020/1503, and we do not have it. We offer what the law has allowed since 2021 and almost nobody uses: that you own a plant together and use the electricity it makes.",
@@ -643,7 +648,7 @@ export const en: Catalog = {
   "landing.proof.exit.body":
     "A project can move to its own bank account, its own multi-signature account and a contractor of its choice. From then on the money does not pass through us at all.",
   "landing.proof.prototypeNote":
-    "In the closed beta the eID and the project account are simulated, and the addresses are derived from the project name. This describes how the system is put together, not what is connected today.",
+    "In the prototype the eID and the project account are simulated, and the addresses are derived from the project name. On the real plants (/beta/) the accounts are real 2-of-3 Safes and payments are visible on-chain, but all three keys are currently held by the site owner: this shows the mechanism, not independent control. eID is not connected yet.",
   "landing.proof.rippleTitle": "The platform fails, the asset remains",
   "landing.proof.rippleBody":
     "Ripple Energy went into administration, and the cooperatives it started carry on — one of them has {members} members. The plants were never Ripple's; they were theirs. That is the argument proven on a real case, not a promise of ours.",
@@ -687,8 +692,7 @@ export const en: Catalog = {
   "landing.open.codeTitle": "MIT-licensed code",
   "landing.open.codeBody":
     "A cooperative, a municipality or another platform may take the same software, run it at their own address and work without us. No permission and no fee is required for that.",
-  "landing.open.codePending":
-    "The repository is not public yet, so there is deliberately no link here — a link into nothing is worse than no link.",
+  "landing.open.codeLink": "Code on GitHub",
   "landing.open.labelTitle": "White label and setup",
   "landing.open.labelBody":
     "We charge for setting it up, adapting it and maintaining it — never for access. Whoever wants to do it themselves has the code; whoever wants it done gets an invoice.",
@@ -703,14 +707,14 @@ export const en: Catalog = {
   "landing.roadmap.done3": "Marketplace: the project page, the contribution flow, communities and a waiting list.",
   "landing.roadmap.done4": "A new-project wizard that checks the description as it is written.",
   "landing.roadmap.now": "In progress",
-  "landing.roadmap.now1": "This page: twelve sections, from the problem to the contact form.",
+  "landing.roadmap.now1": "Three real solar plants: real multi-signature accounts, real SEPA payments, payment receipts.",
   "landing.roadmap.now2": "The money-flow diagram, with scenarios and the tests that guard it.",
   "landing.roadmap.now3": "A fee comparison, marked as illustrative.",
   "landing.roadmap.now4": "Contrast measurement and a pass on a real mobile device.",
   "landing.roadmap.next": "Next",
   "landing.roadmap.next1": "Working offline — a demo at a fair must not depend on the WiFi.",
   "landing.roadmap.next2": "A layout for a large screen, not just for phones and laptops.",
-  "landing.roadmap.next3": "Live data: a real project account, a real eID, real bank orders.",
+  "landing.roadmap.next3": "A real eID and a signing threshold no single person holds.",
   "landing.roadmap.next4": "A solar plant layer on the shared map of Croatia.",
   "landing.roadmap.note":
     "Loans, equity stakes and transferable stakes are not on the plan but behind a condition: they need an authorisation we do not have. Until it exists, they do not appear even as “coming soon”.",
