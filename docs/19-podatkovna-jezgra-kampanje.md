@@ -1,7 +1,7 @@
 # 19 — Podatkovna jezgra kampanje: `pinka_finance` (Postgres) ↔ D1
 
 **Datum:** 1.11.2026. · **Stanje:** D1–D3 odlučeni (§10); **J1 izveden** u repou
-[`domovinatv/campaign-core`](https://github.com/domovinatv/campaign-core) `v0.1.0`, ostalo plan.
+[`domovinatv/campaign-core`](https://github.com/domovinatv/campaign-core) `v0.1.1`, ostalo plan.
 **Cilj vlasnika:** od prvog dana fleksibilna P2P platforma za zajedničko financiranje
 na Cloudflareu (D1), na kojoj su elektrane prva vertikala, a ne cijeli model.
 
@@ -411,7 +411,7 @@ i `reward` su u jezgri tek kad mišljenje kaže da su izvan ECSPR-a.
 ## 11. J1 izveden (1.11.2026.)
 
 Repo [`domovinatv/campaign-core`](https://github.com/domovinatv/campaign-core), MIT,
-tag `v0.1.0`. Energy ga uvozi kao `github:domovinatv/campaign-core#v0.1.0`; paket
+tag `v0.1.1`. Energy ga uvozi kao `github:domovinatv/campaign-core#v0.1.1`; paket
 se gradi pri instalaciji (`prepare`), `dist/` nije u gitu.
 
 ### 11.1 Što je u paketu
