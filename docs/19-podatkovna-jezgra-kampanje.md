@@ -1,6 +1,7 @@
 # 19 — Podatkovna jezgra kampanje: `pinka_finance` (Postgres) ↔ D1
 
-**Datum:** 1.11.2026. · **Stanje:** analiza i plan, ništa nije izvedeno.
+**Datum:** 1.11.2026. · **Stanje:** D1–D3 odlučeni (§10); **J1 izveden** u repou
+[`domovinatv/campaign-core`](https://github.com/domovinatv/campaign-core) `v0.1.0`, ostalo plan.
 **Cilj vlasnika:** od prvog dana fleksibilna P2P platforma za zajedničko financiranje
 na Cloudflareu (D1), na kojoj su elektrane prva vertikala, a ne cijeli model.
 
@@ -375,7 +376,7 @@ koristi prethodni.
 | # | korak | gotovo kad |
 |---|---|---|
 | J0 | odluke D1–D7 iz §10 | odgovori upisani u ovaj dokument |
-| J1 | paket `campaign-core`: tipovi jezgre, ugovor (§8.2), zatvoreni skupovi (`type`, `state`, `visibility`, `payment_rail`), `violatesConflictInvariant` premješten iz `lib/types.ts` | energy i solardei uvoze tipove iz paketa; `npm run verify` prolazi |
+| J1 ✅ | paket `campaign-core`: tipovi jezgre, ugovor (§8.2), zatvoreni skupovi (`type`, `state`, `visibility`, `payment_rail`), `violatesConflictInvariant` premješten iz `lib/types.ts` | energy uvozi iz paketa; `npm run verify` prolazi. **1.11.: izvedeno**, vidi §11. Solardei još ne uvozi (§11.3) |
 | J2 | D1 migracija `0001_core.sql` (§5.1) + `0002_energy.sql` (§5.2) + testovi ugovora za D1 i Postgres | `wrangler d1 migrations apply --local` prolazi; oba testa ugovora prolaze; `CHECK` odbija `tokenization` |
 | J3 | seed: tri beta elektrane iz `lib/beta-projects.ts` u D1 (staging pa produkcija) | `SELECT` vraća 3 kampanje sa Safeom i potpisnicima jednakima `check-beta.mts` |
 | J4 | Worker `campaign-core`: javni `GET /campaigns`, `/campaigns/:slug`, `/campaigns/:slug/stats` kroz Cache API | energy `/beta/` čita opis iz API-ja, a pri buildu iz snimke (statički export ostaje radan bez mreže, [06](./06-produkt-landing.md) §6) |
@@ -394,9 +395,9 @@ slaže široko odmah (§5), a pune se samo tablice koje trebaju tri elektrane.
 
 | # | pitanje | prijedlog | posljedica ako se odluči drukčije |
 |---|---|---|---|
-| D1 | Obrnuti [05](./05-podatkovni-model.md) §3: `campaign` jezgra + vertikala umjesto vlastitog `project` entiteta? | da | bez toga svaka nova vrsta kampanje je nova shema i novi UI |
-| D2 | Gdje živi jezgra: zasebna D1 + Worker (c), rail (a) ili energy (b)? | c | a: javno čitanje i webhook dijele bazu; b: solardei kopira shemu |
-| D3 | Prikazuju li se energy kampanje i na domovina.ai (jednosmjerno u `pinka_finance`)? | kasnije, nakon J5 | ako da odmah, J7 ide prije J6 |
+| D1 | Obrnuti [05](./05-podatkovni-model.md) §3: `campaign` jezgra + vertikala umjesto vlastitog `project` entiteta? | ✅ **da** (vlasnik, 1.11.) | bez toga svaka nova vrsta kampanje je nova shema i novi UI |
+| D2 | Gdje živi jezgra: zasebna D1 + Worker (c), rail (a) ili energy (b)? | ✅ **c**, u novom javnom repou `domovinatv/campaign-core` (paket + D1 + Worker) (vlasnik, 1.11.) | a: javno čitanje i webhook dijele bazu; b: solardei kopira shemu |
+| D3 | Prikazuju li se energy kampanje i na domovina.ai (jednosmjerno u `pinka_finance`)? | ✅ **kasnije** (vlasnik, 1.11.); J7 ostaje na kraju | ako da odmah, J7 ide prije J6 |
 | D4 | Ime u shemi: `campaign` (kao pinka) ili `project` (kao energy UI)? | `campaign` u bazi, „projekt” u copyju | dvije riječi za istu stvar u kodu |
 | D5 | Računi doprinositelja: ostaje li identitet samo `payer_iban_hash`/adresa, ili jezgra dobiva korisničke račune (passkey)? | zasad bez računa | računi vežu na domenu, passkey ne migrira ([12](./12-ime-domena-okruzenja.md) §4) |
 | D6 | Smije li jezgra uopće poznavati `reward`/`tickets` za energy tenant? | da za `reward`, uz pravni pregled copyja | inače su dopušteni samo `donation` i `membership` |
@@ -404,3 +405,47 @@ slaže široko odmah (§5), a pune se samo tablice koje trebaju tri elektrane.
 
 Sve ovo je vezano uz B1 (pravno mišljenje, [03](./03-pravni-okvir.md) §9.8): `membership`
 i `reward` su u jezgri tek kad mišljenje kaže da su izvan ECSPR-a.
+
+---
+
+## 11. J1 izveden (1.11.2026.)
+
+Repo [`domovinatv/campaign-core`](https://github.com/domovinatv/campaign-core), MIT,
+tag `v0.1.0`. Energy ga uvozi kao `github:domovinatv/campaign-core#v0.1.0`; paket
+se gradi pri instalaciji (`prepare`), `dist/` nije u gitu.
+
+### 11.1 Što je u paketu
+
+| datoteka | sadržaj |
+|---|---|
+| `src/sets.ts` | zatvoreni skupovi iz §6 (u D1 postaju `CHECK`) + popis odbijenih pinka vrijednosti |
+| `src/types.ts` | tip retka za 15 tablica jezgre i 3 vertikalne (§5.1, §5.2) |
+| `src/contract.ts` | opis stupaca: SQLite tip, NULL, skup, JSON/boolean, ime u `pinka_finance` |
+| `src/invariants.ts` | `violatesConflictInvariant` (preseljen odavde), `violatesModeSigners`, `isUsableAddress`, `isValidThreshold`, `canAcceptContributions`, `currentDeliveryStep` |
+| `src/mapping.ts` | pinka ↔ jezgra (§6.3, §6.4) i stari energy model → jezgra; odbija s razlogom |
+| `contract/pinka-columns.json` | snimka stupaca `pinka_finance` iz žive baze (`scripts/snapshot-pinka.sh`, samo `SELECT`) |
+
+### 11.2 Što provjerava
+
+- **Tip i opis tablice se ne razilaze**: `TableSpec<T>` traži točno jedan red po
+  polju tipa. Provjereno namjerno pokvarenim opisom: brisanje stupca i dodavanje
+  nepostojećeg oba ruše `tsc`.
+- **Test ugovora prema Postgresu** (bio planiran za J2, izveden odmah jer je jeftin):
+  svaka `pinka` referenca mora postojati u snimci, a snimka ne smije biti starija
+  od 30 dana. Preimenovanje stupca u domovina-api pada ovdje.
+- **Pravna granica**: nijedna odbijena pinka vrijednost nije u skupovima, nijedno
+  ime tablice ni stupca ne sadrži `position`/`token`/`accrued`/`principal`.
+- Novac je uvijek `INTEGER` `*_cents`, vrijeme uvijek `INTEGER` `*_at`.
+- 170 testova u paketu; energy `npm run verify` prolazi (250 testova + build).
+
+### 11.3 Odstupanja od plana
+
+- **Solardei ne uvozi paket.** Kriterij iz §9 J1 traži oba frontenda; solardei
+  danas ne koristi nijednu od ovih provjera, a izmjena u tuđem repou ide PR-om.
+  Uvoz ide uz solardei korak iz [2026-10-05](./2026-10-05-solardei-rail-i-zajednicka-jezgra.md)
+  §7.2, kad se odblokira Monerium.
+- **Energy UI još radi na starim tipovima** (`Project`, `ProjectState` s `building`).
+  Iz paketa za sada uzima samo invarijantu i provjeru adrese; mapiranje
+  (`fromEnergyProjectState` itd.) je spremno za J3, kad podaci prijeđu u D1.
+- `DocumentKind` `installer_quote` je u jezgri `contractor_quote` (općenito);
+  mapper prevodi.

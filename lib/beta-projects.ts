@@ -12,6 +12,7 @@
  */
 
 
+import { isUsableAddress } from "@domovina/campaign-core";
 import { RAIL_ITALK, explorerAddressUrl, explorerTxUrl } from "@/lib/rail-profile";
 
 /** EURe (Monerium, V2) na Gnosis Chainu — isti token kao pinka donacije. */
@@ -49,8 +50,6 @@ export const RAIL_API_BASE = RAIL_ITALK.apiBase;
 
 export type Address = `0x${string}`;
 
-const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
-const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 /**
  * Kako uplatitelj plaća. Jedan put, provjeren u produkciji: MPT payment intent
@@ -164,7 +163,7 @@ export function hasVerifiedSafe(
 }
 
 export function isValidSafe(address: string | null): address is Address {
-  return address !== null && ADDRESS_RE.test(address) && address.toLowerCase() !== ZERO_ADDRESS;
+  return isUsableAddress(address);
 }
 
 /**

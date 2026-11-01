@@ -13,6 +13,12 @@ Zadnja revizija: **15.9.2026.**
 
 ---
 
+## 0. `domovinatv/campaign-core` — jezgra kampanje (od 1.11.2026.)
+
+**OVISNOST**, ne kopija: `github:domovinatv/campaign-core#vX.Y.Z`. Tipovi jezgre,
+opis tablica D1 ↔ `pinka_finance`, invarijante (sukob interesa, upotrebljiv Safe).
+Izmjena pravila ide u taj repo i novi tag, ne u kopiju ovdje ([19](./19-podatkovna-jezgra-kampanje.md) §11).
+
 ## 1. `pinka-finance/energy` — izravni prethodnik
 
 `domovina.energy`, Faza 1 registra napisana pa **on hold**

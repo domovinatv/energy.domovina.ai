@@ -142,9 +142,10 @@ Novo, jer je mreža usko grlo ([02](./02-trziste-hrvatska.md) §4, zahtjev
 Novo. Zamjenjuje pinkin `campaigns` + `subject_type='solar_plant'` obrazac
 vlastitim entitetom, jer energetski projekt nosi polja koja kampanja nema.
 
-> ⚠️ **Prijedlog obrata (1.11.2026., [19](./19-podatkovna-jezgra-kampanje.md) §5, odluka D1):**
-> `campaign` kao jezgra za svaku vrstu kampanje + `campaign_energy` kao vertikala 1:1.
-> Dok D1 nije odlučen, ova tablica vrijedi kao opis polja, ne kao konačna shema.
+> ⚠️ **Obrnuto 1.11.2026. ([19](./19-podatkovna-jezgra-kampanje.md) §5, odluka D1 = da):**
+> `campaign` je jezgra za svaku vrstu kampanje, `campaign_energy` je vertikala 1:1.
+> Konačna shema je u paketu `@domovina/campaign-core` (`src/types.ts`, `src/contract.ts`);
+> ova tablica ostaje kao opis polja starog modela, a `mapping.ts` ga prevodi.
 
 | Polje | Tip | Napomena |
 |---|---|---|

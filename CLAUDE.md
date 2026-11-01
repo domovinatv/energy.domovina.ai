@@ -266,6 +266,10 @@ preuzimaju se kao kopija. Ali **ne** preuzimaj njegov shared-lib wiring
 ⚠️ Iz `airkuna/tokenizacija` **ne** uvoziti `TokenSlider`, `YieldChip` ni
 `KupovniModal` — korektni su tamo, pravno pogrešni ovdje.
 
+**Jezgra kampanje** (`@domovina/campaign-core`, repo `domovinatv/campaign-core`) je
+ovisnost s tagom, ne kopija: tipovi, opis tablica D1 ↔ `pinka_finance`, invarijanta
+sukoba interesa. Pravilo koje vrijedi za svaku kampanju mijenja se ondje (`docs/19`).
+
 Izmjene u tuđim repoima (npr. sloj na `karta-hrvatske`) idu **PR-om**, ne
 kopiranjem natrag.
 

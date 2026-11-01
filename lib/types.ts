@@ -300,31 +300,12 @@ export interface SafeAccount {
 }
 
 /**
- * P7 / docs/05 §4.1 — invarijanta sukoba interesa.
- *
- * Naš potpisnik NIKAD ne smije činiti VEĆINU praga. Prag 3-od-5 → mi držimo
- * najviše jedan ključ (docs/14 §4). Konfiguracija u kojoj izvođač može sam sebi
- * isplatiti novac poništava cijeli argument platforme.
- *
- * Većina je STROGO više od polovice: uz prag 3 većina je 2, pa je jedan ključ
- * dopušten — točno kako docs/14 §4 i kaže. Uz prag 2 dopušten je također jedan,
- * jer i tada treba tuđi potpis; dva bi značila da potpisujemo sami.
- *
- * ⚠️ U Modu 2 (`byo`) nismo potpisnik uopće — Safe je klijentov (docs/14 §1).
- * Tamo `platform_signer_count` mora biti 0, što ovaj uvjet propušta, ali se
- * provjerava zasebno.
- *
- * Prima samo prag i broj naših potpisnika, ne cijeli `SafeAccount`, da ista
- * provjera radi i na POSTOJEĆEM računu i na onome koji se tek slaže u čarobnjaku
- * (docs/07 §2.7 korak 6). Dvije kopije pravila raziđu se tiho.
- *
- * @returns true ako konfiguracija krši invarijantu — tada se projekt ne sprema.
+ * P7 / docs/05 §4.1 — invarijanta sukoba interesa: naš potpisnik nikad ne čini
+ * većinu praga. Živi u jezgri kampanje (`@domovina/campaign-core`, docs/19 J1)
+ * jer je ista provjera potrebna čarobnjaku, Workeru i svakom frontendu; ovdje
+ * je samo ponovni izvoz da postojeći uvozi ostanu.
  */
-export function violatesConflictInvariant(
-  safe: Pick<SafeAccount, "threshold" | "platform_signer_count">,
-): boolean {
-  return safe.platform_signer_count * 2 > safe.threshold;
-}
+export { violatesConflictInvariant } from "@domovina/campaign-core";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // contribution — doprinos / članski ulog, docs/05 §5
