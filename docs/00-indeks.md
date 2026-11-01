@@ -32,6 +32,7 @@ Prvi javni rok: **Green Energy Fair 2026, Arena Zagreb, 28.–29.10.2026.** ([11
 | 16 | [potvrda-o-uplati](./16-potvrda-o-uplati.md) | **Potvrda o uplati (rail ADR 0022) u beta toku**: ključ u pregledniku, `r1` sid, stranica potvrde, ugovor s railom; rail live, ovdje još ništa | promjena rail API-ja ili ADR 0023 |
 | 17 | [sandbox-bijela-etiketa](./17-sandbox-bijela-etiketa.md) | **`/sandbox/`: kampanja doprinosa na `italk-sandbox`** (Monerium sandbox, Chiado), placeholder brend, profil raila, simulirana SEPA uplata | novi klijent ili blueprint brenda |
 | 18 | [skalabilnost-javnog-citanja](./18-skalabilnost-javnog-citanja.md) | **Popis uplata pod navalom**: proračun za 1M pregleda/min, D1 dijeli bazu s novcem, Cache API, lanac kroz rail `/api/activity`, ograničenje promašaja (ADR 0030), sljedeći korak R2 iza CDN-a | novo javno čitanje s raila, javna kampanja |
+| 19 | [podatkovna-jezgra-kampanje](./19-podatkovna-jezgra-kampanje.md) | **Jezgra kampanje na D1**: stvarno stanje `pinka_finance` (1.11.), što pinki i energyju nedostaje, `campaign` + vertikale, mapiranje polja, Postgres → D1, ugovor između baza, plan J0–J8, odluke D1–D7 | nova vrsta kampanje, izmjena `pinka_finance`, D1 shema |
 
 ### Dnevnici
 

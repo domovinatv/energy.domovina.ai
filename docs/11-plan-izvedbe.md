@@ -109,7 +109,9 @@ Stavke ispod su **poželjne, ne uvjet** — uvjet je kriterij dovršenosti na dn
 ### 1f · Tri prava projekta na vlastitim lokacijama — plan ([15](./15-pravi-projekti-vlastite-lokacije.md))
 
 - [ ] tri Safea 2-od-3 (Lukavec, Donja Lomnica, Rab), ručno na app.safe.global
-- [ ] kampanje u `pinka_finance` + whitelist na pay.domovina.ai
+- [ ] kampanje u `pinka_finance` + whitelist na pay.domovina.ai — whitelist ✅ 2.10.
+      (rail `tenant_campaigns`); u `pinka_finance` **nisu** (provjereno u bazi 1.11.),
+      a hoće li biti ovisi o odlukama D2/D3 u [19](./19-podatkovna-jezgra-kampanje.md) §10
 - [x] prikaz na stranici: **`/beta/`** (1.10.2026.) — saldo i uplate čitani s lanca,
       QR za SEPA pri buildu, vlastita traka bez demo oznake ([15](./15-pravi-projekti-vlastite-lokacije.md) §6)
 - [ ] izvođač i faze isplate (kandidat SolarDei)
