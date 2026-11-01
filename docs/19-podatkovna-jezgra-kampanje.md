@@ -449,3 +449,24 @@ se gradi pri instalaciji (`prepare`), `dist/` nije u gitu.
   (`fromEnergyProjectState` itd.) je spremno za J3, kad podaci prijeđu u D1.
 - `DocumentKind` `installer_quote` je u jezgri `contractor_quote` (općenito);
   mapper prevodi.
+
+### 11.4 Zamke iz izvedbe
+
+- **`exports` paketa mora imati uvjet `default`.** `check:beta` (`tsx`) učitava
+  energy kao CJS, pa traži `require`/`default`; s `import` samim prvi produkcijski
+  deploy pao je s `ERR_PACKAGE_PATH_NOT_EXPORTED` (prije objave, produkcija nije
+  dirnuta). Popravak je v0.1.1.
+- **Lockfile drži stari commit.** Nakon novog taga treba izričit
+  `npm install github:domovinatv/campaign-core#vX.Y.Z`; promjena broja u
+  `package.json` nije dovoljna.
+- **Čitanje žive pinke:** `domovina-api/scripts/lib/db-env.sh` + SSH +
+  `docker exec -i … psql -X -f -` iz skripte (`set -eo pipefail`, bez `-u` jer
+  zsh `chpwd_functions`). `db-psql.sh -c` lomi navodnike na udaljenom zsh-u, a
+  `--stdin` tiho ne vrati ništa. Domovina AI MCP je 1.11. bio na 502, anon
+  ključevi u `.coolify-*.env` vraćaju Unauthorized.
+
+### 11.5 Sljedeće: J2
+
+D1 migracije `0001_core.sql` i `0002_energy.sql` u `campaign-core`, izvedene iz
+`src/contract.ts` (skupovi → `CHECK`, `unique` s `where` → djelomični indeks), uz
+test da je migrirana D1 shema jednaka opisu tablica. Čeka zeleno svjetlo vlasnika.
