@@ -450,6 +450,11 @@ se gradi pri instalaciji (`prepare`), `dist/` nije u gitu.
 - `DocumentKind` `installer_quote` je u jezgri `contractor_quote` (općenito);
   mapper prevodi.
 
+**Shema kao dijagram (v0.2.0, 2.11.2026.):** [`schema.dbml`](https://github.com/domovinatv/campaign-core/blob/main/schema.dbml)
+generiran iz opisa tablica (grupe u boji, veze, bilješke, pogledi), PNG u README-u paketa.
+[Otvori u open-diagramu](https://stepanic.github.io/open-diagram/?url=https://github.com/domovinatv/campaign-core/blob/main/schema.dbml).
+Opis tablica sada nosi i strane ključeve (`ref`), koje će J2 pretvoriti u `REFERENCES`.
+
 ### 11.4 Zamke iz izvedbe
 
 - **`exports` paketa mora imati uvjet `default`.** `check:beta` (`tsx`) učitava
