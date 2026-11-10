@@ -86,6 +86,29 @@ Najbolji uzor za **dijagram + simulaciju + testove iz jednog artefakta**.
 | `src/lib/market-fees.ts` | **ČITATI s oprezom** | ⚠️ ima poznatu grešku 0,45 € |
 | `CLAUDE.md` | **ČITATI** | OpenNext zamke, regulatorni framing, impresum doslovno |
 
+### 4.1 Smjer obrnut: mpt.hr `/support` je KOPIJA našeg `/beta/` (9.–10. 11. 2026.)
+
+Kampanja „Podrži MPT" (`mpt.hr/{hr,en}/support`, `/support/sandbox`, `/support/potvrda`,
+`/support/provjera`) nije pisana iznova: `mpt-landing/src/components/beta/*` i
+`mpt-landing/src/lib/{mpt-intent,rail-profile,beta-chain,safe-rpc,pending-*,payer-tags,receipt-*,verify-*,pdf-*,…}.ts`
+su kopije ovog repoa, s testovima iz `lib/__tests__/`. Na dan kopiranja razlike su bile
+samo prefiksi `localStorage` ključeva (`mpt-support:`), rute potvrde/provjere s
+`/{locale}/`, `setCreator("mpt.hr")`, `target_not_campaign` u `mpt-intent.ts` i dva
+sandbox ključa u `rail-profile.ts`. Jedino `beta-projects.ts` (dvije kampanje umjesto
+elektrana) i `beta-page.tsx` (`CampaignSection` bez slika i HEP-a) su stvarno prerađeni.
+
+**Posljedica:** popravak u kodu koji miče novac ili u potvrdi (`intent-panel`,
+`pending-*`, `payer-tags`, `receipt-*`) treba prenijeti i u mpt-landing — PR-om, ne
+kopiranjem natrag. Usporedba: `/usr/bin/diff lib/<f>.ts ../mpt-landing/src/lib/<f>.ts`
+(`diff` je u shellu alias na `git diff` i ne ispisuje razlike u ovom obliku).
+
+Safeovi kampanje (2-od-3, iste tri adrese kao elektrane): produkcija
+`0x022aA53B825054e47e99aa104FbA1E0ce293a47F` (Gnosis, kampanja `mpt-crowdfunding-prod`,
+tenant `italk`), sandbox `0x9392491B40232C4C9411449A2f350F1647b72fdA` (Chiado,
+`mpt-crowdfunding`, `italk-sandbox`). `campaign_id` je jedinstven preko svih tenanata.
+Prva prava uplata 1 € 10. 11. 2026. stigla je bez reference kroz glavni Safe i
+ProjectRouter (dva tx-a), dakle i taj put radi za mpt.hr.
+
 ---
 
 ## 5. `airkuna/tokenizacija` — frakcijska tokenizacija nekretnina
